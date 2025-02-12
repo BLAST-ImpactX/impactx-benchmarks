@@ -53,7 +53,7 @@ section_length = ds / nslice
 
 segment = cheetah.Segment(
     elements=[
-        cheetah.Drift(section_length, tracking_method="bmadx"),
+        cheetah.Drift(section_length),
         cheetah.SpaceChargeKick(section_length),
     ] * nslice
 )

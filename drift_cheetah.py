@@ -53,8 +53,8 @@ section_length = ds / nslice
 
 segment = cheetah.Segment(
     elements=[
-        #cheetah.Drift(section_length),
-        cheetah.Quadrupole(section_length, k1=torch.tensor(1.0), tracking_method="bmadx"),
+        cheetah.Drift(section_length),
+        #cheetah.Quadrupole(section_length, k1=torch.tensor(1.0)),  #, tracking_method="bmadx"),
         # cheetah.SpaceChargeKick(section_length, tracking_method="bmadx"),
     ] * nslice
 )

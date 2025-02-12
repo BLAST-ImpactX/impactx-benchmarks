@@ -55,8 +55,8 @@ distr = distribution.Kurth6D(
 sim.add_particles(bunch_charge_C, distr, npart)
 
 # design the accelerator lattice
-#sim.lattice.extend([elements.Drift(name="d1", ds=6.0, nslice=1)])
-sim.lattice.extend([elements.Quad(name="q1", ds=6.0, k=1.0, nslice=1)])
+sim.lattice.extend([elements.Drift(name="d1", ds=6.0, nslice=1)])
+#sim.lattice.extend([elements.Quad(name="q1", ds=6.0, k=1.0, nslice=1)])
 
 # run simulation
 start_time = time.perf_counter()
