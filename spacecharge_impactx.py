@@ -14,9 +14,9 @@ sim = ImpactX()
 # set numerical parameters and IO control
 sim.max_level = 0
 sim.n_cell = [256, 256, 256]
-sim.blocking_factor_x = [128]
-sim.blocking_factor_y = [128]
-sim.blocking_factor_z = [128]
+sim.blocking_factor_x = [256]
+sim.blocking_factor_y = [256]
+sim.blocking_factor_z = [256]
 
 # B-spline order for charge deposition
 # note: gather in ImpactX is always linear polynomial right now
