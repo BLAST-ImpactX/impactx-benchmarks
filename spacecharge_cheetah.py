@@ -20,41 +20,58 @@ See Free Expansion of a Cold Uniform Bunch in
 https://accelconf.web.cern.ch/hb2023/papers/thbp44.pdf.
 """
 
+# Compute in FP64
+torch.set_default_dtype(torch.float64)
+
 # Simulation parameters
-R0 = torch.tensor(0.001)
-energy = torch.tensor(2.5e8)
+R0 = torch.tensor(0.001, dtype=torch.float64)
+energy = torch.tensor(2.5e8, dtype=torch.float64)
 rest_energy = torch.tensor(
     constants.electron_mass
     * constants.speed_of_light**2
-    / constants.elementary_charge
+    / constants.elementary_charge,
+    dtype=torch.float64
 )
-elementary_charge = torch.tensor(constants.elementary_charge)
-electron_radius = torch.tensor(physical_constants["classical electron radius"][0])
 gamma = energy / rest_energy
-beta = torch.sqrt(1 - 1 / gamma**2)
-npart = 100_000
+npart = 30_000_000
 
 incoming = cheetah.ParticleBeam.uniform_3d_ellipsoid(
     num_particles=torch.tensor(npart),
-    total_charge=torch.tensor(1e-8),
+    total_charge=torch.tensor(1e-8, dtype=torch.float64),
     energy=energy,
     radius_x=R0,
     radius_y=R0,
     radius_tau=R0 / gamma,  # Radius of the beam in s direction in the lab frame
-    sigma_px=torch.tensor(1e-15),
-    sigma_py=torch.tensor(1e-15),
-    sigma_p=torch.tensor(1e-15),
+    sigma_px=torch.tensor(1e-15, dtype=torch.float64),
+    sigma_py=torch.tensor(1e-15, dtype=torch.float64),
+    sigma_p=torch.tensor(1e-15, dtype=torch.float64),
+    #device="cpu",
+    dtype=torch.float64,
 )
 
 # Compute section length
-nslice = torch.tensor(40)
-ds = torch.tensor(6.0)
+nslice = torch.tensor(1)
+ds = torch.tensor(6.0, dtype=torch.float64)
 section_length = ds / nslice
 
 segment = cheetah.Segment(
     elements=[
-        cheetah.Drift(section_length),
-        cheetah.SpaceChargeKick(section_length),
+        cheetah.Drift(
+            section_length,
+            #device="cpu",
+            dtype=torch.float64,
+        ),
+        cheetah.SpaceChargeKick(
+            section_length,
+            num_grid_points_x=256,
+            num_grid_points_y=256,
+            num_grid_points_tau=256,
+            grid_extend_x=3,
+            grid_extend_y=3,
+            grid_extend_tau=3,
+            #device="cpu",
+            dtype=torch.float64,
+        ),
     ] * nslice
 )
 

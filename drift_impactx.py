@@ -55,8 +55,10 @@ distr = distribution.Kurth6D(
 sim.add_particles(bunch_charge_C, distr, npart)
 
 # design the accelerator lattice
-sim.lattice.extend([elements.Drift(name="d1", ds=6.0, nslice=1)])
-#sim.lattice.extend([elements.Quad(name="q1", ds=6.0, k=1.0, nslice=1)])
+#sim.lattice.extend([elements.Drift(name="d1", ds=6.0, nslice=1)])
+sim.lattice.extend([elements.Quad(name="q1", ds=6.0, k=1.0, nslice=1)])
+#sim.lattice.extend([elements.CFbend(ds=0.5, rc=7.613657587094493, k=-7.057403, nslice=1)])
+#sim.lattice.extend([elements.ConstF(name="constf1", ds=2.0, kx=1.0, ky=1.0, kt=1.0)])
 
 # run simulation
 start_time = time.perf_counter()
@@ -64,7 +66,7 @@ sim.track_particles()
 end_time = time.perf_counter()
 
 execution_time = end_time - start_time
-print(f"Execution time ImpactX: {execution_time:.4f} seconds ({execution_time/npart*1e6}us / particle)")
+print(f"Execution time ImpactX: {execution_time:.4f} seconds ({execution_time/npart*1e9}ns / particle)")
 
 # clean shutdown
 sim.finalize()

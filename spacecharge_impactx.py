@@ -12,17 +12,19 @@ from impactx import ImpactX, distribution, elements
 sim = ImpactX()
 
 # set numerical parameters and IO control
-sim.max_level = 1
-sim.n_cell = [16, 16, 20]
-sim.blocking_factor_x = [16]
-sim.blocking_factor_y = [16]
-sim.blocking_factor_z = [4]
+sim.max_level = 0
+sim.n_cell = [256, 256, 256]
+sim.blocking_factor_x = [128]
+sim.blocking_factor_y = [128]
+sim.blocking_factor_z = [128]
 
-sim.particle_shape = 2  # B-spline order
-sim.space_charge = True
+# B-spline order for charge deposition
+# note: gather in ImpactX is always linear polynomial right now
+sim.particle_shape = 1
+sim.space_charge = "3D"
 sim.poisson_solver = "fft"
 sim.dynamic_size = True
-sim.prob_relative = [1.2, 1.1]
+sim.prob_relative = [1.2]
 sim.verbose = 0
 sim.mlmg_verbosity = 0
 
@@ -35,9 +37,9 @@ sim.init_grids()
 
 # load a 2 GeV electron beam with an initial
 # unnormalized rms emittance of 2 nm
-kin_energy_MeV = 250  # reference energy
-bunch_charge_C = 1.0e-9  # used with space charge
-npart = 100_000  # number of macro particles
+kin_energy_MeV = 250.0   # reference energy
+bunch_charge_C = 1.0e-8  # used with space charge
+npart = 30_000_000  # number of macro particles
 
 #   reference particle
 ref = sim.particle_container().ref_particle()
@@ -55,7 +57,7 @@ distr = distribution.Kurth6D(
 sim.add_particles(bunch_charge_C, distr, npart)
 
 # design the accelerator lattice
-sim.lattice.extend([elements.Drift(name="d1", ds=6.0, nslice=40)])
+sim.lattice.extend([elements.Drift(name="d1", ds=6.0, nslice=1)])
 
 # run simulation
 start_time = time.perf_counter()
