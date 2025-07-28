@@ -1,0 +1,32 @@
+name: benchmark-cpu
+
+channels:
+  - conda-forge
+  - nodefaults
+
+dependencies:
+  - ccache
+  - cmake
+  - compilers
+  - doxygen
+  - git
+  - matplotlib
+  - ninja
+  - numpy
+  - packaging
+  - pandas
+  - pip
+  - pkg-config
+  - pytest
+  - pytest-benchmark
+  - python
+  - python-build
+  - quantiphy
+  - scipy
+  - setuptools
+  - virtualenv
+  - vir-simd
+  - wheel
+  - pip:
+    - cheetah-accelerator
+

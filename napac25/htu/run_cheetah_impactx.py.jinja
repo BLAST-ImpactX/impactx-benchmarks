@@ -1,0 +1,158 @@
+#!/usr/bin/env python
+# coding: utf-8
+#
+# See: https://impactx.readthedocs.io/en/latest/usage/examples/htu_beamline/README.html
+#
+
+code = "{{ code }}"
+
+if code == "impactx":
+    from impactx import ImpactX, distribution, elements, twiss
+elif code == "cheetah":
+    import torch
+    from cheetah import ParameterBeam, ParticleBeam, Segment
+else:
+    raise RuntimeError("Code unknown!")
+
+from scipy.constants import m_e, e, c
+import numpy as np
+import time
+import glob
+
+from htu.htu_lattice import get_lattice
+
+
+# Beam energy, bunch charge, and relativistic factors
+total_energy_eV = 100.0e6  # reference energy in eV (total)
+mass_eV = (m_e*c**2)/e  # particle mass
+kin_energy_eV = total_energy_eV - mass_eV
+bunch_charge_C = 25.0e-12  # used with space charge
+npart = {{ npart }}  # number of macro particles
+gamma = total_energy_eV/mass_eV
+bg = np.sqrt(gamma**2-1.0).item()
+
+# Twiss functions and initial beam moments
+beta_x = 0.002  #in m
+alpha_x = 0.0
+emittance_x = 1.5e-6/bg  #in m.rad
+beta_y = 0.002  #in m
+alpha_y = 0.0
+emittance_y = 1.5e-6/bg  #in m.rad
+sigma_tau = 1e-6  #in m
+sigma_p = 2.5e-2  #dimensionless
+mu_p = 1.0e-2  #dimensionless - relative momentum offset
+
+
+class ProcessTimer:
+    def __init__(self):
+        self.elapsed_time = 0
+
+    def __enter__(self):
+        self.start_time = time.process_time_ns()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        end_time = time.process_time_ns()
+        self.elapsed_time = end_time - self.start_time
+
+
+if code == "cheetah":
+    segment = Segment( get_lattice("cheetah", screens_as_markers=True) )
+
+    # Define the beam in Cheetah
+
+    incoming = ParticleBeam.from_twiss(
+            num_particles=npart, #dimensionless integer
+            beta_x=torch.tensor(beta_x), # in m
+            alpha_x=torch.tensor(alpha_x),
+            emittance_x=torch.tensor(emittance_x), # in m.rad ; geometric emittance
+            beta_y=torch.tensor(beta_y), # in m
+            alpha_y=torch.tensor(alpha_y),
+            emittance_y=torch.tensor(emittance_y), # in m.rad ; geometric emittance
+            sigma_tau=torch.tensor(sigma_tau), # in m
+            sigma_p=torch.tensor(sigma_p), # dimensionless
+            energy=torch.tensor(total_energy_eV), # in eV
+            total_charge=torch.tensor(bunch_charge_C), # in C
+    )
+    incoming.p+=mu_p
+
+    segment.plot_twiss_over_lattice( incoming=incoming )
+
+    segment.plot_overview( incoming=incoming )
+
+    # run simulation
+    if "{{ compile_mode }}" == "none":
+        with ProcessTimer() as timer:
+            segment.track(incoming=incoming)
+
+    else:
+        # Compiled version
+        compiled_track = torch.compile(segment.track, mode="{{ compile_mode }}", backend="{{ compile_backend }}")
+
+        # Call compiled version (first call does the JIT!)
+        compiled_track(incoming)
+
+        # Call compiled version (now the compiled code is cached!)
+        with ProcessTimer() as timer:
+            compiled_track(incoming)
+
+    print(f"Track: {timer.elapsed_time}ns")
+
+
+elif code == "impactx":
+
+    sim = ImpactX() 
+
+    # set numerical parameters and IO control
+    sim.space_charge = False
+    sim.slice_step_diagnostics = False
+    # note: lattice beam monitors will still write files
+    sim.diagnostics = False
+
+    # silent running
+    silent = True
+    if silent:
+        sim.verbose = 0
+        sim.tiny_profiler = False
+
+    # domain decomposition & space charge mesh
+    sim.init_grids()
+
+    # set reference particle
+    ref = sim.particle_container().ref_particle()
+    ref.set_charge_qe(-1.0).set_mass_MeV(mass_eV*1e-6).set_kin_energy_MeV(kin_energy_eV*1e-6)
+
+    #   particle bunch
+    distr = distribution.Gaussian(
+        **twiss(
+            beta_x=beta_x,
+            beta_y=beta_y,
+            beta_t=sigma_tau/sigma_p,
+            emitt_x=emittance_x,
+            emitt_y=emittance_y,
+            emitt_t=sigma_tau*sigma_p,
+            alpha_x=alpha_x,
+            alpha_y=alpha_y,
+            alpha_t=0.0,
+        ),
+        meanPt=-mu_p,
+    )
+    sim.add_particles(bunch_charge_C, distr, npart)
+
+    # record purely in memory
+    #sim.particle_container().store_beam_moments = True
+
+    # set the lattice
+    sim.lattice.extend( get_lattice("impactx", screens_as_markers=True) )
+
+    # run simulation
+    with ProcessTimer() as timer:
+        sim.track_particles()
+
+    print(f"Track: {timer.elapsed_time}ns")
+
+    # clean shutdown
+    sim.finalize()
+
+
+

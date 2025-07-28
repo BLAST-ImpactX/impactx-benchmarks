@@ -1,0 +1,34 @@
+name: benchmark-gpu
+
+channels:
+  - nvidia
+  - conda-forge
+  - nodefaults
+
+dependencies:
+  - ccache
+  - cmake
+  - compilers
+  - cuda
+  - cuda-nvtx-dev
+  - doxygen
+  - git
+  - matplotlib
+  - ninja
+  - numpy
+  - packaging
+  - pandas
+  - pip
+  - pkg-config
+  - pytest
+  - pytest-benchmark
+  - python
+  - python-build
+  - quantiphy
+  - scipy
+  - setuptools
+  - virtualenv
+  - wheel
+  - pip:
+    - cheetah-accelerator
+

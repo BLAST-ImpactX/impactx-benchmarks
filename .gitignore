@@ -1,1 +1,10 @@
 diags*
+
+# python
+__pycache__
+*.pyc
+
+# napac25
+## jinja files
+napac25/install.sh
+napac25/run_cheetah_impactx.py

@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+#
+
+# fail script on any error
+set -eu -o pipefail
+
+# cleanup
+rm -rf src-impactx build-impactx
+
+# get source
+git clone -b {{ version }} https://github.com/{{ gh_owner }}/impactx.git src-impactx
+
+# configure
+export CXXFLAGS="${CXXFLAGS} {{ CXXFLAGS }}"
+cmake --fresh                                     \
+      -S src-impactx                              \
+      -B build-impactx                            \
+      -G Ninja                                    \
+      -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX}      \
+      -DImpactX_SIMD={{ ImpactX_SIMD }}           \
+      -DImpactX_PYTHON=ON                         \
+      -DImpactX_MPI=OFF                           \
+      -DImpactX_COMPUTE={{ ImpactX_COMPUTE }}     \
+      -DImpactX_PRECISION={{ ImpactX_PRECISION }}
+
+# build & install
+cmake                      \
+    --build build-impactx  \
+    -j {{ build_nproc }}   \
+    --target install
+cmake                      \
+    --build build-impactx  \
+    -j {{ build_nproc }}   \
+    --target pip_install
+
+# cleanup
+rm -rf src-impactx build-impactx
