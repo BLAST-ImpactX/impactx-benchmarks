@@ -15,6 +15,9 @@ from jinja2 import Environment, FileSystemLoader
 #
 build_nproc = 12
 conda = "mamba"
+# we vary the number of particles to push in the beam,
+# to see if a code can make efficient use of L1/L2/L3 caches
+nparts = [1_000, 10_000, 100_000]  # TODO: add , 1_000_000, 10_000_000]:
 
 code_configs = {
     "impactx": {
@@ -140,6 +143,10 @@ def bench(code_config, npart):
 # HTU Benchmark
 #
 timings = {}
+for npart in nparts:
+    str_npart = str(npart)
+    timings[str_npart] = {}
+
 for code_config, _ in code_configs.items():  # TODO: CPU 1-N threads, GPU
 
     # We vary the number of CPU threads, to see if the code benefits from threading (expectation: linear speedup).
@@ -148,9 +155,8 @@ for code_config, _ in code_configs.items():  # TODO: CPU 1-N threads, GPU
 
     # we vary the number of particles to push in the beam,
     # to see if a code can make efficient use of L1/L2/L3 caches
-    for npart in [1_000, 10_000, 100_000]:  # TODO: add , 1_000_000, 10_000_000]:
+    for npart in nparts:
         str_npart = str(npart)
-        timings[str_npart] = {}
         timings[str_npart][code_config] = bench(code_config, npart)
 
         # calculate particle push time
@@ -158,5 +164,5 @@ for code_config, _ in code_configs.items():  # TODO: CPU 1-N threads, GPU
 
 # TODO: proper storage and plotting
 print(timings)
-print(timings["100000"]["cheetah"]["push_per_sec"] / timings["100000"]["impactx-simd"]["push_per_sec"])
+print(timings["100000"]["cheetah"]["push_per_sec"] / timings["100000"]["cheetah-compiled-default"]["push_per_sec"])
 #print(timings)
