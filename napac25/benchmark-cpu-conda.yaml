@@ -28,5 +28,6 @@ dependencies:
   - vir-simd
   - wheel
   - pip:
-    - cheetah-accelerator
+    - git+https://github.com/desy-ml/cheetah.git
+    #- cheetah-accelerator
 

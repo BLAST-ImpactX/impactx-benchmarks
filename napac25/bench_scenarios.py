@@ -22,7 +22,7 @@ nparts = [1_000, 10_000, 100_000]  # TODO: add , 1_000_000, 10_000_000]:
 code_configs = {
     "impactx": {
         "code": "impactx",
-        "version": "25.07",
+        "version": "development",  # 25.08
         "gh_owner": "BLAST-ImpactX",
         "CXXFLAGS": "-march=native -ffast-math",
         "ImpactX_COMPUTE": "OMP",
@@ -32,15 +32,25 @@ code_configs = {
     },
     "impactx-simd": {
         "code": "impactx",
-        "version": "topic-simd",
-        "gh_owner": "ax3l",
+        "version": "development",  # 25.08
+        "gh_owner": "BLAST-ImpactX",
         "CXXFLAGS": "-march=native -ffast-math",
         "ImpactX_COMPUTE": "OMP",
         "ImpactX_SIMD": "ON",
         "env_name": "benchmark-cpu",
         "env_file": "benchmark-cpu-conda.yaml",
     },
-    # TODO: ImpactX CUDA, Cheetah cpu/gpu device
+    "impactx-gpu": {
+        "code": "impactx",
+        "version": "development",  # 25.08
+        "gh_owner": "BLAST-ImpactX",
+        "CXXFLAGS": "",
+        "ImpactX_COMPUTE": "CUDA",
+        "ImpactX_SIMD": "OFF",
+        "env_name": "benchmark-gpu",
+        "env_file": "benchmark-gpu-conda.yaml",
+    },
+    # TODO: Cheetah cpu/gpu device
     "cheetah": {
         "code": "cheetah",
         "version": "0.7.4",
@@ -103,7 +113,7 @@ def install(code_config):
 def find_timing_lines(stdout, patterns):
     time_ns = {}
     for line in stdout:
-        for key, value in patterns.items():        
+        for key, value in patterns.items():
             match = value.search(line)
             if match:
                 time_ns[key] = int(match.group(1))
@@ -163,6 +173,7 @@ for code_config, _ in code_configs.items():  # TODO: CPU 1-N threads, GPU
         timings[str_npart][code_config]["push_per_sec"] = npart / timings[str_npart][code_config]["track_ns"] * 1e9
 
 # TODO: proper storage and plotting
-print(timings)
+import json
+print(json.dumps(timings, indent=4))
+
 print(timings["100000"]["cheetah"]["push_per_sec"] / timings["100000"]["cheetah-compiled-default"]["push_per_sec"])
-#print(timings)
