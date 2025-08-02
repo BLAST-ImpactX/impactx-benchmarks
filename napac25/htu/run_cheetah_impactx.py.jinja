@@ -57,6 +57,13 @@ class ProcessTimer:
 
 
 if code == "cheetah":
+    #torch.set_default_device("{{ device }}")
+
+    # data type
+    if "{{ dtype }}" != "float32":
+        torch.set_default_dtype(torch.{{ dtype }})
+
+
     segment = Segment( get_lattice("cheetah", screens_as_markers=True) )
 
     # Define the beam in Cheetah
@@ -79,6 +86,24 @@ if code == "cheetah":
     segment.plot_twiss_over_lattice( incoming=incoming )
 
     segment.plot_overview( incoming=incoming )
+
+    # host-device copies
+    if "{{ device }}" == "gpu" or "{{ device }}" == "cuda":
+        segment.gpu()
+        incoming.gpu()
+    elif "{{ device }}" == "cpu":
+        segment.cpu()
+        incoming.cpu()
+
+    if "{{ compile_mode }}" != "none":
+        if torch.cuda.is_available():
+            device_cap = torch.cuda.get_device_capability()
+            if not device_cap in ((7, 0), (8, 0), (9, 0)):
+                import warnings
+                warnings.warn(
+                    "GPU is not NVIDIA V100, A100, or H100. Speedup numbers may be lower "
+                    "than expected."
+                )
 
     # run simulation
     if "{{ compile_mode }}" == "none":

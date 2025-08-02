@@ -18,6 +18,7 @@ cmake --fresh                                     \
       -G Ninja                                    \
       -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX}      \
       -DImpactX_SIMD={{ ImpactX_SIMD }}           \
+      -DImpactX_OPENPMD=OFF                       \
       -DImpactX_PYTHON=ON                         \
       -DImpactX_MPI=OFF                           \
       -DImpactX_COMPUTE={{ ImpactX_COMPUTE }}     \
