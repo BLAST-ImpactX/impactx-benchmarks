@@ -1,0 +1,333 @@
+cheetah-1cpu:
+  axel-dell:
+    config:
+      OMP_NUM_THREADS: '1'
+      code: cheetah
+      compile_backend: none
+      compile_mode: none
+      device: cpu
+      dtype: torch.float32
+      env_file: benchmark-cpu-conda.yaml
+      env_name: benchmark-cpu
+      version: master
+    htu_1000:
+      push_per_sec: 11727.449568683169
+      track_ns: 85270032
+    htu_10000:
+      push_per_sec: 77994.7025374079
+      track_ns: 128213836
+    htu_100000:
+      push_per_sec: 114685.62384246867
+      track_ns: 871948869
+    htu_1000000:
+      push_per_sec: 92826.87746332891
+      track_ns: 10772741983
+cheetah-1cpu-compiled-inductor:
+  axel-dell:
+    config:
+      OMP_NUM_THREADS: '1'
+      code: cheetah
+      compile_backend: inductor
+      compile_mode: default
+      device: cpu
+      dtype: torch.float32
+      env_file: benchmark-cpu-conda.yaml
+      env_name: benchmark-cpu
+      version: master
+    htu_1000:
+      push_per_sec: 51906.43781533486
+      track_ns: 19265433
+    htu_10000:
+      push_per_sec: 165337.87919911917
+      track_ns: 60482208
+    htu_100000:
+      push_per_sec: 209544.30163937423
+      track_ns: 477226053
+    htu_1000000:
+      push_per_sec: 210288.8711874306
+      track_ns: 4755363393
+cheetah-6cpu:
+  axel-dell:
+    config:
+      OMP_NUM_THREADS: '6'
+      code: cheetah
+      compile_backend: none
+      compile_mode: none
+      device: cpu
+      dtype: torch.float32
+      env_file: benchmark-cpu-conda.yaml
+      env_name: benchmark-cpu
+      version: master
+    htu_1000:
+      push_per_sec: 7559.783924139141
+      track_ns: 132278913
+    htu_10000:
+      push_per_sec: 12630.889151909192
+      track_ns: 791709901
+    htu_100000:
+      push_per_sec: 42404.83402725699
+      track_ns: 2358221705
+    htu_1000000:
+      push_per_sec: 46041.44238830718
+      track_ns: 21719562814
+cheetah-6cpu-compiled-inductor:
+  axel-dell:
+    config:
+      OMP_NUM_THREADS: '6'
+      code: cheetah
+      compile_backend: inductor
+      compile_mode: default
+      device: cpu
+      dtype: torch.float32
+      env_file: benchmark-cpu-conda.yaml
+      env_name: benchmark-cpu
+      version: master
+    htu_1000:
+      push_per_sec: 52302.1333151043
+      track_ns: 19119679
+    htu_10000:
+      push_per_sec: 26094.270064918237
+      track_ns: 383225895
+    htu_100000:
+      push_per_sec: 71000.36004140576
+      track_ns: 1408443562
+    htu_1000000:
+      push_per_sec: 173470.58945313928
+      track_ns: 5764665948
+cheetah-cuda:
+  axel-dell:
+    config:
+      code: cheetah
+      compile_backend: none
+      compile_mode: none
+      device: cuda
+      dtype: float32
+      env_file: benchmark-gpu-conda.yaml
+      env_name: benchmark-gpu
+      version: master
+    htu_1000:
+      push_per_sec: 5711.648988646595
+      track_ns: 175080787
+    htu_10000:
+      push_per_sec: 56739.78194686187
+      track_ns: 176243187
+    htu_100000:
+      push_per_sec: 558057.2424649396
+      track_ns: 179193087
+    htu_1000000:
+      push_per_sec: 744714.667289272
+      track_ns: 1342796166
+cheetah-gpu-compiled-cudagraphs:
+  axel-dell:
+    config:
+      code: cheetah
+      compile_backend: cudagraphs
+      compile_mode: default
+      device: cuda
+      dtype: float32
+      env_file: benchmark-gpu-conda.yaml
+      env_name: benchmark-gpu
+      version: master
+    htu_1000:
+      push_per_sec: 56.5644234497982
+      track_ns: 17678956825
+    htu_10000:
+      push_per_sec: 564.190738953103
+      track_ns: 17724502211
+    htu_100000:
+      push_per_sec: 5640.558246579876
+      track_ns: 17728741665
+    htu_1000000:
+      push_per_sec: 52524.13215750074
+      track_ns: 19038867639
+cheetah-gpu-compiled-inductor:
+  axel-dell:
+    config:
+      code: cheetah
+      compile_backend: inductor
+      compile_mode: default
+      device: cuda
+      dtype: float32
+      env_file: benchmark-gpu-conda.yaml
+      env_name: benchmark-gpu
+      version: master
+    htu_1000:
+      push_per_sec: 39760.411711111185
+      track_ns: 25150645
+    htu_10000:
+      push_per_sec: 368299.8025213289
+      track_ns: 27151793
+    htu_100000:
+      push_per_sec: 3552142.5938022286
+      track_ns: 28152023
+    htu_1000000:
+      push_per_sec: 8707316.11600308
+      track_ns: 114845951
+impactx-1cpu:
+  axel-dell:
+    config:
+      CXXFLAGS: -march=native
+      ImpactX_COMPUTE: OMP
+      ImpactX_SIMD: 'OFF'
+      OMP_NUM_THREADS: '1'
+      code: impactx
+      env_file: benchmark-cpu-conda.yaml
+      env_name: benchmark-cpu
+      gh_owner: BLAST-ImpactX
+      version: development
+    htu_1000:
+      push_per_sec: 199797.2856739552
+      track_ns: 5005073
+    htu_10000:
+      push_per_sec: 209162.7814157112
+      track_ns: 47809653
+    htu_100000:
+      push_per_sec: 210300.2226841719
+      track_ns: 475510671
+    htu_1000000:
+      push_per_sec: 206733.22429316214
+      track_ns: 4837151858
+impactx-1cpu-fm:
+  axel-dell:
+    config:
+      CXXFLAGS: -march=native -ffast-math
+      ImpactX_COMPUTE: OMP
+      ImpactX_SIMD: 'OFF'
+      OMP_NUM_THREADS: '1'
+      code: impactx
+      env_file: benchmark-cpu-conda.yaml
+      env_name: benchmark-cpu
+      gh_owner: BLAST-ImpactX
+      version: development
+    htu_1000:
+      push_per_sec: 281746.17261911806
+      track_ns: 3549294
+    htu_10000:
+      push_per_sec: 301395.3247255833
+      track_ns: 33179015
+    htu_100000:
+      push_per_sec: 301199.4294403304
+      track_ns: 332005941
+    htu_1000000:
+      push_per_sec: 290702.63757459517
+      track_ns: 3439941269
+impactx-1cpu-fm-simd:
+  axel-dell:
+    config:
+      CXXFLAGS: -march=native -ffast-math
+      ImpactX_COMPUTE: OMP
+      ImpactX_SIMD: 'ON'
+      OMP_NUM_THREADS: '1'
+      code: impactx
+      env_file: benchmark-cpu-conda.yaml
+      env_name: benchmark-cpu
+      gh_owner: BLAST-ImpactX
+      version: development
+    htu_1000:
+      push_per_sec: 387577.9709983156
+      track_ns: 2580126
+    htu_10000:
+      push_per_sec: 424811.9760953203
+      track_ns: 23539826
+    htu_100000:
+      push_per_sec: 416508.7213531705
+      track_ns: 240091011
+    htu_1000000:
+      push_per_sec: 407222.28248365433
+      track_ns: 2455661301
+impactx-1cpu-simd:
+  axel-dell:
+    config:
+      CXXFLAGS: -march=native
+      ImpactX_COMPUTE: OMP
+      ImpactX_SIMD: 'ON'
+      OMP_NUM_THREADS: '1'
+      code: impactx
+      env_file: benchmark-cpu-conda.yaml
+      env_name: benchmark-cpu
+      gh_owner: BLAST-ImpactX
+      version: development
+    htu_1000:
+      push_per_sec: 287784.0284468756
+      track_ns: 3474828
+    htu_10000:
+      push_per_sec: 311405.04148569104
+      track_ns: 32112518
+    htu_100000:
+      push_per_sec: 306707.15299232455
+      track_ns: 326043912
+    htu_1000000:
+      push_per_sec: 301019.4717961239
+      track_ns: 3322044232
+impactx-6cpu-fm:
+  axel-dell:
+    config:
+      CXXFLAGS: -march=native -ffast-math
+      ImpactX_COMPUTE: OMP
+      ImpactX_SIMD: 'OFF'
+      OMP_NUM_THREADS: '6'
+      code: impactx
+      env_file: benchmark-cpu-conda.yaml
+      env_name: benchmark-cpu
+      gh_owner: BLAST-ImpactX
+      version: development
+    htu_1000:
+      push_per_sec: 111970.8607032106
+      track_ns: 8930895
+    htu_10000:
+      push_per_sec: 258781.69872018736
+      track_ns: 38642609
+    htu_100000:
+      push_per_sec: 269225.36950179096
+      track_ns: 371436021
+    htu_1000000:
+      push_per_sec: 251274.47702528923
+      track_ns: 3979711795
+impactx-6cpu-fm-simd:
+  axel-dell:
+    config:
+      CXXFLAGS: -march=native -ffast-math
+      ImpactX_COMPUTE: OMP
+      ImpactX_SIMD: 'ON'
+      OMP_NUM_THREADS: '6'
+      code: impactx
+      env_file: benchmark-cpu-conda.yaml
+      env_name: benchmark-cpu
+      gh_owner: BLAST-ImpactX
+      version: development
+    htu_1000:
+      push_per_sec: 105490.15049013888
+      track_ns: 9479558
+    htu_10000:
+      push_per_sec: 290486.5734346136
+      track_ns: 34424999
+    htu_100000:
+      push_per_sec: 366181.64967301243
+      track_ns: 273088507
+    htu_1000000:
+      push_per_sec: 350488.8434732611
+      track_ns: 2853157864
+impactx-cuda:
+  axel-dell:
+    config:
+      CXXFLAGS: ''
+      ImpactX_COMPUTE: CUDA
+      ImpactX_SIMD: 'OFF'
+      OMP_NUM_THREADS: '1'
+      code: impactx
+      env_file: benchmark-gpu-conda.yaml
+      env_name: benchmark-gpu
+      gh_owner: BLAST-ImpactX
+      version: development
+    htu_1000:
+      push_per_sec: 227338.0352901379
+      track_ns: 4398736
+    htu_10000:
+      push_per_sec: 2193379.7657207204
+      track_ns: 4559174
+    htu_100000:
+      push_per_sec: 11101250.733515143
+      track_ns: 9007994
+    htu_1000000:
+      push_per_sec: 19399567.10254002
+      track_ns: 51547542
