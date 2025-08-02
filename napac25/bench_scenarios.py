@@ -23,91 +23,136 @@ conda = "mamba"
 nparts = [1_000, 10_000, 100_000]  # TODO: add , 1_000_000, 10_000_000]:
 
 code_configs = {
-    "impactx": {
+    "impactx-1cpu": {
         "code": "impactx",
         "version": "development",  # 25.08
         "gh_owner": "BLAST-ImpactX",
         "CXXFLAGS": "-march=native -ffast-math",
+        "OMP_NUM_THREADS": "1",
         "ImpactX_COMPUTE": "OMP",
         "ImpactX_SIMD": "OFF",
         "env_name": "benchmark-cpu",
         "env_file": "benchmark-cpu-conda.yaml",
     },
-    "impactx-simd": {
+    "impactx-1cpu-simd": {
         "code": "impactx",
         "version": "development",  # 25.08
         "gh_owner": "BLAST-ImpactX",
         "CXXFLAGS": "-march=native -ffast-math",
+        "OMP_NUM_THREADS": "1",
         "ImpactX_COMPUTE": "OMP",
         "ImpactX_SIMD": "ON",
         "env_name": "benchmark-cpu",
         "env_file": "benchmark-cpu-conda.yaml",
     },
-    "impactx-gpu": {
+    "impactx-6cpu": {
+        "code": "impactx",
+        "version": "development",  # 25.08
+        "gh_owner": "BLAST-ImpactX",
+        "CXXFLAGS": "-march=native -ffast-math",
+        "OMP_NUM_THREADS": "6",
+        "ImpactX_COMPUTE": "OMP",
+        "ImpactX_SIMD": "OFF",
+        "env_name": "benchmark-cpu",
+        "env_file": "benchmark-cpu-conda.yaml",
+    },
+    "impactx-6cpu-simd": {
+        "code": "impactx",
+        "version": "development",  # 25.08
+        "gh_owner": "BLAST-ImpactX",
+        "CXXFLAGS": "-march=native -ffast-math",
+        "OMP_NUM_THREADS": "6",
+        "ImpactX_COMPUTE": "OMP",
+        "ImpactX_SIMD": "ON",
+        "env_name": "benchmark-cpu",
+        "env_file": "benchmark-cpu-conda.yaml",
+    },
+    "impactx-cuda": {
         "code": "impactx",
         "version": "development",  # 25.08
         "gh_owner": "BLAST-ImpactX",
         "CXXFLAGS": "",
+        "OMP_NUM_THREADS": "1",
         "ImpactX_COMPUTE": "CUDA",
         "ImpactX_SIMD": "OFF",
         "env_name": "benchmark-gpu",
         "env_file": "benchmark-gpu-conda.yaml",
     },
-    "cheetah": {
+    "cheetah-1cpu": {
         "code": "cheetah",
-        "version": "0.7.4",
+        "version": "master",  # 0.7.5
         "compile_mode": "none",  # https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
         "compile_backend": "none",
         "device": "cpu",
         "dtype": "torch.float32",
+        "OMP_NUM_THREADS": "1",
         "env_name": "benchmark-cpu",
-        "env_file": "benchmark-cpu-conda.yaml",
+        "env_file": "benchmark-cpu-conda.yaml",    
     },
-    "cheetah-compiled-default": {
+    "cheetah-1cpu-compiled-inductor": {
         "code": "cheetah",
-        "version": "0.7.4",
+        "version": "master",  # 0.7.5
         "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
         "compile_backend": "inductor",  # TODO: try also "ipex" on Intel CPUs
         "device": "cpu",
         "dtype": "torch.float32",
+        "OMP_NUM_THREADS": "1",
         "env_name": "benchmark-cpu",
         "env_file": "benchmark-cpu-conda.yaml",
     },
-    "cheetah-gpu": {
+    "cheetah-6cpu": {
         "code": "cheetah",
-        "version": "0.7.4",
-        "compile_mode": "none",  # https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
-        "compile_backend": "none",
-        "device": "gpu",
-        "dtype": "float32",
-        "env_name": "benchmark-gpu",
-        "env_file": "benchmark-gpu-conda.yaml",
-    },
-    "cheetah-gpu-compiled-default": {
-        "code": "cheetah",
-        "version": "0.7.4",
-        "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
-        "compile_backend": "inductor",  # TODO: try also "ipex", "onnxrt" on (Intel) CPUs; "inductor", "cudagraphs", "onnxrt" on GPU
-        "device": "gpu",
-        "dtype": "float32",
-        "env_name": "benchmark-gpu",
-        "env_file": "benchmark-gpu-conda.yaml",
-    },
-}
-
-code_configs = {
-    "cheetah": {
-        "code": "cheetah",
-        "version": "0.7.4",
+        "version": "master",  # 0.7.5
         "compile_mode": "none",  # https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
         "compile_backend": "none",
         "device": "cpu",
         "dtype": "torch.float32",
+        "OMP_NUM_THREADS": "1",
+        "env_name": "benchmark-cpu",
+        "env_file": "benchmark-cpu-conda.yaml",    
+    },
+    "cheetah-6cpu-compiled-inductor": {
+        "code": "cheetah",
+        "version": "master",  # 0.7.5
+        "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
+        "compile_backend": "inductor",  # TODO: try also "ipex" on Intel CPUs
+        "device": "cpu",
+        "dtype": "torch.float32",
+        "OMP_NUM_THREADS": "6",
         "env_name": "benchmark-cpu",
         "env_file": "benchmark-cpu-conda.yaml",
     },
+    "cheetah-cuda": {
+        "code": "cheetah",
+        "version": "master",  # 0.7.5
+        "compile_mode": "none",  # https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
+        "compile_backend": "none",
+        "device": "cuda",
+        "dtype": "float32",
+        "env_name": "benchmark-gpu",
+        "env_file": "benchmark-gpu-conda.yaml",
+    },
+    "cheetah-gpu-compiled-inductor": {
+        "code": "cheetah",
+        "version": "master",  # 0.7.5
+        "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
+        "compile_backend": "inductor",  # TODO: try also "inductor", "ipex", "onnxrt" on (Intel) CPUs; "inductor", "cudagraphs", "onnxrt", openxla', 'tvm' on GPU
+        "device": "cuda",
+        "dtype": "float32",
+        "env_name": "benchmark-gpu",
+        "env_file": "benchmark-gpu-conda.yaml",
+    },
+    "cheetah-gpu-compiled-cudagraphs": {
+        "code": "cheetah",
+        "version": "master",  # 0.7.5
+        "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
+        "compile_backend": "cudagraphs",  # TODO: try also "inductor", "ipex", "onnxrt" on (Intel) CPUs; "inductor", "cudagraphs", "onnxrt", openxla', 'tvm' on GPU
+        "device": "cuda",
+        "dtype": "float32",
+        "env_name": "benchmark-gpu",
+        "env_file": "benchmark-gpu-conda.yaml",
+    },
 }
-
 
 def render_script(dirname, script, data, verbose=False):
     jinja_env = Environment(loader=FileSystemLoader(dirname))
@@ -142,7 +187,11 @@ def install(code_config):
         subprocess.run(command, shell=True, check=True)
 
     elif code == "cheetah":
-        command = f"{conda} run -n {env_name} pip install cheetah-accelerator=={config['version']}"
+        version = config['version']
+        if version == "master":
+            command = f"{conda} run -n {env_name} pip install git+https://github.com/desy-ml/cheetah.git"
+        else:
+            command = f"{conda} run -n {env_name} pip install cheetah-accelerator=={config['version']}"
         subprocess.run(command, shell=True, check=True)
 
     else:
@@ -174,7 +223,13 @@ def bench(code_config, npart, nruns=5):
 
     for nrun in range(nruns):
 
-        command = f"{conda} run -n {env_name} python run_cheetah_impactx.py"
+        env_str = ""
+        if "OMP_NUM_THREADS" in config:
+            env_str += f"OMP_NUM_THREADS={config['OMP_NUM_THREADS']}"
+        if "device" in config and config["device"] == "cpu":
+            env_str += f" CUDA_VISIBLE_DEVICES=''"
+
+        command = f"{env_str} {conda} run -n {env_name} python run_cheetah_impactx.py"
         result = subprocess.run(command, shell=True, check=False, capture_output=True)
         stdout = result.stdout.decode("utf-8").split("\n")
         stderr = result.stderr.decode("utf-8")
@@ -242,7 +297,7 @@ timings = {}
 
 # HTU Benchmark
 #
-for code_config, _ in code_configs.items():  # TODO: CPU 1-N threads, GPU
+for code_config, _ in code_configs.items():
     timings[code_config] = {}
     timings[code_config][hn] = {}
     timings[code_config][hn]["config"] = code_configs[code_config]

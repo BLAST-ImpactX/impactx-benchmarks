@@ -27,7 +27,4 @@ dependencies:
   - virtualenv
   - vir-simd
   - wheel
-  - pip:
-    - git+https://github.com/desy-ml/cheetah.git
-    #- cheetah-accelerator
 

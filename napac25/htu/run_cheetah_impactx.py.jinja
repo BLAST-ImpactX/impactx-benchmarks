@@ -57,7 +57,7 @@ class ProcessTimer:
 
 
 if code == "cheetah":
-    #torch.set_default_device("{{ device }}")
+    torch.set_default_device("{{ device }}")
 
     # data type
     if "{{ dtype }}" != "float32":
@@ -83,17 +83,9 @@ if code == "cheetah":
     )
     incoming.p+=mu_p
 
-    segment.plot_twiss_over_lattice( incoming=incoming )
-
-    segment.plot_overview( incoming=incoming )
-
-    # host-device copies
-    if "{{ device }}" == "gpu" or "{{ device }}" == "cuda":
-        segment.gpu()
-        incoming.gpu()
-    elif "{{ device }}" == "cpu":
-        segment.cpu()
-        incoming.cpu()
+    # place data on device (or keep on cpu)
+    segment.to("{{ device }}")
+    incoming.to("{{ device }}")
 
     if "{{ compile_mode }}" != "none":
         if torch.cuda.is_available():
@@ -115,11 +107,12 @@ if code == "cheetah":
         compiled_track = torch.compile(segment.track, mode="{{ compile_mode }}", backend="{{ compile_backend }}")
 
         # Call compiled version (first call does the JIT!)
-        compiled_track(incoming)
+        incoming_copy = incoming.copy()
+        compiled_track(incoming=incoming_copy)
 
         # Call compiled version (now the compiled code is cached!)
         with ProcessTimer() as timer:
-            compiled_track(incoming)
+            compiled_track(incoming=incoming)
 
     print(f"Track: {timer.elapsed_time}ns")
 

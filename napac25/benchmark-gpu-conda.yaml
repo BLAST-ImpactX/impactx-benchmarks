@@ -29,6 +29,4 @@ dependencies:
   - setuptools
   - virtualenv
   - wheel
-  - pip:
-    - cheetah-accelerator
 
