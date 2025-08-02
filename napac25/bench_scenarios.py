@@ -18,6 +18,8 @@ from jinja2 import Environment, FileSystemLoader
 #
 build_nproc = 12
 conda = "mamba"
+# experiments (scenarios)
+scenarios = ["htu"]
 # we vary the number of particles to push in the beam,
 # to see if a code can make efficient use of L1/L2/L3 caches
 nparts = [1_000, 10_000, 100_000, 1_000_000, 10_000_000]
@@ -176,6 +178,7 @@ code_configs = {
     },
 }
 
+
 def render_script(dirname, script, data, verbose=False):
     jinja_env = Environment(loader=FileSystemLoader(dirname))
     template = jinja_env.get_template(script)
@@ -317,7 +320,7 @@ def save_timings(timings):
 hn = socket.gethostname()
 timings = {}
 
-# HTU Benchmark
+# Benchmark
 #
 for code_config, _ in code_configs.items():
     timings[code_config] = {}
@@ -326,16 +329,20 @@ for code_config, _ in code_configs.items():
 
     # We vary the number of CPU threads, to see if the code benefits from threading (expectation: linear speedup).
     # We compare CPU and GPU runs, to see if the code benefits from GPU acceleration (expectation: ~10x, depending on hardware).
-    install(code_config)
+    install(code_config)  # TODO: return a package+version list?
+    # TODO: add "conda env list" packages+versions to config?
 
-    # we vary the number of particles to push in the beam,
-    # to see if a code can make efficient use of L1/L2/L3 caches
-    for npart in nparts:
-        str_npart = str(npart)
-        timings[code_config][hn][str_npart] = bench(code_config, npart)
-        timings[code_config][hn][str_npart]
+    # experiments (scenarios)
+    for scenario in scenarios:
 
-        # calculate particle push time
-        timings[code_config][hn][str_npart]["push_per_sec"] = npart / timings[code_config][hn][str_npart]["track_ns"] * 1e9
+        # we vary the number of particles to push in the beam,
+        # to see if a code can make efficient use of L1/L2/L3 caches
+        for npart in nparts:
+            str_npart = scenario + "_" + str(npart)
+            timings[code_config][hn][str_npart] = bench(code_config, npart)
+            timings[code_config][hn][str_npart]
+
+            # calculate particle push time
+            timings[code_config][hn][str_npart]["push_per_sec"] = npart / timings[code_config][hn][str_npart]["track_ns"] * 1e9
 
 save_timings(timings)
