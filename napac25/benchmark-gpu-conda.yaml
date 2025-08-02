@@ -8,7 +8,7 @@ channels:
 dependencies:
   - ccache
   - cmake
-  - compilers
+  - compilers=1.10
   - cuda
   - cuda-nvtx-dev
   - doxygen

@@ -27,6 +27,17 @@ code_configs = {
         "code": "impactx",
         "version": "development",  # 25.08
         "gh_owner": "BLAST-ImpactX",
+        "CXXFLAGS": "-march=native",
+        "OMP_NUM_THREADS": "1",
+        "ImpactX_COMPUTE": "OMP",
+        "ImpactX_SIMD": "OFF",
+        "env_name": "benchmark-cpu",
+        "env_file": "benchmark-cpu-conda.yaml",
+    },
+    "impactx-1cpu-fm": {
+        "code": "impactx",
+        "version": "development",  # 25.08
+        "gh_owner": "BLAST-ImpactX",
         "CXXFLAGS": "-march=native -ffast-math",
         "OMP_NUM_THREADS": "1",
         "ImpactX_COMPUTE": "OMP",
@@ -38,6 +49,17 @@ code_configs = {
         "code": "impactx",
         "version": "development",  # 25.08
         "gh_owner": "BLAST-ImpactX",
+        "CXXFLAGS": "-march=native",
+        "OMP_NUM_THREADS": "1",
+        "ImpactX_COMPUTE": "OMP",
+        "ImpactX_SIMD": "ON",
+        "env_name": "benchmark-cpu",
+        "env_file": "benchmark-cpu-conda.yaml",
+    },
+    "impactx-1cpu-fm-simd": {
+        "code": "impactx",
+        "version": "development",  # 25.08
+        "gh_owner": "BLAST-ImpactX",
         "CXXFLAGS": "-march=native -ffast-math",
         "OMP_NUM_THREADS": "1",
         "ImpactX_COMPUTE": "OMP",
@@ -45,7 +67,7 @@ code_configs = {
         "env_name": "benchmark-cpu",
         "env_file": "benchmark-cpu-conda.yaml",
     },
-    "impactx-6cpu": {
+    "impactx-6cpu-fm": {
         "code": "impactx",
         "version": "development",  # 25.08
         "gh_owner": "BLAST-ImpactX",
@@ -56,7 +78,7 @@ code_configs = {
         "env_name": "benchmark-cpu",
         "env_file": "benchmark-cpu-conda.yaml",
     },
-    "impactx-6cpu-simd": {
+    "impactx-6cpu-fm-simd": {
         "code": "impactx",
         "version": "development",  # 25.08
         "gh_owner": "BLAST-ImpactX",
@@ -67,17 +89,17 @@ code_configs = {
         "env_name": "benchmark-cpu",
         "env_file": "benchmark-cpu-conda.yaml",
     },
-#    "impactx-cuda": {
-#        "code": "impactx",
-#        "version": "development",  # 25.08
-#        "gh_owner": "BLAST-ImpactX",
-#        "CXXFLAGS": "",
-#        "OMP_NUM_THREADS": "1",
-#        "ImpactX_COMPUTE": "CUDA",
-#        "ImpactX_SIMD": "OFF",
-#        "env_name": "benchmark-gpu",
-#        "env_file": "benchmark-gpu-conda.yaml",
-#    },
+    "impactx-cuda": {
+        "code": "impactx",
+        "version": "development",  # 25.08
+        "gh_owner": "BLAST-ImpactX",
+        "CXXFLAGS": "",
+        "OMP_NUM_THREADS": "1",
+        "ImpactX_COMPUTE": "CUDA",
+        "ImpactX_SIMD": "OFF",
+        "env_name": "benchmark-gpu",
+        "env_file": "benchmark-gpu-conda.yaml",
+    },
     "cheetah-1cpu": {
         "code": "cheetah",
         "version": "master",  # 0.7.5
@@ -107,7 +129,7 @@ code_configs = {
         "compile_backend": "none",
         "device": "cpu",
         "dtype": "torch.float32",
-        "OMP_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "6",
         "env_name": "benchmark-cpu",
         "env_file": "benchmark-cpu-conda.yaml",    
     },
