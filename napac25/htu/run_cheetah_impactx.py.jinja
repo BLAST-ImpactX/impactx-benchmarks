@@ -57,11 +57,10 @@ class ProcessTimer:
 
 
 if code == "cheetah":
-    torch.set_default_device("{{ device }}")
+    torch.set_default_device("{{ device | default('cpu') }}")
 
     # data type
-    if "{{ dtype }}" != "float32":
-        torch.set_default_dtype(torch.{{ dtype }})
+    torch.set_default_dtype(torch.{{ dtype | default('float32') }})
 
 
     segment = Segment( get_lattice("cheetah", screens_as_markers=True) )
@@ -84,10 +83,10 @@ if code == "cheetah":
     incoming.p+=mu_p
 
     # place data on device (or keep on cpu)
-    segment.to("{{ device }}")
-    incoming.to("{{ device }}")
+    segment.to("{{ device | default('cpu') }}")
+    incoming.to("{{ device | default('cpu') }}")
 
-    if "{{ compile_mode }}" != "none":
+    if "{{ compile_mode | default('none') }}" != "none":
         if torch.cuda.is_available():
             device_cap = torch.cuda.get_device_capability()
             if not device_cap in ((7, 0), (8, 0), (9, 0)):
@@ -98,7 +97,7 @@ if code == "cheetah":
                 )
 
     # run simulation
-    if "{{ compile_mode }}" == "none":
+    if "{{ compile_mode | default('none') }}" == "none":
         with ProcessTimer() as timer:
             segment.track(incoming=incoming)
 
