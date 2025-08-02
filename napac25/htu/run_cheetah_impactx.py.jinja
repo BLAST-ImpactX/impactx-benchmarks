@@ -102,6 +102,17 @@ if code == "cheetah":
             segment.track(incoming=incoming)
 
     else:
+        # special configs, e.g.,
+        #   https://github.com/pytorch/pytorch/blob/main/torch/_inductor/config.py
+        #   https://github.com/pytorch/pytorch/pull/113347
+        fast_math = "{{ compile_backend_config | default('') }}" == "fast-math"
+        # C++ backend (default: false)
+        torch._inductor.config.cpp.enable_unsafe_math_opt_flag = fast_math
+        # CUDA backend (default: false)
+        torch._inductor.config.cuda.use_fast_math = fast_math
+        # ROCm backend (default: true)
+        torch._inductor.config.rocm.use_fast_math = fast_math
+
         # Compiled version
         compiled_track = torch.compile(segment.track, mode="{{ compile_mode }}", backend="{{ compile_backend }}")
 

@@ -24,6 +24,9 @@ scenarios = ["htu"]
 # to see if a code can make efficient use of L1/L2/L3 caches
 nparts = [1_000, 10_000, 100_000, 1_000_000, 10_000_000]
 
+# CPU multi-core test: how many cores to use?
+ncpu = 6
+
 code_configs = {
     "impactx-1cpu": {
         "code": "impactx",
@@ -69,29 +72,40 @@ code_configs = {
         "env_name": "benchmark-cpu",
         "env_file": "benchmark-cpu-conda.yaml",
     },
-    "impactx-6cpu-fm": {
+    f"impactx-{ncpu}cpu": {
         "code": "impactx",
         "version": "development",  # 25.08
         "gh_owner": "BLAST-ImpactX",
-        "CXXFLAGS": "-march=native -ffast-math",
-        "OMP_NUM_THREADS": "6",
+        "CXXFLAGS": "-march=native",
+        "OMP_NUM_THREADS": f"{ncpu}",
         "ImpactX_COMPUTE": "OMP",
         "ImpactX_SIMD": "OFF",
         "env_name": "benchmark-cpu",
         "env_file": "benchmark-cpu-conda.yaml",
     },
-    "impactx-6cpu-fm-simd": {
+    f"impactx-{ncpu}cpu-fm": {
         "code": "impactx",
         "version": "development",  # 25.08
         "gh_owner": "BLAST-ImpactX",
         "CXXFLAGS": "-march=native -ffast-math",
-        "OMP_NUM_THREADS": "6",
+        "OMP_NUM_THREADS": f"{ncpu}",
+        "ImpactX_COMPUTE": "OMP",
+        "ImpactX_SIMD": "OFF",
+        "env_name": "benchmark-cpu",
+        "env_file": "benchmark-cpu-conda.yaml",
+    },
+    f"impactx-{ncpu}cpu-fm-simd": {
+        "code": "impactx",
+        "version": "development",  # 25.08
+        "gh_owner": "BLAST-ImpactX",
+        "CXXFLAGS": "-march=native -ffast-math",
+        "OMP_NUM_THREADS": f"{ncpu}",
         "ImpactX_COMPUTE": "OMP",
         "ImpactX_SIMD": "ON",
         "env_name": "benchmark-cpu",
         "env_file": "benchmark-cpu-conda.yaml",
     },
-    "impactx-cuda": {
+    "impactx-cuda-fm": {
         "code": "impactx",
         "version": "development",  # 25.08
         "gh_owner": "BLAST-ImpactX",
@@ -124,25 +138,49 @@ code_configs = {
         "env_name": "benchmark-cpu",
         "env_file": "benchmark-cpu-conda.yaml",
     },
-    "cheetah-6cpu": {
+    "cheetah-1cpu-compiled-inductor-fm": {
+        "code": "cheetah",
+        "version": "master",  # 0.7.5
+        "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
+        "compile_backend": "inductor",  # TODO: try also "ipex" on Intel CPUs
+        "compile_backend_config": "fast-math",  # https://github.com/pytorch/pytorch/blob/main/torch/_inductor/config.py
+        "device": "cpu",
+        "dtype": "torch.float32",
+        "OMP_NUM_THREADS": "1",
+        "env_name": "benchmark-cpu",
+        "env_file": "benchmark-cpu-conda.yaml",
+    },
+    f"cheetah-{ncpu}cpu": {
         "code": "cheetah",
         "version": "master",  # 0.7.5
         "compile_mode": "none",  # https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
         "compile_backend": "none",
         "device": "cpu",
         "dtype": "torch.float32",
-        "OMP_NUM_THREADS": "6",
+        "OMP_NUM_THREADS": f"{ncpu}",
         "env_name": "benchmark-cpu",
         "env_file": "benchmark-cpu-conda.yaml",    
     },
-    "cheetah-6cpu-compiled-inductor": {
+    f"cheetah-{ncpu}cpu-compiled-inductor": {
         "code": "cheetah",
         "version": "master",  # 0.7.5
         "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
         "compile_backend": "inductor",  # TODO: try also "ipex" on Intel CPUs
         "device": "cpu",
         "dtype": "torch.float32",
-        "OMP_NUM_THREADS": "6",
+        "OMP_NUM_THREADS": f"{ncpu}",
+        "env_name": "benchmark-cpu",
+        "env_file": "benchmark-cpu-conda.yaml",
+    },
+    f"cheetah-{ncpu}cpu-compiled-inductor-fm": {
+        "code": "cheetah",
+        "version": "master",  # 0.7.5
+        "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
+        "compile_backend": "inductor",  # TODO: try also "ipex" on Intel CPUs
+        "compile_backend_config": "fast-math",  # https://github.com/pytorch/pytorch/blob/main/torch/_inductor/config.py
+        "device": "cpu",
+        "dtype": "torch.float32",
+        "OMP_NUM_THREADS": f"{ncpu}",
         "env_name": "benchmark-cpu",
         "env_file": "benchmark-cpu-conda.yaml",
     },
@@ -156,7 +194,7 @@ code_configs = {
         "env_name": "benchmark-gpu",
         "env_file": "benchmark-gpu-conda.yaml",
     },
-    "cheetah-gpu-compiled-inductor": {
+    "cheetah-cuda-compiled-inductor": {
         "code": "cheetah",
         "version": "master",  # 0.7.5
         "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
@@ -166,7 +204,18 @@ code_configs = {
         "env_name": "benchmark-gpu",
         "env_file": "benchmark-gpu-conda.yaml",
     },
-    "cheetah-gpu-compiled-cudagraphs": {
+    "cheetah-cuda-compiled-inductor-fm": {
+        "code": "cheetah",
+        "version": "master",  # 0.7.5
+        "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
+        "compile_backend": "inductor",  # TODO: try also "inductor", "ipex", "onnxrt" on (Intel) CPUs; "inductor", "cudagraphs", "onnxrt", openxla', 'tvm' on GPU
+        "compile_backend_config": "fast-math",  # https://github.com/pytorch/pytorch/blob/main/torch/_inductor/config.py
+        "device": "cuda",
+        "dtype": "float32",
+        "env_name": "benchmark-gpu",
+        "env_file": "benchmark-gpu-conda.yaml",
+    },
+    "cheetah-cuda-compiled-cudagraphs": {
         "code": "cheetah",
         "version": "master",  # 0.7.5
         "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
@@ -254,7 +303,13 @@ def bench(code_config, npart, nruns=5):
         if "device" in config and config["device"] == "cpu":
             env_str += f" CUDA_VISIBLE_DEVICES=''"
 
+        if "compile_backend_config" in config:
+            # https://github.com/pytorch/pytorch/blob/main/torch/_inductor/config.py
+            if config["compile_backend_config"] == "fast-math":  # default: false
+                env_str += f" TORCHINDUCTOR_USE_FAST_MATH=1"
+
         command = f"{env_str} {conda} run -n {env_name} python run_cheetah_impactx.py"
+        print(command)
         result = subprocess.run(command, shell=True, check=False, capture_output=True)
         stdout = result.stdout.decode("utf-8").split("\n")
         stderr = result.stderr.decode("utf-8")
