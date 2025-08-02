@@ -20,7 +20,7 @@ build_nproc = 12
 conda = "mamba"
 # we vary the number of particles to push in the beam,
 # to see if a code can make efficient use of L1/L2/L3 caches
-nparts = [1_000, 10_000, 100_000]  # TODO: add , 1_000_000, 10_000_000]:
+nparts = [1_000, 10_000, 100_000, 1_000_000, 10_000_000]
 
 code_configs = {
     "impactx-1cpu": {
@@ -67,17 +67,17 @@ code_configs = {
         "env_name": "benchmark-cpu",
         "env_file": "benchmark-cpu-conda.yaml",
     },
-    "impactx-cuda": {
-        "code": "impactx",
-        "version": "development",  # 25.08
-        "gh_owner": "BLAST-ImpactX",
-        "CXXFLAGS": "",
-        "OMP_NUM_THREADS": "1",
-        "ImpactX_COMPUTE": "CUDA",
-        "ImpactX_SIMD": "OFF",
-        "env_name": "benchmark-gpu",
-        "env_file": "benchmark-gpu-conda.yaml",
-    },
+#    "impactx-cuda": {
+#        "code": "impactx",
+#        "version": "development",  # 25.08
+#        "gh_owner": "BLAST-ImpactX",
+#        "CXXFLAGS": "",
+#        "OMP_NUM_THREADS": "1",
+#        "ImpactX_COMPUTE": "CUDA",
+#        "ImpactX_SIMD": "OFF",
+#        "env_name": "benchmark-gpu",
+#        "env_file": "benchmark-gpu-conda.yaml",
+#    },
     "cheetah-1cpu": {
         "code": "cheetah",
         "version": "master",  # 0.7.5
