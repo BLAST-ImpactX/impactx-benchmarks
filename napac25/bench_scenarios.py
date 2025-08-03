@@ -274,6 +274,21 @@ def install(code_config):
     else:
         raise RuntimError(f"Code '{code_config}' not implemented!")
 
+    # return installed packages for documentation/reproducibility
+    import json
+    command = f"{conda} list -n {env_name} --json"
+    result = subprocess.run(command, shell=True, check=True, capture_output=True)
+    stdout = result.stdout.decode("utf-8")
+    packages_conda = json.loads(stdout)
+    packages = []
+    for pkg in packages_conda:
+        packages += [{
+            "name": pkg["name"],
+            "version": pkg["version"]
+        }]
+
+    return packages
+
 
 def find_timing_lines(stdout, patterns):
     time_ns = {}
@@ -387,8 +402,8 @@ for code_config, _ in code_configs.items():
 
     # We vary the number of CPU threads, to see if the code benefits from threading (expectation: linear speedup).
     # We compare CPU and GPU runs, to see if the code benefits from GPU acceleration (expectation: ~10x, depending on hardware).
-    install(code_config)  # TODO: return a package+version list?
-    # TODO: add "conda env list" packages+versions to config?
+    packages = install(code_config)
+    timings[code_config][hn]["config"]["env_packages"] = packages
 
     # experiments (scenarios)
     for scenario in scenarios:
@@ -402,5 +417,9 @@ for code_config, _ in code_configs.items():
 
             # calculate particle push time
             timings[code_config][hn][str_npart]["push_per_sec"] = npart / timings[code_config][hn][str_npart]["track_ns"] * 1e9
+
+            # add more meta-data
+            timings[code_config][hn][str_npart]["scenario"] = scenario
+            timings[code_config][hn][str_npart]["npart"] = npart
 
 save_timings(timings)
