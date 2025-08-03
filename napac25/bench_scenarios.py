@@ -22,13 +22,13 @@ conda = "mamba"
 scenarios = ["htu"]
 # we vary the number of particles to push in the beam,
 # to see if a code can make efficient use of L1/L2/L3 caches
-nparts = [1_000, 10_000, 100_000, 1_000_000, 10_000_000]
+nparts = [1_000, 10_000, 100_000, 1_000_000]  #, 10_000_000]
 
 # CPU multi-core test: how many cores to use?
 ncpu = 6
 
 code_configs = {
-    "impactx-1cpu": {
+    "impactx-1cpu-autovec": {
         "code": "impactx",
         "version": "development",  # 25.08
         "gh_owner": "BLAST-ImpactX",
@@ -72,7 +72,7 @@ code_configs = {
         "env_name": "benchmark-cpu",
         "env_file": "benchmark-cpu-conda.yaml",
     },
-    f"impactx-{ncpu}cpu": {
+    f"impactx-{ncpu}cpu-autovec": {
         "code": "impactx",
         "version": "development",  # 25.08
         "gh_owner": "BLAST-ImpactX",
@@ -83,7 +83,7 @@ code_configs = {
         "env_name": "benchmark-cpu",
         "env_file": "benchmark-cpu-conda.yaml",
     },
-    f"impactx-{ncpu}cpu-fm": {
+    f"impactx-{ncpu}cpu-fm-autovec": {
         "code": "impactx",
         "version": "development",  # 25.08
         "gh_owner": "BLAST-ImpactX",
@@ -127,7 +127,10 @@ code_configs = {
         "env_name": "benchmark-cpu",
         "env_file": "benchmark-cpu-conda.yaml",    
     },
-    "cheetah-1cpu-compiled-inductor": {
+    # note: PyTorch inductor always explicitly vectorizes
+    #       for the local (native) architecture
+    #       https://dev-discuss.pytorch.org/t/torchinductor-update-9-harden-vectorization-support-and-enhance-loop-optimizations-in-torchinductor-cpp-backend/2442
+    "cheetah-1cpu-inductor-simd": {
         "code": "cheetah",
         "version": "master",  # 0.7.5
         "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
@@ -138,7 +141,7 @@ code_configs = {
         "env_name": "benchmark-cpu",
         "env_file": "benchmark-cpu-conda.yaml",
     },
-    "cheetah-1cpu-compiled-inductor-fm": {
+    "cheetah-1cpu-inductor-fm-simd": {
         "code": "cheetah",
         "version": "master",  # 0.7.5
         "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
@@ -161,7 +164,7 @@ code_configs = {
         "env_name": "benchmark-cpu",
         "env_file": "benchmark-cpu-conda.yaml",    
     },
-    f"cheetah-{ncpu}cpu-compiled-inductor": {
+    f"cheetah-{ncpu}cpu-inductor-simd": {
         "code": "cheetah",
         "version": "master",  # 0.7.5
         "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
@@ -172,7 +175,7 @@ code_configs = {
         "env_name": "benchmark-cpu",
         "env_file": "benchmark-cpu-conda.yaml",
     },
-    f"cheetah-{ncpu}cpu-compiled-inductor-fm": {
+    f"cheetah-{ncpu}cpu-inductor-fm-simd": {
         "code": "cheetah",
         "version": "master",  # 0.7.5
         "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
@@ -194,7 +197,7 @@ code_configs = {
         "env_name": "benchmark-gpu",
         "env_file": "benchmark-gpu-conda.yaml",
     },
-    "cheetah-cuda-compiled-inductor": {
+    "cheetah-cuda-inductor": {
         "code": "cheetah",
         "version": "master",  # 0.7.5
         "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
@@ -204,7 +207,7 @@ code_configs = {
         "env_name": "benchmark-gpu",
         "env_file": "benchmark-gpu-conda.yaml",
     },
-    "cheetah-cuda-compiled-inductor-fm": {
+    "cheetah-cuda-inductor-fm": {
         "code": "cheetah",
         "version": "master",  # 0.7.5
         "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
@@ -215,7 +218,7 @@ code_configs = {
         "env_name": "benchmark-gpu",
         "env_file": "benchmark-gpu-conda.yaml",
     },
-    "cheetah-cuda-compiled-cudagraphs": {
+    "cheetah-cuda-cudagraphs": {
         "code": "cheetah",
         "version": "master",  # 0.7.5
         "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile

@@ -113,6 +113,10 @@ if code == "cheetah":
         # ROCm backend (default: true)
         torch._inductor.config.rocm.use_fast_math = fast_math
 
+        # note: PyTorch inductor always explicitly vectorizes
+        #       for the local (native) architecture
+        #       https://dev-discuss.pytorch.org/t/torchinductor-update-9-harden-vectorization-support-and-enhance-loop-optimizations-in-torchinductor-cpp-backend/2442
+
         # Compiled version
         compiled_track = torch.compile(segment.track, mode="{{ compile_mode }}", backend="{{ compile_backend }}")
 
