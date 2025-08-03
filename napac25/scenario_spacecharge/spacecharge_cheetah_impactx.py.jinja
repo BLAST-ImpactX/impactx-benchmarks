@@ -1,0 +1,213 @@
+#!/usr/bin/env python3
+#
+# Copyright 2022-2023 ImpactX contributors
+# Authors: Axel Huebl, Chad Mitchell
+# License: BSD-3-Clause-LBNL
+#
+# See:
+#   https://impactx.readthedocs.io/en/latest/usage/examples/cfchannel/README.html#constant-focusing-channel-with-space-charge
+#   https://github.com/desy-ml/cheetah/blob/master/tests/test_space_charge_kick.py
+#
+# -*- coding: utf-8 -*-
+
+import time
+
+code = "{{ code }}"
+
+n_cell = [256, 256, 256]
+
+if code == "impactx":
+    from impactx import ImpactX, distribution, elements
+elif code == "cheetah":
+    import torch
+    import cheetah
+    from scipy import constants
+else:
+    raise RuntimeError("Code unknown!")
+
+
+class ProcessTimer:
+    def __init__(self):
+        self.elapsed_time = 0
+
+    def __enter__(self):
+        self.start_time = time.process_time_ns()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        end_time = time.process_time_ns()
+        self.elapsed_time = end_time - self.start_time
+
+
+if code == "cheetah":
+    # see https://github.com/desy-ml/cheetah/blob/master/tests/test_space_charge_kick.py
+
+    torch.set_default_device("{{ device | default('cpu') }}")
+
+    # data type
+    torch.set_default_dtype(torch.{{ dtype | default('float32') }})
+
+    # Simulation parameters
+    R0 = torch.tensor(0.001)
+    energy = torch.tensor(2.5e8)
+    rest_energy = torch.tensor(
+        constants.electron_mass
+        * constants.speed_of_light**2
+        / constants.elementary_charge
+    )
+    gamma = energy / rest_energy
+    npart = {{ npart }}
+
+    incoming = cheetah.ParticleBeam.uniform_3d_ellipsoid(
+        num_particles=torch.tensor(npart),
+        total_charge=torch.tensor(1e-8),
+        energy=energy,
+        radius_x=R0,
+        radius_y=R0,
+        radius_tau=R0 / gamma,  # Radius of the beam in s direction in the lab frame
+        sigma_px=torch.tensor(1e-15),
+        sigma_py=torch.tensor(1e-15),
+        sigma_p=torch.tensor(1e-15),
+        device="{{ device | default('cpu') }}",
+        dtype=torch.{{ dtype | default('float32') }}
+    )
+
+    # Compute section length
+    nslice = torch.tensor(1)
+    ds = torch.tensor(6.0)
+    section_length = ds / nslice
+
+    segment = cheetah.Segment(
+        elements=[
+            cheetah.Drift(
+                section_length,
+                device="{{ device | default('cpu') }}",
+                dtype=torch.{{ dtype | default('float32') }}
+            ),
+            cheetah.SpaceChargeKick(
+                section_length,
+                grid_shape=tuple(n_cell),
+                grid_extent_x=3,
+                grid_extent_y=3,
+                grid_extent_tau=3,
+                device="{{ device | default('cpu') }}",
+                dtype=torch.{{ dtype | default('float32') }}
+            ),
+        ] * nslice
+    )
+
+    # place data on device (or keep on cpu)
+    segment.to("{{ device | default('cpu') }}")
+    incoming.to("{{ device | default('cpu') }}")
+
+    if "{{ compile_mode | default('none') }}" != "none":
+        if torch.cuda.is_available():
+            device_cap = torch.cuda.get_device_capability()
+            if not device_cap in ((7, 0), (8, 0), (9, 0)):
+                import warnings
+                warnings.warn(
+                    "GPU is not NVIDIA V100, A100, or H100. Speedup numbers may be lower "
+                    "than expected."
+                )
+
+    # run simulation
+    if "{{ compile_mode | default('none') }}" == "none":
+        with ProcessTimer() as timer:
+            segment.track(incoming=incoming)
+
+    else:
+        # special configs, e.g.,
+        #   https://github.com/pytorch/pytorch/blob/main/torch/_inductor/config.py
+        #   https://github.com/pytorch/pytorch/pull/113347
+        fast_math = "{{ compile_backend_config | default('') }}" == "fast-math"
+        # C++ backend (default: false)
+        torch._inductor.config.cpp.enable_unsafe_math_opt_flag = fast_math
+        # CUDA backend (default: false)
+        torch._inductor.config.cuda.use_fast_math = fast_math
+        # ROCm backend (default: true)
+        torch._inductor.config.rocm.use_fast_math = fast_math
+
+        # note: PyTorch inductor always explicitly vectorizes
+        #       for the local (native) architecture
+        #       https://dev-discuss.pytorch.org/t/torchinductor-update-9-harden-vectorization-support-and-enhance-loop-optimizations-in-torchinductor-cpp-backend/2442
+
+        # Compiled version
+        compiled_track = torch.compile(segment.track, mode="{{ compile_mode }}", backend="{{ compile_backend }}")
+
+        # Call compiled version (first call does the JIT!)
+        incoming_copy = incoming.clone()
+        compiled_track(incoming=incoming_copy)
+
+        # Call compiled version (now the compiled code is cached!)
+        with ProcessTimer() as timer:
+            compiled_track(incoming=incoming)
+
+    print(f"Track: {timer.elapsed_time}ns")
+
+elif code == "impactx":
+    # see https://impactx.readthedocs.io/en/latest/usage/examples/cfchannel/README.html#constant-focusing-channel-with-space-charge
+
+    sim = ImpactX()
+
+    # set numerical parameters and IO control
+    sim.max_level = 0
+    sim.n_cell = n_cell
+    sim.blocking_factor_x = [n_cell[0]]
+    sim.blocking_factor_y = [n_cell[1]]
+    sim.blocking_factor_z = [n_cell[2]]
+
+    # B-spline order for charge deposition
+    # note: gather in ImpactX is always linear polynomial right now
+    sim.particle_shape = 1
+    sim.space_charge = "3D"
+    sim.poisson_solver = "fft"
+    sim.dynamic_size = True
+    sim.prob_relative = [1.2]
+    sim.verbose = 0
+    sim.mlmg_verbosity = 0
+
+    # beam diagnostics
+    sim.diagnostics = False  # benchmarking
+    sim.slice_step_diagnostics = False
+
+    # silent running
+    silent = True
+    if silent:
+        sim.verbose = 0
+        sim.tiny_profiler = False
+
+    # domain decomposition & space charge mesh
+    sim.init_grids()
+
+    # load a 2 GeV electron beam with an initial
+    # unnormalized rms emittance of 2 nm
+    kin_energy_MeV = 250.0   # reference energy
+    bunch_charge_C = 1.0e-8  # used with space charge
+    npart = {{ npart }}  # number of macro particles
+
+    #   reference particle
+    ref = sim.particle_container().ref_particle()
+    ref.set_charge_qe(-1.0).set_mass_MeV(0.510998950).set_kin_energy_MeV(kin_energy_MeV)
+
+    #   particle bunch
+    distr = distribution.Kurth6D(
+        lambdaX=4.472135955e-4,
+        lambdaY=4.472135955e-4,
+        lambdaT=9.12241869e-7,
+        lambdaPx=0.0,
+        lambdaPy=0.0,
+        lambdaPt=0.0,
+    )
+    sim.add_particles(bunch_charge_C, distr, npart)
+
+    # design the accelerator lattice
+    sim.lattice.extend([elements.Drift(name="d1", ds=6.0, nslice=1)])
+
+    # run simulation
+    with ProcessTimer() as timer:
+        sim.track_particles()
+
+    print(f"Track: {timer.elapsed_time}ns")
+
+    # clean shutdown
+    sim.finalize()

@@ -8,3 +8,4 @@ __pycache__
 ## jinja files
 napac25/install.sh
 napac25/run_cheetah_impactx.py
+napac25/spacecharge_cheetah_impactx.py

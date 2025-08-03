@@ -19,7 +19,7 @@ from jinja2 import Environment, FileSystemLoader
 build_nproc = 12
 conda = "mamba"
 # experiments (scenarios)
-scenarios = ["htu"]
+scenarios = ["htu", "spacecharge"]
 # we vary the number of particles to push in the beam,
 # to see if a code can make efficient use of L1/L2/L3 caches
 nparts = [1_000, 10_000, 100_000, 1_000_000]  #, 10_000_000]
@@ -370,7 +370,7 @@ def find_timing_lines(stdout, patterns):
     return time_ns
 
 
-def bench(code_config, npart, nruns=5):
+def bench(scenario, code_config, npart, nruns=5):
     time_ns = None
 
     config = code_configs[code_config]
@@ -379,7 +379,12 @@ def bench(code_config, npart, nruns=5):
     data = config.copy()
     data["npart"] = npart
 
-    render_script("htu", "run_cheetah_impactx.py.jinja", data)
+    if scenario == "htu":
+        run_script = "run_cheetah_impactx.py"
+        render_script("scenario_htu", f"{run_script}.jinja", data)
+    if scenario == "spacecharge":
+        run_script = "spacecharge_cheetah_impactx.py"
+        render_script("scenario_spacecharge", f"{run_script}.jinja", data)
 
     time_ns_min = {"track_ns": sys.float_info.max}
 
@@ -396,15 +401,15 @@ def bench(code_config, npart, nruns=5):
             if config["compile_backend_config"] == "fast-math":  # default: false
                 env_str += f" TORCHINDUCTOR_USE_FAST_MATH=1"
 
-        command = f"{env_str} {conda} run -n {env_name} python run_cheetah_impactx.py"
-        print(command)
+        command = f"{env_str} {conda} run -n {env_name} python {run_script}"
+        # print(command)
         result = subprocess.run(command, shell=True, check=False, capture_output=True)
         stdout = result.stdout.decode("utf-8").split("\n")
         stderr = result.stderr.decode("utf-8")
 
-        print(f"'{code_config}' w/ {npart} particles standard output:", stdout)
-        # print("'{code_config}' w/ {npart} particles standard error:", stderr)
-        # print("'{code_config}' w/ {npart} particles return code:", result.returncode)
+        print(f"{scenario} '{code_config}' w/ {npart} particles standard output:", stdout)
+        # print("{scenario} '{code_config}' w/ {npart} particles standard error:", stderr)
+        # print("{scenario} '{code_config}' w/ {npart} particles return code:", result.returncode)
 
         if result.returncode != 0:
             raise RuntimeError(f"config '{code_config}' w/ {npart} particles failed with: {stderr}")
@@ -482,7 +487,7 @@ for code_config, _ in code_configs.items():
         # to see if a code can make efficient use of L1/L2/L3 caches
         for npart in nparts:
             str_npart = scenario + "_" + str(npart)
-            timings[code_config][hn][str_npart] = bench(code_config, npart)
+            timings[code_config][hn][str_npart] = bench(scenario, code_config, npart)
             timings[code_config][hn][str_npart]
 
             # calculate particle push time

@@ -9,6 +9,7 @@ dependencies:
   - cmake
   - compilers
   - doxygen
+  - fftw
   - git
   - matplotlib
   - ninja
