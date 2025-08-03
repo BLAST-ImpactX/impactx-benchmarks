@@ -483,6 +483,16 @@ for code_config, _ in code_configs.items():
     # experiments (scenarios)
     for scenario in scenarios:
 
+        # skip invalid combinations
+        # - ImpactX space charge not yet support SP
+        #     https://github.com/BLAST-ImpactX/impactx/issues/1078
+        if scenario == "spacecharge":
+            if code_configs[code_config]["code"] == "impactx":
+                if not "ImpactX_PRECISION" in code_configs[code_config]:
+                    continue
+                elif code_configs[code_config]["ImpactX_PRECISION"] == "SINGLE":
+                    continue
+
         # we vary the number of particles to push in the beam,
         # to see if a code can make efficient use of L1/L2/L3 caches
         for npart in nparts:
