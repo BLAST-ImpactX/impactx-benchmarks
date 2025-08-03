@@ -161,7 +161,18 @@ code_configs = {
         "dtype": "float32",
         "OMP_NUM_THREADS": "1",
         "env_name": "benchmark-cpu",
-        "env_file": "benchmark-cpu-conda.yaml",    
+        "env_file": "benchmark-cpu-conda.yaml",
+    },
+    "cheetah-1cpu-dp": {
+        "code": "cheetah",
+        "version": "master",  # 0.7.5
+        "compile_mode": "none",  # https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
+        "compile_backend": "none",
+        "device": "cpu",
+        "dtype": "float64",
+        "OMP_NUM_THREADS": "1",
+        "env_name": "benchmark-cpu",
+        "env_file": "benchmark-cpu-conda.yaml",
     },
     # note: PyTorch inductor always explicitly vectorizes
     #       for the local (native) architecture
@@ -210,7 +221,18 @@ code_configs = {
         "dtype": "float32",
         "OMP_NUM_THREADS": f"{ncpu}",
         "env_name": "benchmark-cpu",
-        "env_file": "benchmark-cpu-conda.yaml",    
+        "env_file": "benchmark-cpu-conda.yaml",
+    },
+    f"cheetah-{ncpu}cpu-dp": {
+        "code": "cheetah",
+        "version": "master",  # 0.7.5
+        "compile_mode": "none",  # https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
+        "compile_backend": "none",
+        "device": "cpu",
+        "dtype": "float64",
+        "OMP_NUM_THREADS": f"{ncpu}",
+        "env_name": "benchmark-cpu",
+        "env_file": "benchmark-cpu-conda.yaml",
     },
     f"cheetah-{ncpu}cpu-inductor-simd": {
         "code": "cheetah",
@@ -254,6 +276,16 @@ code_configs = {
         "compile_backend": "none",
         "device": "cuda",
         "dtype": "float32",
+        "env_name": "benchmark-gpu",
+        "env_file": "benchmark-gpu-conda.yaml",
+    },
+    "cheetah-cuda-dp": {
+        "code": "cheetah",
+        "version": "master",  # 0.7.5
+        "compile_mode": "none",  # https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
+        "compile_backend": "none",
+        "device": "cuda",
+        "dtype": "float64",
         "env_name": "benchmark-gpu",
         "env_file": "benchmark-gpu-conda.yaml",
     },
@@ -491,6 +523,14 @@ for code_config, _ in code_configs.items():
                 if not "ImpactX_PRECISION" in code_configs[code_config]:
                     continue
                 elif code_configs[code_config]["ImpactX_PRECISION"] == "SINGLE":
+                    continue
+        # - Cheetah (uncompiled) in DP needs more than 8GByte of GPU memory
+        #   for the spacecharge benchmark, which does not fit on a laptop
+        #   GPU:
+        #     File "cheetah/accelerator/space_charge_kick.py", line 397, in _solve_poisson_equation
+        #     potential = (1 / (4 * torch.pi * epsilon_0)) * torch.fft.irfftn(
+            if code_config == "cheetah-cuda-dp":
+                if hn == "axel-dell":
                     continue
 
         # we vary the number of particles to push in the beam,

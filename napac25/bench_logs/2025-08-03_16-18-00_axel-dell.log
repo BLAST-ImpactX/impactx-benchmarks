@@ -1,3 +1,424 @@
+Collecting git+https://github.com/desy-ml/cheetah.git
+  Cloning https://github.com/desy-ml/cheetah.git to /tmp/pip-req-build-yunrvu_0
+  Running command git clone --filter=blob:none --quiet https://github.com/desy-ml/cheetah.git /tmp/pip-req-build-yunrvu_0
+  Resolved https://github.com/desy-ml/cheetah.git to commit 576840e80bd1170628dccc21d59acc1587c2562d
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Requirement already satisfied: matplotlib>=3.5 in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from cheetah-accelerator==0.7.5.dev0) (3.10.5)
+Requirement already satisfied: numpy>=1.21.3 in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from cheetah-accelerator==0.7.5.dev0) (2.3.2)
+Requirement already satisfied: scipy>=1.7.2 in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from cheetah-accelerator==0.7.5.dev0) (1.16.0)
+Collecting torch>=2.3 (from torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached torch-2.7.1-cp313-cp313-manylinux_2_28_x86_64.whl.metadata (29 kB)
+Requirement already satisfied: contourpy>=1.0.1 in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from matplotlib>=3.5->cheetah-accelerator==0.7.5.dev0) (1.3.3)
+Requirement already satisfied: cycler>=0.10 in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from matplotlib>=3.5->cheetah-accelerator==0.7.5.dev0) (0.12.1)
+Requirement already satisfied: fonttools>=4.22.0 in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from matplotlib>=3.5->cheetah-accelerator==0.7.5.dev0) (4.59.0)
+Requirement already satisfied: kiwisolver>=1.3.1 in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from matplotlib>=3.5->cheetah-accelerator==0.7.5.dev0) (1.4.8)
+Requirement already satisfied: packaging>=20.0 in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from matplotlib>=3.5->cheetah-accelerator==0.7.5.dev0) (25.0)
+Requirement already satisfied: pillow>=8 in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from matplotlib>=3.5->cheetah-accelerator==0.7.5.dev0) (11.3.0)
+Requirement already satisfied: pyparsing>=2.3.1 in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from matplotlib>=3.5->cheetah-accelerator==0.7.5.dev0) (3.2.3)
+Requirement already satisfied: python-dateutil>=2.7 in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from matplotlib>=3.5->cheetah-accelerator==0.7.5.dev0) (2.9.0.post0)
+Requirement already satisfied: six>=1.5 in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from python-dateutil>=2.7->matplotlib>=3.5->cheetah-accelerator==0.7.5.dev0) (1.17.0)
+Requirement already satisfied: filelock in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0) (3.18.0)
+Requirement already satisfied: typing-extensions>=4.10.0 in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0) (4.14.1)
+Requirement already satisfied: setuptools in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0) (80.9.0)
+Collecting sympy>=1.13.3 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached sympy-1.14.0-py3-none-any.whl.metadata (12 kB)
+Collecting networkx (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached networkx-3.5-py3-none-any.whl.metadata (6.3 kB)
+Collecting jinja2 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+Collecting fsspec (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached fsspec-2025.7.0-py3-none-any.whl.metadata (12 kB)
+Collecting nvidia-cuda-nvrtc-cu12==12.6.77 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cuda_nvrtc_cu12-12.6.77-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)
+Collecting nvidia-cuda-runtime-cu12==12.6.77 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cuda_runtime_cu12-12.6.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.5 kB)
+Collecting nvidia-cuda-cupti-cu12==12.6.80 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cuda_cupti_cu12-12.6.80-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.6 kB)
+Collecting nvidia-cudnn-cu12==9.5.1.17 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cudnn_cu12-9.5.1.17-py3-none-manylinux_2_28_x86_64.whl.metadata (1.6 kB)
+Collecting nvidia-cublas-cu12==12.6.4.1 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cublas_cu12-12.6.4.1-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.5 kB)
+Collecting nvidia-cufft-cu12==11.3.0.4 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cufft_cu12-11.3.0.4-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.5 kB)
+Collecting nvidia-curand-cu12==10.3.7.77 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_curand_cu12-10.3.7.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.5 kB)
+Collecting nvidia-cusolver-cu12==11.7.1.2 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cusolver_cu12-11.7.1.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.6 kB)
+Collecting nvidia-cusparse-cu12==12.5.4.2 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cusparse_cu12-12.5.4.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.6 kB)
+Collecting nvidia-cusparselt-cu12==0.6.3 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cusparselt_cu12-0.6.3-py3-none-manylinux2014_x86_64.whl.metadata (6.8 kB)
+Collecting nvidia-nccl-cu12==2.26.2 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_nccl_cu12-2.26.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.0 kB)
+Collecting nvidia-nvtx-cu12==12.6.77 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_nvtx_cu12-12.6.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.6 kB)
+Collecting nvidia-nvjitlink-cu12==12.6.85 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_nvjitlink_cu12-12.6.85-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl.metadata (1.5 kB)
+Collecting nvidia-cufile-cu12==1.11.1.6 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cufile_cu12-1.11.1.6-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.5 kB)
+Collecting triton==3.3.1 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached triton-3.3.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (1.5 kB)
+Collecting mpmath<1.4,>=1.1.0 (from sympy>=1.13.3->torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached mpmath-1.3.0-py3-none-any.whl.metadata (8.6 kB)
+Collecting opt-einsum>=3.3 (from torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached opt_einsum-3.4.0-py3-none-any.whl.metadata (6.3 kB)
+Collecting MarkupSafe>=2.0 (from jinja2->torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached MarkupSafe-3.0.2-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.0 kB)
+Using cached torch-2.7.1-cp313-cp313-manylinux_2_28_x86_64.whl (821.0 MB)
+Using cached nvidia_cublas_cu12-12.6.4.1-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (393.1 MB)
+Using cached nvidia_cuda_cupti_cu12-12.6.80-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (8.9 MB)
+Using cached nvidia_cuda_nvrtc_cu12-12.6.77-py3-none-manylinux2014_x86_64.whl (23.7 MB)
+Using cached nvidia_cuda_runtime_cu12-12.6.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (897 kB)
+Using cached nvidia_cudnn_cu12-9.5.1.17-py3-none-manylinux_2_28_x86_64.whl (571.0 MB)
+Using cached nvidia_cufft_cu12-11.3.0.4-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (200.2 MB)
+Using cached nvidia_cufile_cu12-1.11.1.6-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (1.1 MB)
+Using cached nvidia_curand_cu12-10.3.7.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (56.3 MB)
+Using cached nvidia_cusolver_cu12-11.7.1.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (158.2 MB)
+Using cached nvidia_cusparse_cu12-12.5.4.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (216.6 MB)
+Using cached nvidia_cusparselt_cu12-0.6.3-py3-none-manylinux2014_x86_64.whl (156.8 MB)
+Using cached nvidia_nccl_cu12-2.26.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (201.3 MB)
+Using cached nvidia_nvjitlink_cu12-12.6.85-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (19.7 MB)
+Using cached nvidia_nvtx_cu12-12.6.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (89 kB)
+Using cached triton-3.3.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (155.7 MB)
+Using cached sympy-1.14.0-py3-none-any.whl (6.3 MB)
+Using cached mpmath-1.3.0-py3-none-any.whl (536 kB)
+Using cached opt_einsum-3.4.0-py3-none-any.whl (71 kB)
+Using cached fsspec-2025.7.0-py3-none-any.whl (199 kB)
+Using cached jinja2-3.1.6-py3-none-any.whl (134 kB)
+Using cached MarkupSafe-3.0.2-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (23 kB)
+Using cached networkx-3.5-py3-none-any.whl (2.0 MB)
+Building wheels for collected packages: cheetah-accelerator
+  Building wheel for cheetah-accelerator (pyproject.toml): started
+  Building wheel for cheetah-accelerator (pyproject.toml): finished with status 'done'
+  Created wheel for cheetah-accelerator: filename=cheetah_accelerator-0.7.5.dev0-py3-none-any.whl size=128641 sha256=dcd6aa0da61cea1c0f2ae35a4d2a8acc415443ee8ea327875d8b8b49b2420d97
+  Stored in directory: /tmp/pip-ephem-wheel-cache-p6paag5g/wheels/fe/aa/49/125be85f45553971dc4038d6ea62749cc2f410bdfdc124e1a9
+Successfully built cheetah-accelerator
+Installing collected packages: nvidia-cusparselt-cu12, mpmath, triton, sympy, opt-einsum, nvidia-nvtx-cu12, nvidia-nvjitlink-cu12, nvidia-nccl-cu12, nvidia-curand-cu12, nvidia-cufile-cu12, nvidia-cuda-runtime-cu12, nvidia-cuda-nvrtc-cu12, nvidia-cuda-cupti-cu12, nvidia-cublas-cu12, networkx, MarkupSafe, fsspec, nvidia-cusparse-cu12, nvidia-cufft-cu12, nvidia-cudnn-cu12, jinja2, nvidia-cusolver-cu12, torch, cheetah-accelerator
+
+Successfully installed MarkupSafe-3.0.2 cheetah-accelerator-0.7.5.dev0 fsspec-2025.7.0 jinja2-3.1.6 mpmath-1.3.0 networkx-3.5 nvidia-cublas-cu12-12.6.4.1 nvidia-cuda-cupti-cu12-12.6.80 nvidia-cuda-nvrtc-cu12-12.6.77 nvidia-cuda-runtime-cu12-12.6.77 nvidia-cudnn-cu12-9.5.1.17 nvidia-cufft-cu12-11.3.0.4 nvidia-cufile-cu12-1.11.1.6 nvidia-curand-cu12-10.3.7.77 nvidia-cusolver-cu12-11.7.1.2 nvidia-cusparse-cu12-12.5.4.2 nvidia-cusparselt-cu12-0.6.3 nvidia-nccl-cu12-2.26.2 nvidia-nvjitlink-cu12-12.6.85 nvidia-nvtx-cu12-12.6.77 opt-einsum-3.4.0 sympy-1.14.0 torch-2.7.1 triton-3.3.1
+Collecting git+https://github.com/desy-ml/cheetah.git
+  Cloning https://github.com/desy-ml/cheetah.git to /tmp/pip-req-build-7mjxwm_r
+  Running command git clone --filter=blob:none --quiet https://github.com/desy-ml/cheetah.git /tmp/pip-req-build-7mjxwm_r
+  Resolved https://github.com/desy-ml/cheetah.git to commit 576840e80bd1170628dccc21d59acc1587c2562d
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Requirement already satisfied: matplotlib>=3.5 in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from cheetah-accelerator==0.7.5.dev0) (3.10.5)
+Requirement already satisfied: numpy>=1.21.3 in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from cheetah-accelerator==0.7.5.dev0) (2.3.2)
+Requirement already satisfied: scipy>=1.7.2 in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from cheetah-accelerator==0.7.5.dev0) (1.16.0)
+Collecting torch>=2.3 (from torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached torch-2.7.1-cp313-cp313-manylinux_2_28_x86_64.whl.metadata (29 kB)
+Requirement already satisfied: contourpy>=1.0.1 in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from matplotlib>=3.5->cheetah-accelerator==0.7.5.dev0) (1.3.3)
+Requirement already satisfied: cycler>=0.10 in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from matplotlib>=3.5->cheetah-accelerator==0.7.5.dev0) (0.12.1)
+Requirement already satisfied: fonttools>=4.22.0 in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from matplotlib>=3.5->cheetah-accelerator==0.7.5.dev0) (4.59.0)
+Requirement already satisfied: kiwisolver>=1.3.1 in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from matplotlib>=3.5->cheetah-accelerator==0.7.5.dev0) (1.4.8)
+Requirement already satisfied: packaging>=20.0 in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from matplotlib>=3.5->cheetah-accelerator==0.7.5.dev0) (25.0)
+Requirement already satisfied: pillow>=8 in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from matplotlib>=3.5->cheetah-accelerator==0.7.5.dev0) (11.3.0)
+Requirement already satisfied: pyparsing>=2.3.1 in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from matplotlib>=3.5->cheetah-accelerator==0.7.5.dev0) (3.2.3)
+Requirement already satisfied: python-dateutil>=2.7 in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from matplotlib>=3.5->cheetah-accelerator==0.7.5.dev0) (2.9.0.post0)
+Requirement already satisfied: six>=1.5 in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from python-dateutil>=2.7->matplotlib>=3.5->cheetah-accelerator==0.7.5.dev0) (1.17.0)
+Requirement already satisfied: filelock in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0) (3.18.0)
+Requirement already satisfied: typing-extensions>=4.10.0 in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0) (4.14.1)
+Requirement already satisfied: setuptools in /home/axel/micromamba/envs/benchmark-cpu/lib/python3.13/site-packages (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0) (80.9.0)
+Collecting sympy>=1.13.3 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached sympy-1.14.0-py3-none-any.whl.metadata (12 kB)
+Collecting networkx (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached networkx-3.5-py3-none-any.whl.metadata (6.3 kB)
+Collecting jinja2 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+Collecting fsspec (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached fsspec-2025.7.0-py3-none-any.whl.metadata (12 kB)
+Collecting nvidia-cuda-nvrtc-cu12==12.6.77 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cuda_nvrtc_cu12-12.6.77-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)
+Collecting nvidia-cuda-runtime-cu12==12.6.77 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cuda_runtime_cu12-12.6.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.5 kB)
+Collecting nvidia-cuda-cupti-cu12==12.6.80 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cuda_cupti_cu12-12.6.80-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.6 kB)
+Collecting nvidia-cudnn-cu12==9.5.1.17 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cudnn_cu12-9.5.1.17-py3-none-manylinux_2_28_x86_64.whl.metadata (1.6 kB)
+Collecting nvidia-cublas-cu12==12.6.4.1 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cublas_cu12-12.6.4.1-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.5 kB)
+Collecting nvidia-cufft-cu12==11.3.0.4 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cufft_cu12-11.3.0.4-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.5 kB)
+Collecting nvidia-curand-cu12==10.3.7.77 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_curand_cu12-10.3.7.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.5 kB)
+Collecting nvidia-cusolver-cu12==11.7.1.2 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cusolver_cu12-11.7.1.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.6 kB)
+Collecting nvidia-cusparse-cu12==12.5.4.2 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cusparse_cu12-12.5.4.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.6 kB)
+Collecting nvidia-cusparselt-cu12==0.6.3 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cusparselt_cu12-0.6.3-py3-none-manylinux2014_x86_64.whl.metadata (6.8 kB)
+Collecting nvidia-nccl-cu12==2.26.2 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_nccl_cu12-2.26.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.0 kB)
+Collecting nvidia-nvtx-cu12==12.6.77 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_nvtx_cu12-12.6.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.6 kB)
+Collecting nvidia-nvjitlink-cu12==12.6.85 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_nvjitlink_cu12-12.6.85-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl.metadata (1.5 kB)
+Collecting nvidia-cufile-cu12==1.11.1.6 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cufile_cu12-1.11.1.6-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.5 kB)
+Collecting triton==3.3.1 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached triton-3.3.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (1.5 kB)
+Collecting mpmath<1.4,>=1.1.0 (from sympy>=1.13.3->torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached mpmath-1.3.0-py3-none-any.whl.metadata (8.6 kB)
+Collecting opt-einsum>=3.3 (from torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached opt_einsum-3.4.0-py3-none-any.whl.metadata (6.3 kB)
+Collecting MarkupSafe>=2.0 (from jinja2->torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached MarkupSafe-3.0.2-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.0 kB)
+Using cached torch-2.7.1-cp313-cp313-manylinux_2_28_x86_64.whl (821.0 MB)
+Using cached nvidia_cublas_cu12-12.6.4.1-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (393.1 MB)
+Using cached nvidia_cuda_cupti_cu12-12.6.80-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (8.9 MB)
+Using cached nvidia_cuda_nvrtc_cu12-12.6.77-py3-none-manylinux2014_x86_64.whl (23.7 MB)
+Using cached nvidia_cuda_runtime_cu12-12.6.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (897 kB)
+Using cached nvidia_cudnn_cu12-9.5.1.17-py3-none-manylinux_2_28_x86_64.whl (571.0 MB)
+Using cached nvidia_cufft_cu12-11.3.0.4-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (200.2 MB)
+Using cached nvidia_cufile_cu12-1.11.1.6-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (1.1 MB)
+Using cached nvidia_curand_cu12-10.3.7.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (56.3 MB)
+Using cached nvidia_cusolver_cu12-11.7.1.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (158.2 MB)
+Using cached nvidia_cusparse_cu12-12.5.4.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (216.6 MB)
+Using cached nvidia_cusparselt_cu12-0.6.3-py3-none-manylinux2014_x86_64.whl (156.8 MB)
+Using cached nvidia_nccl_cu12-2.26.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (201.3 MB)
+Using cached nvidia_nvjitlink_cu12-12.6.85-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (19.7 MB)
+Using cached nvidia_nvtx_cu12-12.6.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (89 kB)
+Using cached triton-3.3.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (155.7 MB)
+Using cached sympy-1.14.0-py3-none-any.whl (6.3 MB)
+Using cached mpmath-1.3.0-py3-none-any.whl (536 kB)
+Using cached opt_einsum-3.4.0-py3-none-any.whl (71 kB)
+Using cached fsspec-2025.7.0-py3-none-any.whl (199 kB)
+Using cached jinja2-3.1.6-py3-none-any.whl (134 kB)
+Using cached MarkupSafe-3.0.2-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (23 kB)
+Using cached networkx-3.5-py3-none-any.whl (2.0 MB)
+Building wheels for collected packages: cheetah-accelerator
+  Building wheel for cheetah-accelerator (pyproject.toml): started
+  Building wheel for cheetah-accelerator (pyproject.toml): finished with status 'done'
+  Created wheel for cheetah-accelerator: filename=cheetah_accelerator-0.7.5.dev0-py3-none-any.whl size=128641 sha256=a83409cbf8b5b5f9d8482329b1d4d9aa00d60c699ad0ca8fb1ad67e04ba8ca57
+  Stored in directory: /tmp/pip-ephem-wheel-cache-ug4c17we/wheels/fe/aa/49/125be85f45553971dc4038d6ea62749cc2f410bdfdc124e1a9
+Successfully built cheetah-accelerator
+Installing collected packages: nvidia-cusparselt-cu12, mpmath, triton, sympy, opt-einsum, nvidia-nvtx-cu12, nvidia-nvjitlink-cu12, nvidia-nccl-cu12, nvidia-curand-cu12, nvidia-cufile-cu12, nvidia-cuda-runtime-cu12, nvidia-cuda-nvrtc-cu12, nvidia-cuda-cupti-cu12, nvidia-cublas-cu12, networkx, MarkupSafe, fsspec, nvidia-cusparse-cu12, nvidia-cufft-cu12, nvidia-cudnn-cu12, jinja2, nvidia-cusolver-cu12, torch, cheetah-accelerator
+
+Successfully installed MarkupSafe-3.0.2 cheetah-accelerator-0.7.5.dev0 fsspec-2025.7.0 jinja2-3.1.6 mpmath-1.3.0 networkx-3.5 nvidia-cublas-cu12-12.6.4.1 nvidia-cuda-cupti-cu12-12.6.80 nvidia-cuda-nvrtc-cu12-12.6.77 nvidia-cuda-runtime-cu12-12.6.77 nvidia-cudnn-cu12-9.5.1.17 nvidia-cufft-cu12-11.3.0.4 nvidia-cufile-cu12-1.11.1.6 nvidia-curand-cu12-10.3.7.77 nvidia-cusolver-cu12-11.7.1.2 nvidia-cusparse-cu12-12.5.4.2 nvidia-cusparselt-cu12-0.6.3 nvidia-nccl-cu12-2.26.2 nvidia-nvjitlink-cu12-12.6.85 nvidia-nvtx-cu12-12.6.77 opt-einsum-3.4.0 sympy-1.14.0 torch-2.7.1 triton-3.3.1
+warning  libmamba [cuda-sanitizer-api-12.9.79-1] The following files were already present in the environment:
+    - LICENSE
+warning  libmamba [cuda-nvprune-12.9.82-1] The following files were already present in the environment:
+    - LICENSE
+warning  libmamba [cuda-cuxxfilt-12.9.82-1] The following files were already present in the environment:
+    - LICENSE
+warning  libmamba [cuda-nvprof-12.9.79-0] The following files were already present in the environment:
+    - LICENSE
+warning  libmamba [cuda-cuobjdump-12.9.82-1] The following files were already present in the environment:
+    - LICENSE
+warning  libmamba [cuda-nvvp-12.9.79-1] The following files were already present in the environment:
+    - LICENSE
+Collecting git+https://github.com/desy-ml/cheetah.git
+  Cloning https://github.com/desy-ml/cheetah.git to /tmp/pip-req-build-ol3jyu5n
+  Running command git clone --filter=blob:none --quiet https://github.com/desy-ml/cheetah.git /tmp/pip-req-build-ol3jyu5n
+  Resolved https://github.com/desy-ml/cheetah.git to commit 576840e80bd1170628dccc21d59acc1587c2562d
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Requirement already satisfied: matplotlib>=3.5 in /home/axel/micromamba/envs/benchmark-gpu/lib/python3.13/site-packages (from cheetah-accelerator==0.7.5.dev0) (3.10.5)
+Requirement already satisfied: numpy>=1.21.3 in /home/axel/micromamba/envs/benchmark-gpu/lib/python3.13/site-packages (from cheetah-accelerator==0.7.5.dev0) (2.3.2)
+Requirement already satisfied: scipy>=1.7.2 in /home/axel/micromamba/envs/benchmark-gpu/lib/python3.13/site-packages (from cheetah-accelerator==0.7.5.dev0) (1.16.0)
+Collecting torch>=2.3 (from torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached torch-2.7.1-cp313-cp313-manylinux_2_28_x86_64.whl.metadata (29 kB)
+Requirement already satisfied: contourpy>=1.0.1 in /home/axel/micromamba/envs/benchmark-gpu/lib/python3.13/site-packages (from matplotlib>=3.5->cheetah-accelerator==0.7.5.dev0) (1.3.3)
+Requirement already satisfied: cycler>=0.10 in /home/axel/micromamba/envs/benchmark-gpu/lib/python3.13/site-packages (from matplotlib>=3.5->cheetah-accelerator==0.7.5.dev0) (0.12.1)
+Requirement already satisfied: fonttools>=4.22.0 in /home/axel/micromamba/envs/benchmark-gpu/lib/python3.13/site-packages (from matplotlib>=3.5->cheetah-accelerator==0.7.5.dev0) (4.59.0)
+Requirement already satisfied: kiwisolver>=1.3.1 in /home/axel/micromamba/envs/benchmark-gpu/lib/python3.13/site-packages (from matplotlib>=3.5->cheetah-accelerator==0.7.5.dev0) (1.4.8)
+Requirement already satisfied: packaging>=20.0 in /home/axel/micromamba/envs/benchmark-gpu/lib/python3.13/site-packages (from matplotlib>=3.5->cheetah-accelerator==0.7.5.dev0) (25.0)
+Requirement already satisfied: pillow>=8 in /home/axel/micromamba/envs/benchmark-gpu/lib/python3.13/site-packages (from matplotlib>=3.5->cheetah-accelerator==0.7.5.dev0) (11.3.0)
+Requirement already satisfied: pyparsing>=2.3.1 in /home/axel/micromamba/envs/benchmark-gpu/lib/python3.13/site-packages (from matplotlib>=3.5->cheetah-accelerator==0.7.5.dev0) (3.2.3)
+Requirement already satisfied: python-dateutil>=2.7 in /home/axel/micromamba/envs/benchmark-gpu/lib/python3.13/site-packages (from matplotlib>=3.5->cheetah-accelerator==0.7.5.dev0) (2.9.0.post0)
+Requirement already satisfied: six>=1.5 in /home/axel/micromamba/envs/benchmark-gpu/lib/python3.13/site-packages (from python-dateutil>=2.7->matplotlib>=3.5->cheetah-accelerator==0.7.5.dev0) (1.17.0)
+Requirement already satisfied: filelock in /home/axel/micromamba/envs/benchmark-gpu/lib/python3.13/site-packages (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0) (3.18.0)
+Requirement already satisfied: typing-extensions>=4.10.0 in /home/axel/micromamba/envs/benchmark-gpu/lib/python3.13/site-packages (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0) (4.14.1)
+Requirement already satisfied: setuptools in /home/axel/micromamba/envs/benchmark-gpu/lib/python3.13/site-packages (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0) (80.9.0)
+Collecting sympy>=1.13.3 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached sympy-1.14.0-py3-none-any.whl.metadata (12 kB)
+Collecting networkx (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached networkx-3.5-py3-none-any.whl.metadata (6.3 kB)
+Collecting jinja2 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+Collecting fsspec (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached fsspec-2025.7.0-py3-none-any.whl.metadata (12 kB)
+Collecting nvidia-cuda-nvrtc-cu12==12.6.77 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cuda_nvrtc_cu12-12.6.77-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)
+Collecting nvidia-cuda-runtime-cu12==12.6.77 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cuda_runtime_cu12-12.6.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.5 kB)
+Collecting nvidia-cuda-cupti-cu12==12.6.80 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cuda_cupti_cu12-12.6.80-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.6 kB)
+Collecting nvidia-cudnn-cu12==9.5.1.17 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cudnn_cu12-9.5.1.17-py3-none-manylinux_2_28_x86_64.whl.metadata (1.6 kB)
+Collecting nvidia-cublas-cu12==12.6.4.1 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cublas_cu12-12.6.4.1-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.5 kB)
+Collecting nvidia-cufft-cu12==11.3.0.4 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cufft_cu12-11.3.0.4-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.5 kB)
+Collecting nvidia-curand-cu12==10.3.7.77 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_curand_cu12-10.3.7.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.5 kB)
+Collecting nvidia-cusolver-cu12==11.7.1.2 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cusolver_cu12-11.7.1.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.6 kB)
+Collecting nvidia-cusparse-cu12==12.5.4.2 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cusparse_cu12-12.5.4.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.6 kB)
+Collecting nvidia-cusparselt-cu12==0.6.3 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cusparselt_cu12-0.6.3-py3-none-manylinux2014_x86_64.whl.metadata (6.8 kB)
+Collecting nvidia-nccl-cu12==2.26.2 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_nccl_cu12-2.26.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.0 kB)
+Collecting nvidia-nvtx-cu12==12.6.77 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_nvtx_cu12-12.6.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.6 kB)
+Collecting nvidia-nvjitlink-cu12==12.6.85 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_nvjitlink_cu12-12.6.85-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl.metadata (1.5 kB)
+Collecting nvidia-cufile-cu12==1.11.1.6 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached nvidia_cufile_cu12-1.11.1.6-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.5 kB)
+Collecting triton==3.3.1 (from torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached triton-3.3.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (1.5 kB)
+Collecting mpmath<1.4,>=1.1.0 (from sympy>=1.13.3->torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached mpmath-1.3.0-py3-none-any.whl.metadata (8.6 kB)
+Collecting opt-einsum>=3.3 (from torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached opt_einsum-3.4.0-py3-none-any.whl.metadata (6.3 kB)
+Collecting MarkupSafe>=2.0 (from jinja2->torch>=2.3->torch[opt-einsum]>=2.3->cheetah-accelerator==0.7.5.dev0)
+  Using cached MarkupSafe-3.0.2-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.0 kB)
+Using cached torch-2.7.1-cp313-cp313-manylinux_2_28_x86_64.whl (821.0 MB)
+Using cached nvidia_cublas_cu12-12.6.4.1-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (393.1 MB)
+Using cached nvidia_cuda_cupti_cu12-12.6.80-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (8.9 MB)
+Using cached nvidia_cuda_nvrtc_cu12-12.6.77-py3-none-manylinux2014_x86_64.whl (23.7 MB)
+Using cached nvidia_cuda_runtime_cu12-12.6.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (897 kB)
+Using cached nvidia_cudnn_cu12-9.5.1.17-py3-none-manylinux_2_28_x86_64.whl (571.0 MB)
+Using cached nvidia_cufft_cu12-11.3.0.4-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (200.2 MB)
+Using cached nvidia_cufile_cu12-1.11.1.6-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (1.1 MB)
+Using cached nvidia_curand_cu12-10.3.7.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (56.3 MB)
+Using cached nvidia_cusolver_cu12-11.7.1.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (158.2 MB)
+Using cached nvidia_cusparse_cu12-12.5.4.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (216.6 MB)
+Using cached nvidia_cusparselt_cu12-0.6.3-py3-none-manylinux2014_x86_64.whl (156.8 MB)
+Using cached nvidia_nccl_cu12-2.26.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (201.3 MB)
+Using cached nvidia_nvjitlink_cu12-12.6.85-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (19.7 MB)
+Using cached nvidia_nvtx_cu12-12.6.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (89 kB)
+Using cached triton-3.3.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (155.7 MB)
+Using cached sympy-1.14.0-py3-none-any.whl (6.3 MB)
+Using cached mpmath-1.3.0-py3-none-any.whl (536 kB)
+Using cached opt_einsum-3.4.0-py3-none-any.whl (71 kB)
+Using cached fsspec-2025.7.0-py3-none-any.whl (199 kB)
+Using cached jinja2-3.1.6-py3-none-any.whl (134 kB)
+Using cached MarkupSafe-3.0.2-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (23 kB)
+Using cached networkx-3.5-py3-none-any.whl (2.0 MB)
+Building wheels for collected packages: cheetah-accelerator
+  Building wheel for cheetah-accelerator (pyproject.toml): started
+  Building wheel for cheetah-accelerator (pyproject.toml): finished with status 'done'
+  Created wheel for cheetah-accelerator: filename=cheetah_accelerator-0.7.5.dev0-py3-none-any.whl size=128641 sha256=78802dedfb1c2576d054ec842d4551469e7cf97fb4ca46968ed0f15762752f5a
+  Stored in directory: /tmp/pip-ephem-wheel-cache-7lgbk6ln/wheels/fe/aa/49/125be85f45553971dc4038d6ea62749cc2f410bdfdc124e1a9
+Successfully built cheetah-accelerator
+Installing collected packages: nvidia-cusparselt-cu12, mpmath, triton, sympy, opt-einsum, nvidia-nvtx-cu12, nvidia-nvjitlink-cu12, nvidia-nccl-cu12, nvidia-curand-cu12, nvidia-cufile-cu12, nvidia-cuda-runtime-cu12, nvidia-cuda-nvrtc-cu12, nvidia-cuda-cupti-cu12, nvidia-cublas-cu12, networkx, MarkupSafe, fsspec, nvidia-cusparse-cu12, nvidia-cufft-cu12, nvidia-cudnn-cu12, jinja2, nvidia-cusolver-cu12, torch, cheetah-accelerator
+
+Successfully installed MarkupSafe-3.0.2 cheetah-accelerator-0.7.5.dev0 fsspec-2025.7.0 jinja2-3.1.6 mpmath-1.3.0 networkx-3.5 nvidia-cublas-cu12-12.6.4.1 nvidia-cuda-cupti-cu12-12.6.80 nvidia-cuda-nvrtc-cu12-12.6.77 nvidia-cuda-runtime-cu12-12.6.77 nvidia-cudnn-cu12-9.5.1.17 nvidia-cufft-cu12-11.3.0.4 nvidia-cufile-cu12-1.11.1.6 nvidia-curand-cu12-10.3.7.77 nvidia-cusolver-cu12-11.7.1.2 nvidia-cusparse-cu12-12.5.4.2 nvidia-cusparselt-cu12-0.6.3 nvidia-nccl-cu12-2.26.2 nvidia-nvjitlink-cu12-12.6.85 nvidia-nvtx-cu12-12.6.77 opt-einsum-3.4.0 sympy-1.14.0 torch-2.7.1 triton-3.3.1
+htu 'cheetah-1cpu-dp' w/ 1000 particles standard output: ['Track: 94972999ns', '']
+htu 'cheetah-1cpu-dp' w/ 1000 particles standard output: ['Track: 95589437ns', '']
+htu 'cheetah-1cpu-dp' w/ 1000 particles standard output: ['Track: 96846407ns', '']
+htu 'cheetah-1cpu-dp' w/ 1000 particles standard output: ['Track: 95491575ns', '']
+htu 'cheetah-1cpu-dp' w/ 1000 particles standard output: ['Track: 94220131ns', '']
+htu 'cheetah-1cpu-dp' w/ 10000 particles standard output: ['Track: 191208357ns', '']
+htu 'cheetah-1cpu-dp' w/ 10000 particles standard output: ['Track: 191683502ns', '']
+htu 'cheetah-1cpu-dp' w/ 10000 particles standard output: ['Track: 191644210ns', '']
+htu 'cheetah-1cpu-dp' w/ 10000 particles standard output: ['Track: 188246340ns', '']
+htu 'cheetah-1cpu-dp' w/ 10000 particles standard output: ['Track: 190097583ns', '']
+htu 'cheetah-1cpu-dp' w/ 100000 particles standard output: ['Track: 1711078620ns', '']
+htu 'cheetah-1cpu-dp' w/ 100000 particles standard output: ['Track: 1733073343ns', '']
+htu 'cheetah-1cpu-dp' w/ 100000 particles standard output: ['Track: 1728957120ns', '']
+htu 'cheetah-1cpu-dp' w/ 100000 particles standard output: ['Track: 1718139769ns', '']
+htu 'cheetah-1cpu-dp' w/ 100000 particles standard output: ['Track: 1713956432ns', '']
+htu 'cheetah-1cpu-dp' w/ 1000000 particles standard output: ['Track: 30321882396ns', '']
+htu 'cheetah-1cpu-dp' w/ 1000000 particles standard output: ['Track: 29920618488ns', '']
+htu 'cheetah-1cpu-dp' w/ 1000000 particles standard output: ['Track: 30172727282ns', '']
+htu 'cheetah-1cpu-dp' w/ 1000000 particles standard output: ['Track: 29965339428ns', '']
+htu 'cheetah-1cpu-dp' w/ 1000000 particles standard output: ['Track: 30006503988ns', '']
+spacecharge 'cheetah-1cpu-dp' w/ 1000 particles standard output: ['Track: 28333228267ns', '']
+spacecharge 'cheetah-1cpu-dp' w/ 1000 particles standard output: ['Track: 28361944475ns', '']
+spacecharge 'cheetah-1cpu-dp' w/ 1000 particles standard output: ['Track: 28454164386ns', '']
+spacecharge 'cheetah-1cpu-dp' w/ 1000 particles standard output: ['Track: 28350551409ns', '']
+spacecharge 'cheetah-1cpu-dp' w/ 1000 particles standard output: ['Track: 28972921941ns', '']
+spacecharge 'cheetah-1cpu-dp' w/ 10000 particles standard output: ['Track: 29194829907ns', '']
+spacecharge 'cheetah-1cpu-dp' w/ 10000 particles standard output: ['Track: 29187091970ns', '']
+spacecharge 'cheetah-1cpu-dp' w/ 10000 particles standard output: ['Track: 28545110934ns', '']
+spacecharge 'cheetah-1cpu-dp' w/ 10000 particles standard output: ['Track: 28572476104ns', '']
+spacecharge 'cheetah-1cpu-dp' w/ 10000 particles standard output: ['Track: 28386035141ns', '']
+spacecharge 'cheetah-1cpu-dp' w/ 100000 particles standard output: ['Track: 28812626210ns', '']
+spacecharge 'cheetah-1cpu-dp' w/ 100000 particles standard output: ['Track: 29006569734ns', '']
+spacecharge 'cheetah-1cpu-dp' w/ 100000 particles standard output: ['Track: 28781798022ns', '']
+spacecharge 'cheetah-1cpu-dp' w/ 100000 particles standard output: ['Track: 29099172997ns', '']
+spacecharge 'cheetah-1cpu-dp' w/ 100000 particles standard output: ['Track: 28886630383ns', '']
+spacecharge 'cheetah-1cpu-dp' w/ 1000000 particles standard output: ['Track: 31308123093ns', '']
+spacecharge 'cheetah-1cpu-dp' w/ 1000000 particles standard output: ['Track: 31790230420ns', '']
+spacecharge 'cheetah-1cpu-dp' w/ 1000000 particles standard output: ['Track: 31366665395ns', '']
+spacecharge 'cheetah-1cpu-dp' w/ 1000000 particles standard output: ['Track: 31364476647ns', '']
+spacecharge 'cheetah-1cpu-dp' w/ 1000000 particles standard output: ['Track: 31228124162ns', '']
+htu 'cheetah-6cpu-dp' w/ 1000 particles standard output: ['Track: 146226833ns', '']
+htu 'cheetah-6cpu-dp' w/ 1000 particles standard output: ['Track: 153255271ns', '']
+htu 'cheetah-6cpu-dp' w/ 1000 particles standard output: ['Track: 148505477ns', '']
+htu 'cheetah-6cpu-dp' w/ 1000 particles standard output: ['Track: 141005382ns', '']
+htu 'cheetah-6cpu-dp' w/ 1000 particles standard output: ['Track: 149445405ns', '']
+htu 'cheetah-6cpu-dp' w/ 10000 particles standard output: ['Track: 1218020360ns', '']
+htu 'cheetah-6cpu-dp' w/ 10000 particles standard output: ['Track: 1421199985ns', '']
+htu 'cheetah-6cpu-dp' w/ 10000 particles standard output: ['Track: 1170226258ns', '']
+htu 'cheetah-6cpu-dp' w/ 10000 particles standard output: ['Track: 1169819478ns', '']
+htu 'cheetah-6cpu-dp' w/ 10000 particles standard output: ['Track: 1194414146ns', '']
+htu 'cheetah-6cpu-dp' w/ 100000 particles standard output: ['Track: 4325883407ns', '']
+htu 'cheetah-6cpu-dp' w/ 100000 particles standard output: ['Track: 4431987409ns', '']
+htu 'cheetah-6cpu-dp' w/ 100000 particles standard output: ['Track: 4449440349ns', '']
+htu 'cheetah-6cpu-dp' w/ 100000 particles standard output: ['Track: 4290464977ns', '']
+htu 'cheetah-6cpu-dp' w/ 100000 particles standard output: ['Track: 4781962532ns', '']
+htu 'cheetah-6cpu-dp' w/ 1000000 particles standard output: ['Track: 67357538892ns', '']
+htu 'cheetah-6cpu-dp' w/ 1000000 particles standard output: ['Track: 68808788249ns', '']
+htu 'cheetah-6cpu-dp' w/ 1000000 particles standard output: ['Track: 67850155935ns', '']
+htu 'cheetah-6cpu-dp' w/ 1000000 particles standard output: ['Track: 68591918533ns', '']
+htu 'cheetah-6cpu-dp' w/ 1000000 particles standard output: ['Track: 69712784378ns', '']
+spacecharge 'cheetah-6cpu-dp' w/ 1000 particles standard output: ['Track: 51251565908ns', '']
+spacecharge 'cheetah-6cpu-dp' w/ 1000 particles standard output: ['Track: 50850558013ns', '']
+spacecharge 'cheetah-6cpu-dp' w/ 1000 particles standard output: ['Track: 52839683871ns', '']
+spacecharge 'cheetah-6cpu-dp' w/ 1000 particles standard output: ['Track: 50757068578ns', '']
+spacecharge 'cheetah-6cpu-dp' w/ 1000 particles standard output: ['Track: 51917782898ns', '']
+spacecharge 'cheetah-6cpu-dp' w/ 10000 particles standard output: ['Track: 50844848300ns', '']
+spacecharge 'cheetah-6cpu-dp' w/ 10000 particles standard output: ['Track: 50743351371ns', '']
+spacecharge 'cheetah-6cpu-dp' w/ 10000 particles standard output: ['Track: 50831407935ns', '']
+spacecharge 'cheetah-6cpu-dp' w/ 10000 particles standard output: ['Track: 51265823421ns', '']
+spacecharge 'cheetah-6cpu-dp' w/ 10000 particles standard output: ['Track: 50322790305ns', '']
+spacecharge 'cheetah-6cpu-dp' w/ 100000 particles standard output: ['Track: 52428533397ns', '']
+spacecharge 'cheetah-6cpu-dp' w/ 100000 particles standard output: ['Track: 52384105771ns', '']
+spacecharge 'cheetah-6cpu-dp' w/ 100000 particles standard output: ['Track: 53305114052ns', '']
+spacecharge 'cheetah-6cpu-dp' w/ 100000 particles standard output: ['Track: 51749799238ns', '']
+spacecharge 'cheetah-6cpu-dp' w/ 100000 particles standard output: ['Track: 54427491427ns', '']
+spacecharge 'cheetah-6cpu-dp' w/ 1000000 particles standard output: ['Track: 56888153020ns', '']
+spacecharge 'cheetah-6cpu-dp' w/ 1000000 particles standard output: ['Track: 56807517826ns', '']
+spacecharge 'cheetah-6cpu-dp' w/ 1000000 particles standard output: ['Track: 58088275549ns', '']
+spacecharge 'cheetah-6cpu-dp' w/ 1000000 particles standard output: ['Track: 56650842963ns', '']
+spacecharge 'cheetah-6cpu-dp' w/ 1000000 particles standard output: ['Track: 56324345835ns', '']
+htu 'cheetah-cuda-dp' w/ 1000 particles standard output: ['Track: 183268817ns', '']
+htu 'cheetah-cuda-dp' w/ 1000 particles standard output: ['Track: 178435569ns', '']
+htu 'cheetah-cuda-dp' w/ 1000 particles standard output: ['Track: 184067504ns', '']
+htu 'cheetah-cuda-dp' w/ 1000 particles standard output: ['Track: 181202032ns', '']
+htu 'cheetah-cuda-dp' w/ 1000 particles standard output: ['Track: 184133077ns', '']
+htu 'cheetah-cuda-dp' w/ 10000 particles standard output: ['Track: 183527844ns', '']
+htu 'cheetah-cuda-dp' w/ 10000 particles standard output: ['Track: 184765553ns', '']
+htu 'cheetah-cuda-dp' w/ 10000 particles standard output: ['Track: 195466498ns', '']
+htu 'cheetah-cuda-dp' w/ 10000 particles standard output: ['Track: 186813429ns', '']
+htu 'cheetah-cuda-dp' w/ 10000 particles standard output: ['Track: 188080645ns', '']
+htu 'cheetah-cuda-dp' w/ 100000 particles standard output: ['Track: 325931897ns', '']
+htu 'cheetah-cuda-dp' w/ 100000 particles standard output: ['Track: 324512152ns', '']
+htu 'cheetah-cuda-dp' w/ 100000 particles standard output: ['Track: 321232243ns', '']
+htu 'cheetah-cuda-dp' w/ 100000 particles standard output: ['Track: 326934510ns', '']
+htu 'cheetah-cuda-dp' w/ 100000 particles standard output: ['Track: 320480921ns', '']
+htu 'cheetah-cuda-dp' w/ 1000000 particles standard output: ['Track: 2765727689ns', '']
+htu 'cheetah-cuda-dp' w/ 1000000 particles standard output: ['Track: 2765982596ns', '']
+htu 'cheetah-cuda-dp' w/ 1000000 particles standard output: ['Track: 2769295308ns', '']
+htu 'cheetah-cuda-dp' w/ 1000000 particles standard output: ['Track: 2773214553ns', '']
+htu 'cheetah-cuda-dp' w/ 1000000 particles standard output: ['Track: 2778667216ns', '']
 cheetah-1cpu:
   axel-dell:
     config:
@@ -13042,3 +13463,4 @@ impactx-cuda-fm-dp:
       push_per_sec: 536669.3513085853
       scenario: spacecharge
       track_ns: 1863344716
+

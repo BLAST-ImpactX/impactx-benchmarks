@@ -43,15 +43,21 @@ def filter_config(config_name, code_config_vals):
             if "-autovec" in config_name:  # no fm and no simd, odd comparison
                 return True
 
-    #if not ("cuda" in config_name or "gpu" in config_name):
-    #    return True
-    if not "1cpu" in config_name:
+    if not ("cuda" in config_name or "gpu" in config_name):
         return True
+    #if not "1cpu" in config_name:
+    #    return True
+
+    if "dp" in config_name:
+        return True
+    #if not "dp" in config_name:
+    #    return True
 
     return False
 
 # experiments (scenarios)
 scenarios = ["htu_1000", "htu_10000", "htu_100000", "htu_1000000"]
+#scenarios = ["spacecharge_1000", "spacecharge_10000", "spacecharge_100000", "spacecharge_1000000"]
 
 # coloring & hatching of bar plots
 code_config_colors = {
