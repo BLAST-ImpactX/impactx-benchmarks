@@ -22,7 +22,7 @@ cmake --fresh                                     \
       -DImpactX_PYTHON=ON                         \
       -DImpactX_MPI=OFF                           \
       -DImpactX_COMPUTE={{ ImpactX_COMPUTE }}     \
-      -DImpactX_PRECISION={{ ImpactX_PRECISION }}
+      -DImpactX_PRECISION={{ ImpactX_PRECISION | default("SINGLE") }}
 
 # build & install
 cmake                      \
