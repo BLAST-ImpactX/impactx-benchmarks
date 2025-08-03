@@ -10,8 +10,20 @@ rm -rf src-impactx build-impactx
 # get source
 git clone -b {{ version }} https://github.com/{{ gh_owner }}/impactx.git src-impactx
 
+# change CXXFLAGS, LDFLAGS
+#   conda-forge compiler flags are sub-optimal in performance (-O2, etc.)
+#     -fvisibility-inlines-hidden -fmessage-length=0 -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/axel/micromamba/envs/warpx-cpu-mpich-dev/include
+#
+export CFLAGS=""
+export CXXFLAGS="{{ CXXFLAGS }}"
+export LDFLAGS=""
+export CUDAARCHS=""
+export CUDAFLAGS=""
+export CUDA_CFLAGS=""
+export CUDA_LDFLAGS=""
+export HIPFLAGS=""
+
 # configure
-export CXXFLAGS="${CXXFLAGS} {{ CXXFLAGS }}"
 cmake --fresh                                     \
       -S src-impactx                              \
       -B build-impactx                            \
