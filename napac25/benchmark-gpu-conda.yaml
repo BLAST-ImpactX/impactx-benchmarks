@@ -13,6 +13,7 @@ dependencies:
   - cuda-nvtx-dev
   - doxygen
   - git
+  - mamba
   - matplotlib
   - ninja
   - numpy

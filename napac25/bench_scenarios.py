@@ -14,15 +14,26 @@ import sys
 from jinja2 import Environment, FileSystemLoader
 
 
-# general configs
+# general configs #############################################################
 #
-build_nproc = 12
+def get_hostname():
+    # NERSC Perlmutter: any node
+    if "NERSC_HOST" in os.environ:
+        if os.environ["NERSC_HOST"] == "perlmutter":
+            return "perlmutter"
+
+    return socket.gethostname()
+
+hn = get_hostname()
+build_nproc = 32 if hn == "perlmutter" else 12
 conda = "mamba"
 # experiments (scenarios)
 scenarios = ["htu", "spacecharge"]
 # we vary the number of particles to push in the beam,
 # to see if a code can make efficient use of L1/L2/L3 caches
-nparts = [1_000, 10_000, 100_000, 1_000_000]  #, 10_000_000]
+nparts = [1_000, 10_000, 100_000, 1_000_000]
+if hn == "perlmutter":
+    nparts += [10_000_000, 100_000_000]
 
 # CPU multi-core test: how many cores to use?
 ncpu = 6
@@ -321,16 +332,17 @@ code_configs = {
         "env_name": "benchmark-gpu",
         "env_file": "benchmark-gpu-conda.yaml",
     },
-    "cheetah-cuda-cudagraphs": {
-        "code": "cheetah",
-        "version": "master",  # 0.7.5
-        "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
-        "compile_backend": "cudagraphs",  # TODO: try also "inductor", "ipex", "onnxrt" on (Intel) CPUs; "inductor", "cudagraphs", "onnxrt", openxla', 'tvm' on GPU
-        "device": "cuda",
-        "dtype": "float32",
-        "env_name": "benchmark-gpu",
-        "env_file": "benchmark-gpu-conda.yaml",
-    },
+# Always slow in tests:
+#    "cheetah-cuda-cudagraphs": {
+#        "code": "cheetah",
+#        "version": "master",  # 0.7.5
+#        "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
+#        "compile_backend": "cudagraphs",  # TODO: try also "inductor", "ipex", "onnxrt" on (Intel) CPUs; "inductor", "cudagraphs", "onnxrt", openxla', 'tvm' on GPU
+#        "device": "cuda",
+#        "dtype": "float32",
+#        "env_name": "benchmark-gpu",
+#        "env_file": "benchmark-gpu-conda.yaml",
+#    },
 }
 
 
@@ -425,6 +437,8 @@ def bench(scenario, code_config, npart, nruns=5):
         env_str = ""
         if "OMP_NUM_THREADS" in config:
             env_str += f"OMP_NUM_THREADS={config['OMP_NUM_THREADS']}"
+        else:
+            env_str += f"OMP_NUM_THREADS=1"
         if "device" in config and config["device"] == "cpu":
             env_str += f" CUDA_VISIBLE_DEVICES=''"
 
@@ -497,7 +511,6 @@ def save_timings(timings):
     print(yaml_format)
 
 
-hn = socket.gethostname()
 timings = {}
 
 # Benchmark
@@ -536,6 +549,10 @@ for code_config, _ in code_configs.items():
         # we vary the number of particles to push in the beam,
         # to see if a code can make efficient use of L1/L2/L3 caches
         for npart in nparts:
+            # skip large particle numbers if not on GPU
+            if npart > 1_000_000 and "cpu-" in code_config:
+                continue
+        
             str_npart = scenario + "_" + str(npart)
             timings[code_config][hn][str_npart] = bench(scenario, code_config, npart)
             timings[code_config][hn][str_npart]

@@ -4,6 +4,11 @@
 # Save the logs.
 #
 
+set -eu -o pipefail
+
 DATESTR=$(date +"%Y-%m-%d_%H-%M-%S")
 
-./bench_scenarios.py 2>&1 | tee bench_logs/${DATESTR}_$(hostname).log
+# log GPU(s) on the machine, if any
+nvidia-smi 2>&1 | tee bench_logs/${DATESTR}_$(hostname).log || true
+
+./bench_scenarios.py 2>&1 | tee -a bench_logs/${DATESTR}_$(hostname).log

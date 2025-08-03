@@ -1,0 +1,11 @@
+name: benchmark-base
+
+channels:
+  - conda-forge
+  - nodefaults
+
+dependencies:
+  - jinja2
+  - mamba
+  - python
+
