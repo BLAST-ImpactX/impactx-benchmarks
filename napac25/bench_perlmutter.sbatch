@@ -11,7 +11,8 @@
 #SBATCH -J napac25
 #    note: <proj> must end on _g
 #SBATCH -A m4272_g
-#SBATCH -q regular
+#S BATCH -q regular
+#SBATCH -q premium  # note: needs premium QOS for the project -A in IRIS
 # A100 40GB (most nodes, can include 80GB GPUs)
 #S BATCH -C gpu
 # A100 80GB (256 nodes)
@@ -30,6 +31,8 @@ module load conda/Miniforge3-24.11.3-0
 conda env remove --solver libmamba -q -y -n benchmark-base || true
 conda env create --solver libmamba -q -y -n benchmark-base -f benchmark-base.yaml
 conda activate benchmark-base
+
+export CCACHE_DIR=$PSCRATCH/ccache
 
 # CUDA visible devices are ordered inverse to local task IDs
 #   Reference: nvidia-smi topo -m

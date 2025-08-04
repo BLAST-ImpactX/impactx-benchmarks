@@ -39,39 +39,39 @@ if hn == "perlmutter":
 ncpu = 6
 
 code_configs = {
-    "impactx-1cpu-autovec": {
-        "code": "impactx",
-        "version": "development",  # 25.08
-        "gh_owner": "BLAST-ImpactX",
-        "CXXFLAGS": "-march=native",
-        "OMP_NUM_THREADS": "1",
-        "ImpactX_COMPUTE": "OMP",
-        "ImpactX_SIMD": "OFF",
-        "env_name": "benchmark-cpu",
-        "env_file": "benchmark-cpu-conda.yaml",
-    },
-    "impactx-1cpu-fm": {
-        "code": "impactx",
-        "version": "development",  # 25.08
-        "gh_owner": "BLAST-ImpactX",
-        "CXXFLAGS": "-march=native -ffast-math",
-        "OMP_NUM_THREADS": "1",
-        "ImpactX_COMPUTE": "OMP",
-        "ImpactX_SIMD": "OFF",
-        "env_name": "benchmark-cpu",
-        "env_file": "benchmark-cpu-conda.yaml",
-    },
-    "impactx-1cpu-simd": {
-        "code": "impactx",
-        "version": "development",  # 25.08
-        "gh_owner": "BLAST-ImpactX",
-        "CXXFLAGS": "-march=native",
-        "OMP_NUM_THREADS": "1",
-        "ImpactX_COMPUTE": "OMP",
-        "ImpactX_SIMD": "ON",
-        "env_name": "benchmark-cpu",
-        "env_file": "benchmark-cpu-conda.yaml",
-    },
+#    "impactx-1cpu-autovec": {
+#        "code": "impactx",
+#        "version": "development",  # 25.08
+#        "gh_owner": "BLAST-ImpactX",
+#        "CXXFLAGS": "-march=native",
+#        "OMP_NUM_THREADS": "1",
+#        "ImpactX_COMPUTE": "OMP",
+#        "ImpactX_SIMD": "OFF",
+#        "env_name": "benchmark-cpu",
+#        "env_file": "benchmark-cpu-conda.yaml",
+#    },
+#    "impactx-1cpu-fm": {
+#        "code": "impactx",
+#        "version": "development",  # 25.08
+#        "gh_owner": "BLAST-ImpactX",
+#        "CXXFLAGS": "-march=native -ffast-math",
+#        "OMP_NUM_THREADS": "1",
+#        "ImpactX_COMPUTE": "OMP",
+#        "ImpactX_SIMD": "OFF",
+#        "env_name": "benchmark-cpu",
+#        "env_file": "benchmark-cpu-conda.yaml",
+#    },
+#    "impactx-1cpu-simd": {
+#        "code": "impactx",
+#        "version": "development",  # 25.08
+#        "gh_owner": "BLAST-ImpactX",
+#        "CXXFLAGS": "-march=native",
+#        "OMP_NUM_THREADS": "1",
+#        "ImpactX_COMPUTE": "OMP",
+#        "ImpactX_SIMD": "ON",
+#        "env_name": "benchmark-cpu",
+#        "env_file": "benchmark-cpu-conda.yaml",
+#    },
     "impactx-1cpu-fm-simd": {
         "code": "impactx",
         "version": "development",  # 25.08
@@ -95,28 +95,28 @@ code_configs = {
         "env_name": "benchmark-cpu",
         "env_file": "benchmark-cpu-conda.yaml",
     },
-    f"impactx-{ncpu}cpu-autovec": {
-        "code": "impactx",
-        "version": "development",  # 25.08
-        "gh_owner": "BLAST-ImpactX",
-        "CXXFLAGS": "-march=native",
-        "OMP_NUM_THREADS": f"{ncpu}",
-        "ImpactX_COMPUTE": "OMP",
-        "ImpactX_SIMD": "OFF",
-        "env_name": "benchmark-cpu",
-        "env_file": "benchmark-cpu-conda.yaml",
-    },
-    f"impactx-{ncpu}cpu-fm-autovec": {
-        "code": "impactx",
-        "version": "development",  # 25.08
-        "gh_owner": "BLAST-ImpactX",
-        "CXXFLAGS": "-march=native -ffast-math",
-        "OMP_NUM_THREADS": f"{ncpu}",
-        "ImpactX_COMPUTE": "OMP",
-        "ImpactX_SIMD": "OFF",
-        "env_name": "benchmark-cpu",
-        "env_file": "benchmark-cpu-conda.yaml",
-    },
+#    f"impactx-{ncpu}cpu-autovec": {
+#        "code": "impactx",
+#        "version": "development",  # 25.08
+#        "gh_owner": "BLAST-ImpactX",
+#        "CXXFLAGS": "-march=native",
+#        "OMP_NUM_THREADS": f"{ncpu}",
+#        "ImpactX_COMPUTE": "OMP",
+#        "ImpactX_SIMD": "OFF",
+#        "env_name": "benchmark-cpu",
+#        "env_file": "benchmark-cpu-conda.yaml",
+#    },
+#    f"impactx-{ncpu}cpu-fm-autovec": {
+#        "code": "impactx",
+#        "version": "development",  # 25.08
+#        "gh_owner": "BLAST-ImpactX",
+#        "CXXFLAGS": "-march=native -ffast-math",
+#        "OMP_NUM_THREADS": f"{ncpu}",
+#        "ImpactX_COMPUTE": "OMP",
+#        "ImpactX_SIMD": "OFF",
+#        "env_name": "benchmark-cpu",
+#        "env_file": "benchmark-cpu-conda.yaml",
+#    },
     f"impactx-{ncpu}cpu-fm-simd": {
         "code": "impactx",
         "version": "development",  # 25.08
@@ -188,17 +188,17 @@ code_configs = {
     # note: PyTorch inductor always explicitly vectorizes
     #       for the local (native) architecture
     #       https://dev-discuss.pytorch.org/t/torchinductor-update-9-harden-vectorization-support-and-enhance-loop-optimizations-in-torchinductor-cpp-backend/2442
-    "cheetah-1cpu-inductor-simd": {
-        "code": "cheetah",
-        "version": "master",  # 0.7.5
-        "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
-        "compile_backend": "inductor",  # TODO: try also "ipex" on Intel CPUs
-        "device": "cpu",
-        "dtype": "float32",
-        "OMP_NUM_THREADS": "1",
-        "env_name": "benchmark-cpu",
-        "env_file": "benchmark-cpu-conda.yaml",
-    },
+#    "cheetah-1cpu-inductor-simd": {
+#        "code": "cheetah",
+#        "version": "master",  # 0.7.5
+#        "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
+#        "compile_backend": "inductor",  # TODO: try also "ipex" on Intel CPUs
+#        "device": "cpu",
+#        "dtype": "float32",
+#        "OMP_NUM_THREADS": "1",
+#        "env_name": "benchmark-cpu",
+#        "env_file": "benchmark-cpu-conda.yaml",
+#    },
     "cheetah-1cpu-inductor-fm-simd": {
         "code": "cheetah",
         "version": "master",  # 0.7.5
@@ -245,17 +245,17 @@ code_configs = {
         "env_name": "benchmark-cpu",
         "env_file": "benchmark-cpu-conda.yaml",
     },
-    f"cheetah-{ncpu}cpu-inductor-simd": {
-        "code": "cheetah",
-        "version": "master",  # 0.7.5
-        "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
-        "compile_backend": "inductor",  # TODO: try also "ipex" on Intel CPUs
-        "device": "cpu",
-        "dtype": "float32",
-        "OMP_NUM_THREADS": f"{ncpu}",
-        "env_name": "benchmark-cpu",
-        "env_file": "benchmark-cpu-conda.yaml",
-    },
+#    f"cheetah-{ncpu}cpu-inductor-simd": {
+#        "code": "cheetah",
+#        "version": "master",  # 0.7.5
+#        "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
+#        "compile_backend": "inductor",  # TODO: try also "ipex" on Intel CPUs
+#        "device": "cpu",
+#        "dtype": "float32",
+#        "OMP_NUM_THREADS": f"{ncpu}",
+#        "env_name": "benchmark-cpu",
+#        "env_file": "benchmark-cpu-conda.yaml",
+#    },
     f"cheetah-{ncpu}cpu-inductor-fm-simd": {
         "code": "cheetah",
         "version": "master",  # 0.7.5
@@ -300,16 +300,16 @@ code_configs = {
         "env_name": "benchmark-gpu",
         "env_file": "benchmark-gpu-conda.yaml",
     },
-    "cheetah-cuda-inductor": {
-        "code": "cheetah",
-        "version": "master",  # 0.7.5
-        "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
-        "compile_backend": "inductor",  # TODO: try also "inductor", "ipex", "onnxrt" on (Intel) CPUs; "inductor", "cudagraphs", "onnxrt", openxla', 'tvm' on GPU
-        "device": "cuda",
-        "dtype": "float32",
-        "env_name": "benchmark-gpu",
-        "env_file": "benchmark-gpu-conda.yaml",
-    },
+#    "cheetah-cuda-inductor": {
+#        "code": "cheetah",
+#        "version": "master",  # 0.7.5
+#        "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
+#        "compile_backend": "inductor",  # TODO: try also "inductor", "ipex", "onnxrt" on (Intel) CPUs; "inductor", "cudagraphs", "onnxrt", openxla', 'tvm' on GPU
+#        "device": "cuda",
+#        "dtype": "float32",
+#        "env_name": "benchmark-gpu",
+#        "env_file": "benchmark-gpu-conda.yaml",
+#    },
     "cheetah-cuda-inductor-fm": {
         "code": "cheetah",
         "version": "master",  # 0.7.5
