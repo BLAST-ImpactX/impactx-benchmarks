@@ -6,7 +6,7 @@
 #
 # License: BSD-3-Clause-LBNL
 
-#SBATCH -t 03:00:00
+#SBATCH -t 06:00:00
 #SBATCH -N 1
 #SBATCH -J napac25
 #    note: <proj> must end on _g
@@ -25,6 +25,8 @@
 #SBATCH --gpus-per-node=1    # note: actually 4
 #SBATCH -o bench_logs/permutter.o%j
 #SBATCH -e bench_logs/permutter.e%j
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=axelhuebl@lbl.gov
 
 module load conda/Miniforge3-24.11.3-0
 
