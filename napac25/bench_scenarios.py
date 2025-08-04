@@ -10,8 +10,10 @@ import re
 import socket
 import subprocess
 import sys
+import tempfile
 
 from jinja2 import Environment, FileSystemLoader
+from pathlib import Path
 
 
 # general configs #############################################################
@@ -345,6 +347,14 @@ code_configs = {
 #    },
 }
 
+# temporary directories for envs and build
+temp_dir = tempfile.TemporaryDirectory()
+print(f"temp_dir={temp_dir.name}", flush=True)
+dir_conda_envs = Path(temp_dir.name) / "envs"
+dir_impactx_src = Path(temp_dir.name) / "src-impactx"
+dir_impactx_build = Path(temp_dir.name) / "build-impactx"
+os.mkdir(dir_conda_envs)
+
 
 def render_script(dirname, script, data, verbose=False):
     jinja_env = Environment(loader=FileSystemLoader(dirname))
@@ -363,26 +373,29 @@ def install(code_config):
     config = code_configs[code_config]
     env_name = config["env_name"]
     env_file = config["env_file"]
+    env_path = str(dir_conda_envs / env_name)
     code = config["code"]
 
-    subprocess.run([f"{conda}", "env", "remove", "-q", "-y", "-n", f"{env_name}"], capture_output=True, check=False)  # ok to fail if does not exist
-    subprocess.run([f"{conda}", "env", "create", "-q", "-y", "-f", f"{env_file}"], check=True)
+    subprocess.run([f"{conda}", "env", "remove", "-p", env_path, "-q", "-y"], capture_output=True, check=False)  # ok to fail if does not exist
+    subprocess.run([f"{conda}", "env", "create", "-p", env_path, "-q", "-y", "-f", f"{env_file}"], check=True)
 
     if code == "impactx":
         data = config.copy()
         data["build_nproc"] = build_nproc
+        data["dir_impactx_src"] = dir_impactx_src
+        data["dir_impactx_build"] = dir_impactx_build
 
         render_script("code_impactx", "install.sh.jinja", data)
 
-        command = f"{conda} run -n {env_name} bash install.sh"
+        command = f"{conda} run -p {env_path} bash install.sh"
         subprocess.run(command, shell=True, check=True)
 
     elif code == "cheetah":
         version = config['version']
         if version == "master":
-            command = f"{conda} run -n {env_name} pip install git+https://github.com/desy-ml/cheetah.git"
+            command = f"{conda} run -p {env_path} pip install git+https://github.com/desy-ml/cheetah.git"
         else:
-            command = f"{conda} run -n {env_name} pip install cheetah-accelerator=={config['version']}"
+            command = f"{conda} run -p {env_path} pip install cheetah-accelerator=={config['version']}"
         subprocess.run(command, shell=True, check=True)
 
     else:
@@ -390,7 +403,7 @@ def install(code_config):
 
     # return installed packages for documentation/reproducibility
     import json
-    command = f"{conda} list -n {env_name} --json"
+    command = f"{conda} list -p {env_path} --json"
     result = subprocess.run(command, shell=True, check=True, capture_output=True)
     stdout = result.stdout.decode("utf-8")
     packages_conda = json.loads(stdout)
@@ -419,6 +432,7 @@ def bench(scenario, code_config, npart, nruns=5):
 
     config = code_configs[code_config]
     env_name = config["env_name"]
+    env_path = str(dir_conda_envs / env_name)
 
     data = config.copy()
     data["npart"] = npart
@@ -447,15 +461,15 @@ def bench(scenario, code_config, npart, nruns=5):
             if config["compile_backend_config"] == "fast-math":  # default: false
                 env_str += f" TORCHINDUCTOR_USE_FAST_MATH=1"
 
-        command = f"{env_str} {conda} run -n {env_name} python {run_script}"
+        command = f"{env_str} {conda} run -p {env_path} python {run_script}"
         # print(command)
         result = subprocess.run(command, shell=True, check=False, capture_output=True)
         stdout = result.stdout.decode("utf-8").split("\n")
         stderr = result.stderr.decode("utf-8")
 
-        print(f"{scenario} '{code_config}' w/ {npart} particles standard output:", stdout)
-        # print("{scenario} '{code_config}' w/ {npart} particles standard error:", stderr)
-        # print("{scenario} '{code_config}' w/ {npart} particles return code:", result.returncode)
+        print(f"{scenario} '{code_config}' w/ {npart} particles standard output:", stdout, flush=True)
+        # print("{scenario} '{code_config}' w/ {npart} particles standard error:", stderr, flush=True)
+        # print("{scenario} '{code_config}' w/ {npart} particles return code:", result.returncode, flush=True)
 
         if result.returncode != 0:
             raise RuntimeError(f"config '{code_config}' w/ {npart} particles failed with: {stderr}")
@@ -516,6 +530,7 @@ timings = {}
 # Benchmark
 #
 for code_config, _ in code_configs.items():
+    print(f"-----------------------------\nStart benchmarking {code_config}...", flush=True)
     timings[code_config] = {}
     timings[code_config][hn] = {}
     timings[code_config][hn]["config"] = code_configs[code_config]

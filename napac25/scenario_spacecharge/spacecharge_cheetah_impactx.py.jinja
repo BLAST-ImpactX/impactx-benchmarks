@@ -207,7 +207,7 @@ elif code == "impactx":
     with ProcessTimer() as timer:
         sim.track_particles()
 
-    print(f"Track: {timer.elapsed_time}ns")
+    print(f"Track: {timer.elapsed_time}ns", flush=True)
 
     # clean shutdown
     sim.finalize()

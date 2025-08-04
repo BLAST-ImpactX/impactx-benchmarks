@@ -34,7 +34,8 @@ conda env remove --solver libmamba -q -y -n benchmark-base || true
 conda env create --solver libmamba -q -y -n benchmark-base -f benchmark-base.yaml
 conda activate benchmark-base
 
-export CCACHE_DIR=$PSCRATCH/ccache
+# do not use ccache
+export CCACHE_DISABLE=1
 
 # CUDA visible devices are ordered inverse to local task IDs
 #   Reference: nvidia-smi topo -m

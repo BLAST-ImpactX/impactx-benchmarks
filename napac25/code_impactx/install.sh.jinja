@@ -5,10 +5,10 @@
 set -eu -o pipefail
 
 # cleanup
-rm -rf src-impactx build-impactx
+rm -rf {{ dir_impactx_src }} {{ dir_impactx_build }}
 
 # get source
-git clone -b {{ version }} https://github.com/{{ gh_owner }}/impactx.git src-impactx
+git clone -b {{ version }} https://github.com/{{ gh_owner }}/impactx.git {{ dir_impactx_src }}
 
 # change CXXFLAGS, LDFLAGS
 #   conda-forge compiler flags are sub-optimal in performance (-O2, etc.)
@@ -25,8 +25,8 @@ export HIPFLAGS=""
 
 # configure
 cmake --fresh                                     \
-      -S src-impactx                              \
-      -B build-impactx                            \
+      -S {{ dir_impactx_src }}                    \
+      -B {{ dir_impactx_build }}                  \
       -G Ninja                                    \
       -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX}      \
       -DImpactX_FFT=ON                            \
@@ -38,14 +38,14 @@ cmake --fresh                                     \
       -DImpactX_PRECISION={{ ImpactX_PRECISION | default("SINGLE") }}
 
 # build & install
-cmake                      \
-    --build build-impactx  \
-    -j {{ build_nproc }}   \
+cmake                                \
+    --build {{ dir_impactx_build }}  \
+    -j {{ build_nproc }}             \
     --target install
-cmake                      \
-    --build build-impactx  \
-    -j {{ build_nproc }}   \
+cmake                                \
+    --build {{ dir_impactx_build }}  \
+    -j {{ build_nproc }}             \
     --target pip_install
 
 # cleanup
-rm -rf src-impactx build-impactx
+rm -rf {{ dir_impactx_src }} {{ dir_impactx_build }}
