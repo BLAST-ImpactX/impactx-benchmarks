@@ -561,12 +561,18 @@ for code_config, _ in code_configs.items():
                 if hn == "axel-dell":
                     continue
 
+
         # we vary the number of particles to push in the beam,
         # to see if a code can make efficient use of L1/L2/L3 caches
         for npart in nparts:
             # skip large particle numbers if not on GPU
             if npart > 1_000_000 and "cpu-" in code_config:
                 continue
+            # Cheetah (uncompiled) runs out of memory for 10M+ particle runs (SP) on PM
+            if code_configs[code_config]["code"] == "cheetah":
+                if npart > 10_000_000:
+                    if not "inductor" in code_config:
+                        continue
         
             str_npart = scenario + "_" + str(npart)
             timings[code_config][hn][str_npart] = bench(scenario, code_config, npart)

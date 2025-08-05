@@ -6,7 +6,7 @@
 #
 # License: BSD-3-Clause-LBNL
 
-#SBATCH -t 06:00:00
+#SBATCH -t 12:00:00
 #SBATCH -N 1
 #SBATCH -J napac25
 #    note: <proj> must end on _g
