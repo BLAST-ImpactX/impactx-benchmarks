@@ -125,7 +125,8 @@ timings = load_timings()
 
 code_configs = []
 for key, value in timings.items():
-    code_configs += [key]
+    if hostname in timings[key]:
+        code_configs += [key]
 
 fig, ax = plt.subplots(figsize=(4.5, 2.2), layout='constrained')
 
