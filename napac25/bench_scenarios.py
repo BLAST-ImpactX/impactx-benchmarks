@@ -167,7 +167,7 @@ code_configs = {
     },
     "cheetah-1cpu": {
         "code": "cheetah",
-        "version": "master",  # 0.7.5
+        "version": "0.7.5",
         "compile_mode": "none",  # https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
         "compile_backend": "none",
         "device": "cpu",
@@ -178,7 +178,7 @@ code_configs = {
     },
     "cheetah-1cpu-dp": {
         "code": "cheetah",
-        "version": "master",  # 0.7.5
+        "version": "0.7.5",
         "compile_mode": "none",  # https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
         "compile_backend": "none",
         "device": "cpu",
@@ -192,7 +192,7 @@ code_configs = {
     #       https://dev-discuss.pytorch.org/t/torchinductor-update-9-harden-vectorization-support-and-enhance-loop-optimizations-in-torchinductor-cpp-backend/2442
 #    "cheetah-1cpu-inductor-simd": {
 #        "code": "cheetah",
-#        "version": "master",  # 0.7.5
+#        "version": "0.7.5",
 #        "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
 #        "compile_backend": "inductor",  # TODO: try also "ipex" on Intel CPUs
 #        "device": "cpu",
@@ -203,7 +203,7 @@ code_configs = {
 #    },
     "cheetah-1cpu-inductor-fm-simd": {
         "code": "cheetah",
-        "version": "master",  # 0.7.5
+        "version": "0.7.5",
         "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
         "compile_backend": "inductor",  # TODO: try also "ipex" on Intel CPUs
         "compile_backend_config": "fast-math",  # https://github.com/pytorch/pytorch/blob/main/torch/_inductor/config.py
@@ -215,7 +215,7 @@ code_configs = {
     },
     "cheetah-1cpu-inductor-fm-simd-dp": {
         "code": "cheetah",
-        "version": "master",  # 0.7.5
+        "version": "0.7.5",
         "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
         "compile_backend": "inductor",  # TODO: try also "ipex" on Intel CPUs
         "compile_backend_config": "fast-math",  # https://github.com/pytorch/pytorch/blob/main/torch/_inductor/config.py
@@ -227,7 +227,7 @@ code_configs = {
     },
     f"cheetah-{ncpu}cpu": {
         "code": "cheetah",
-        "version": "master",  # 0.7.5
+        "version": "0.7.5",
         "compile_mode": "none",  # https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
         "compile_backend": "none",
         "device": "cpu",
@@ -238,7 +238,7 @@ code_configs = {
     },
     f"cheetah-{ncpu}cpu-dp": {
         "code": "cheetah",
-        "version": "master",  # 0.7.5
+        "version": "0.7.5",
         "compile_mode": "none",  # https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
         "compile_backend": "none",
         "device": "cpu",
@@ -249,7 +249,7 @@ code_configs = {
     },
 #    f"cheetah-{ncpu}cpu-inductor-simd": {
 #        "code": "cheetah",
-#        "version": "master",  # 0.7.5
+#        "version": "0.7.5",
 #        "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
 #        "compile_backend": "inductor",  # TODO: try also "ipex" on Intel CPUs
 #        "device": "cpu",
@@ -260,7 +260,7 @@ code_configs = {
 #    },
     f"cheetah-{ncpu}cpu-inductor-fm-simd": {
         "code": "cheetah",
-        "version": "master",  # 0.7.5
+        "version": "0.7.5",
         "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
         "compile_backend": "inductor",  # TODO: try also "ipex" on Intel CPUs
         "compile_backend_config": "fast-math",  # https://github.com/pytorch/pytorch/blob/main/torch/_inductor/config.py
@@ -272,7 +272,7 @@ code_configs = {
     },
     f"cheetah-{ncpu}cpu-inductor-fm-simd-dp": {
         "code": "cheetah",
-        "version": "master",  # 0.7.5
+        "version": "0.7.5",
         "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
         "compile_backend": "inductor",  # TODO: try also "ipex" on Intel CPUs
         "compile_backend_config": "fast-math",  # https://github.com/pytorch/pytorch/blob/main/torch/_inductor/config.py
@@ -284,7 +284,7 @@ code_configs = {
     },
     "cheetah-cuda": {
         "code": "cheetah",
-        "version": "master",  # 0.7.5
+        "version": "0.7.5",
         "compile_mode": "none",  # https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
         "compile_backend": "none",
         "device": "cuda",
@@ -294,7 +294,7 @@ code_configs = {
     },
     "cheetah-cuda-dp": {
         "code": "cheetah",
-        "version": "master",  # 0.7.5
+        "version": "0.7.5",
         "compile_mode": "none",  # https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
         "compile_backend": "none",
         "device": "cuda",
@@ -304,7 +304,7 @@ code_configs = {
     },
 #    "cheetah-cuda-inductor": {
 #        "code": "cheetah",
-#        "version": "master",  # 0.7.5
+#        "version": "0.7.5",
 #        "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
 #        "compile_backend": "inductor",  # TODO: try also "inductor", "ipex", "onnxrt" on (Intel) CPUs; "inductor", "cudagraphs", "onnxrt", openxla', 'tvm' on GPU
 #        "device": "cuda",
@@ -314,7 +314,7 @@ code_configs = {
 #    },
     "cheetah-cuda-inductor-fm": {
         "code": "cheetah",
-        "version": "master",  # 0.7.5
+        "version": "0.7.5",
         "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
         "compile_backend": "inductor",  # TODO: try also "inductor", "ipex", "onnxrt" on (Intel) CPUs; "inductor", "cudagraphs", "onnxrt", openxla', 'tvm' on GPU
         "compile_backend_config": "fast-math",  # https://github.com/pytorch/pytorch/blob/main/torch/_inductor/config.py
@@ -325,7 +325,7 @@ code_configs = {
     },
     "cheetah-cuda-inductor-fm-dp": {
         "code": "cheetah",
-        "version": "master",  # 0.7.5
+        "version": "0.7.5",
         "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
         "compile_backend": "inductor",  # TODO: try also "inductor", "ipex", "onnxrt" on (Intel) CPUs; "inductor", "cudagraphs", "onnxrt", openxla', 'tvm' on GPU
         "compile_backend_config": "fast-math",  # https://github.com/pytorch/pytorch/blob/main/torch/_inductor/config.py
@@ -337,7 +337,7 @@ code_configs = {
 # Always slow in tests:
 #    "cheetah-cuda-cudagraphs": {
 #        "code": "cheetah",
-#        "version": "master",  # 0.7.5
+#        "version": "0.7.5",
 #        "compile_mode": "default",  # TODO: try also "max-autotune" on CPUs https://docs.pytorch.org/docs/stable/generated/torch.compile.html#torch.compile
 #        "compile_backend": "cudagraphs",  # TODO: try also "inductor", "ipex", "onnxrt" on (Intel) CPUs; "inductor", "cudagraphs", "onnxrt", openxla', 'tvm' on GPU
 #        "device": "cuda",
