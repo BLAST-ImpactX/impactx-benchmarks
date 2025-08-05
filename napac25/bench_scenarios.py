@@ -568,11 +568,14 @@ for code_config, _ in code_configs.items():
             # skip large particle numbers if not on GPU
             if npart > 1_000_000 and "cpu-" in code_config:
                 continue
-            # Cheetah (uncompiled) runs out of memory for 10M+ particle runs (SP) on PM
+            # Cheetah (uncompiled) runs out of memory for >10M+ particle runs (SP) on PM
+            # Cheetah (compiled) runs out of memory for 100M+ particle runs w/ space charge (SP) on PM
             if code_configs[code_config]["code"] == "cheetah":
                 if npart > 10_000_000:
                     if not "inductor" in code_config:
                         continue
+                if npart >= 100_000_000 and scenario == "spacecharge":
+                    continue
         
             str_npart = scenario + "_" + str(npart)
             timings[code_config][hn][str_npart] = bench(scenario, code_config, npart)
