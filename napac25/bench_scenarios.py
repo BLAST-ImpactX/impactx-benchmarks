@@ -585,4 +585,5 @@ for code_config, _ in code_configs.items():
             timings[code_config][hn][str_npart]["scenario"] = scenario
             timings[code_config][hn][str_npart]["npart"] = npart
 
-save_timings(timings)
+            # save results
+            save_timings(timings)
