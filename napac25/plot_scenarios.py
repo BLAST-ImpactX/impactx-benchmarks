@@ -19,7 +19,10 @@ import numpy as np
 #
 
 # filtering of configs
-hostname = "axel-dell"
+#hostname = "axel-dell"
+hostname = "perlmutter"
+
+napac_figure = 3
 
 def filter_config(config_name, code_config_vals):
     code = code_config_vals["code"]
@@ -43,68 +46,106 @@ def filter_config(config_name, code_config_vals):
             if "-autovec" in config_name:  # no fm and no simd, odd comparison
                 return True
 
-    #if not ("cuda" in config_name or "gpu" in config_name):
-    #   return True
+    if napac_figure == 1:
+        if not "1cpu" in config_name:
+            return True
+        if "dp" in config_name:
+            return True
+
+    if napac_figure == 2:
+        if not ("cuda" in config_name or "gpu" in config_name):
+            return True
+        if "dp" in config_name:
+            return True
+            
+    if napac_figure == 3:
+        if "6cpu" in config_name:
+            return True
+        if not "dp" in config_name:
+            return True
+
     #if not "1cpu" in config_name:
     #    return True
-    if "6cpu" in config_name:
-        return True
+    #if not "6cpu" in config_name:
+    #    return True
+    #if "cpu" in config_name:
+    #    return True
+
+    #if "6cpu" in config_name:
+    #    return True
 
     #if "dp" in config_name:
     #    return True
-    if not "dp" in config_name:
-        return True
+    #if not "dp" in config_name:
+    #    return True
 
     # does not fit on Axel's laptop, enable on perlmutter
-    if config_name == "cheetah-cuda-dp":
-        return True
+    #if config_name == "cheetah-cuda-dp":
+    #    return True
 
     return False
 
 # experiments (scenarios)
-#scenarios = ["htu_1000", "htu_10000", "htu_100000", "htu_1000000"]
-#scenario_labels = ["1k", "10k", "100k", "1M"]
-#scenarios = ["htu_10000", "htu_100000", "htu_1000000"]
-#scenario_labels = ["10k", "100k", "1M"]
+if napac_figure == 1:
+    scenarios = ["htu_1000", "htu_10000", "htu_100000", "htu_1000000"]
+    scenario_labels = ["1k", "10k", "100k", "1M"]
+if napac_figure == 2:
+    scenarios = ["htu_10000", "htu_100000", "htu_1000000", "htu_10000000"]
+    scenario_labels = ["10k", "100k", "1M", "10M"]
 
 #scenarios = ["spacecharge_1000", "spacecharge_10000", "spacecharge_100000", "spacecharge_1000000"]
 #scenario_labels = ["1k", "10k", "100k", "1M"]
-scenarios = ["spacecharge_1000000"]
-scenario_labels = ["1M"]
+if napac_figure == 3:
+    scenarios = ["spacecharge_1000000"]
+    scenario_labels = ["1M"]
 
 # coloring & hatching of bar plots
 code_config_colors = {
-    "impactx": "tab:red",
-    "cheetah": "tab:blue"
+    "cpu": {
+        "impactx": "tab:orange",
+        "cheetah": "tab:cyan"
+    },
+    "cuda": {
+        "impactx": "tab:red",
+        "cheetah": "tab:blue"
+    },
 }
-code_config_hatches = {
-    "impactx": ["", "///", "---", "+++", "ooo", "...", "***", "\\\\\\", "|||"],
-    "cheetah": ["///", "", "---", "+++", "ooo", "...", "***", "\\\\\\", "|||"],
-}
-# CPU-only or GPU-only plots
-code_config_labels = {
-    "cheetah-1cpu": "Cheetah",
-    "cheetah-1cpu-dp": "Cheetah",
-    "cheetah-cuda": "Cheetah",
-    "cheetah-cuda-dp": "Cheetah",
-    "cheetah-1cpu-inductor-fm-simd": "Cheetah: compiled",
-    "cheetah-1cpu-inductor-fm-simd-dp": "Cheetah: compiled",
-    "cheetah-cuda-inductor-fm": "Cheetah: compiled",
-    "cheetah-cuda-inductor-fm-dp": "Cheetah: compiled",
-    "impactx-1cpu-fm-simd": "ImpactX",
-    "impactx-1cpu-fm-simd-dp": "ImpactX",
-    "impactx-cuda-fm": "ImpactX",
-    "impactx-cuda-fm-dp": "ImpactX",
-}
-# CPU + GPU plot
-code_config_labels = {
-    "cheetah-1cpu-dp": "CPU",
-    "cheetah-cuda-dp": "GPU",
-    "cheetah-1cpu-inductor-fm-simd-dp": "CPU: compiled",
-    "cheetah-cuda-inductor-fm-dp": "GPU: compiled",
-    "impactx-1cpu-fm-simd-dp": "CPU",
-    "impactx-cuda-fm-dp": "GPU",
-}
+if napac_figure == 3:
+    code_config_hatches = {
+        "impactx": ["", ""],
+        "cheetah": ["///", "", "\\\\\\", ""]
+    }
+else:
+    code_config_hatches = {
+        "impactx": ["", "///", "---", "+++", "ooo", "...", "***", "\\\\\\", "|||"],
+        "cheetah": ["///", "", "---", "+++", "ooo", "...", "***", "\\\\\\", "|||"],
+    }
+if napac_figure == 1 or napac_figure == 2:
+    # CPU-only or GPU-only plots
+    code_config_labels = {
+        "cheetah-1cpu": "Cheetah",
+        "cheetah-1cpu-dp": "Cheetah",
+        "cheetah-cuda": "Cheetah",
+        "cheetah-cuda-dp": "Cheetah",
+        "cheetah-1cpu-inductor-fm-simd": "Cheetah: compiled",
+        "cheetah-1cpu-inductor-fm-simd-dp": "Cheetah: compiled",
+        "cheetah-cuda-inductor-fm": "Cheetah: compiled",
+        "cheetah-cuda-inductor-fm-dp": "Cheetah: compiled",
+        "impactx-1cpu-fm-simd": "ImpactX",
+        "impactx-1cpu-fm-simd-dp": "ImpactX",
+        "impactx-cuda-fm": "ImpactX",
+        "impactx-cuda-fm-dp": "ImpactX",
+    }
+if napac_figure == 3:
+    # CPU + GPU plot
+    code_config_labels = {
+        "cheetah-1cpu-dp": "Cheetah CPU",
+        "cheetah-cuda-dp": "Cheetah GPU",
+        "cheetah-1cpu-inductor-fm-simd-dp": "Cheetah CPU: compiled",
+        "cheetah-cuda-inductor-fm-dp": "Cheetah GPU: compiled",
+        "impactx-1cpu-fm-simd-dp": "ImpactX CPU",
+        "impactx-cuda-fm-dp": "ImpactX GPU",
+    }
 
 ###############################################################################
 
@@ -135,8 +176,8 @@ x = np.arange(len(scenarios))  # the label locations
 # num_shown_configs = len(code_configs)  # if all are plotted
 num_shown_configs = sum([
     0 if filter_config(
-            code_config,
-            timings[code_config][hostname]["config"]
+        code_config,
+        timings[code_config][hostname]["config"]
     ) else 1 for code_config in code_configs
 ])
 width = 1 / (num_shown_configs + 1)  # the width of the bars
@@ -153,7 +194,10 @@ for code_config in code_configs:
 
     code = timings[code_config][hostname]["config"]["code"]
 
-    color = code_config_colors[code]
+    if "cpu" in code_config:
+        color = code_config_colors["cpu"][code]
+    elif "cuda" in code_config:
+        color = code_config_colors["cuda"][code]
     hatch = code_config_hatches[code][config_i[code]]
 
     if len(push_per_sec_baseline) == 0:
@@ -182,18 +226,39 @@ for code_config in code_configs:
     for bar in rects:
         bar.set_hatch(hatch)
 
-    str_speedup_over_baseline = [f'{val:.1f}' for val in speedup_over_baseline]
-    ax.bar_label(rects, labels=str_speedup_over_baseline, padding=3)
+    if napac_figure == 3:
+        str_speedup_over_baseline = [f'{val:.1f}x' for val in speedup_over_baseline]
+    else:
+        str_speedup_over_baseline = [f'{val:.2g}x' for val in speedup_over_baseline]
+    ax.bar_label(rects,
+        labels=str_speedup_over_baseline,
+        padding=0,
+        fontsize=9,
+        rotation=0)
     bar_x_offset_multiplier += 1
     config_i[code] += 1
 
 ymin_data, ymax_data = ax.get_ylim()
-ax.set_ylim(ymin_data, ymax_data * 1.15)
+if napac_figure == 3:
+    ax.set_yscale('log')
+    ax.set_ylim(None, ymax_data * 4)
+else:
+    ax.set_ylim(ymin_data, ymax_data * 1.15)
+
+# fix weird ordering columns/rows
+handles, labels = ax.get_legend_handles_labels()
+if napac_figure == 3:
+    new_order = [0, 2, 4, 1, 3, 5]
+    reordered_handles = [handles[i] for i in new_order]
+    reordered_labels = [labels[i] for i in new_order]
+    handles, labels = reordered_handles, reordered_labels
 
 ax.legend(
+    handles,
+    labels,
     bbox_to_anchor=(0.0, 1.02, 1.0, 0.102),
     loc="lower left",
-    ncols=num_shown_configs if num_shown_configs < 3 else 3,
+    ncols=num_shown_configs if num_shown_configs <= 3 else 2,
     mode="expand",
     borderaxespad=0.0,
 )
@@ -205,7 +270,8 @@ ax.set_xticks(
 ax.set_xlabel("particles / beam")
 ax.set_ylabel("particles / second")
 
-plt.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
+if napac_figure != 3:
+    plt.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
 offset_text = ax.yaxis.get_offset_text()
 # Set a new position for the offset text (e.g., slightly to the right and up)
 # Coordinates are in axes coordinates (0 to 1)
