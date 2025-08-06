@@ -443,6 +443,532 @@ cheetah-1cpu:
       push_per_sec: 55123.813679764986
       scenario: spacecharge
       track_ns: 18140979973
+  perlmutter:
+    config:
+      OMP_NUM_THREADS: '1'
+      code: cheetah
+      compile_backend: none
+      compile_mode: none
+      device: cpu
+      dtype: float32
+      env_file: benchmark-cpu-conda.yaml
+      env_name: benchmark-cpu
+      env_packages:
+      - name: _libgcc_mutex
+        version: '0.1'
+      - name: _openmp_mutex
+        version: '4.5'
+      - name: alsa-lib
+        version: 1.2.14
+      - name: binutils
+        version: '2.44'
+      - name: binutils_impl_linux-64
+        version: '2.44'
+      - name: binutils_linux-64
+        version: '2.44'
+      - name: brotli
+        version: 1.1.0
+      - name: brotli-bin
+        version: 1.1.0
+      - name: bzip2
+        version: 1.0.8
+      - name: c-ares
+        version: 1.34.5
+      - name: c-compiler
+        version: 1.11.0
+      - name: ca-certificates
+        version: 2025.8.3
+      - name: cairo
+        version: 1.18.4
+      - name: ccache
+        version: 4.11.3
+      - name: cheetah-accelerator
+        version: 0.7.5
+      - name: cmake
+        version: 4.1.0
+      - name: colorama
+        version: 0.4.6
+      - name: compilers
+        version: 1.11.0
+      - name: conda-gcc-specs
+        version: 14.3.0
+      - name: contourpy
+        version: 1.3.3
+      - name: cpp-expected
+        version: 1.1.0
+      - name: cxx-compiler
+        version: 1.11.0
+      - name: cycler
+        version: 0.12.1
+      - name: cyrus-sasl
+        version: 2.1.28
+      - name: dbus
+        version: 1.16.2
+      - name: distlib
+        version: 0.4.0
+      - name: double-conversion
+        version: 3.3.1
+      - name: doxygen
+        version: 1.13.2
+      - name: exceptiongroup
+        version: 1.3.0
+      - name: fftw
+        version: 3.3.10
+      - name: filelock
+        version: 3.18.0
+      - name: fmt
+        version: 11.2.0
+      - name: font-ttf-dejavu-sans-mono
+        version: '2.37'
+      - name: font-ttf-inconsolata
+        version: '3.000'
+      - name: font-ttf-source-code-pro
+        version: '2.038'
+      - name: font-ttf-ubuntu
+        version: '0.83'
+      - name: fontconfig
+        version: 2.15.0
+      - name: fonts-conda-ecosystem
+        version: '1'
+      - name: fonts-conda-forge
+        version: '1'
+      - name: fonttools
+        version: 4.59.0
+      - name: fortran-compiler
+        version: 1.11.0
+      - name: freetype
+        version: 2.13.3
+      - name: fsspec
+        version: 2025.7.0
+      - name: gcc
+        version: 14.3.0
+      - name: gcc_impl_linux-64
+        version: 14.3.0
+      - name: gcc_linux-64
+        version: 14.3.0
+      - name: gfortran
+        version: 14.3.0
+      - name: gfortran_impl_linux-64
+        version: 14.3.0
+      - name: gfortran_linux-64
+        version: 14.3.0
+      - name: git
+        version: 2.49.0
+      - name: graphite2
+        version: 1.3.14
+      - name: gxx
+        version: 14.3.0
+      - name: gxx_impl_linux-64
+        version: 14.3.0
+      - name: gxx_linux-64
+        version: 14.3.0
+      - name: harfbuzz
+        version: 11.3.3
+      - name: icu
+        version: '75.1'
+      - name: importlib-metadata
+        version: 8.7.0
+      - name: iniconfig
+        version: 2.0.0
+      - name: jinja2
+        version: 3.1.6
+      - name: kernel-headers_linux-64
+        version: 4.18.0
+      - name: keyutils
+        version: 1.6.1
+      - name: kiwisolver
+        version: 1.4.8
+      - name: krb5
+        version: 1.21.3
+      - name: lcms2
+        version: '2.17'
+      - name: ld_impl_linux-64
+        version: '2.44'
+      - name: lerc
+        version: 4.0.0
+      - name: libarchive
+        version: 3.8.1
+      - name: libblas
+        version: 3.9.0
+      - name: libbrotlicommon
+        version: 1.1.0
+      - name: libbrotlidec
+        version: 1.1.0
+      - name: libbrotlienc
+        version: 1.1.0
+      - name: libcblas
+        version: 3.9.0
+      - name: libclang-cpp20.1
+        version: 20.1.8
+      - name: libclang13
+        version: 20.1.8
+      - name: libcups
+        version: 2.3.3
+      - name: libcurl
+        version: 8.14.1
+      - name: libdeflate
+        version: '1.24'
+      - name: libdrm
+        version: 2.4.125
+      - name: libedit
+        version: 3.1.20250104
+      - name: libegl
+        version: 1.7.0
+      - name: libev
+        version: '4.33'
+      - name: libexpat
+        version: 2.7.1
+      - name: libffi
+        version: 3.4.6
+      - name: libfreetype
+        version: 2.13.3
+      - name: libfreetype6
+        version: 2.13.3
+      - name: libgcc
+        version: 15.1.0
+      - name: libgcc-devel_linux-64
+        version: 14.3.0
+      - name: libgcc-ng
+        version: 15.1.0
+      - name: libgfortran
+        version: 15.1.0
+      - name: libgfortran-ng
+        version: 15.1.0
+      - name: libgfortran5
+        version: 15.1.0
+      - name: libgl
+        version: 1.7.0
+      - name: libglib
+        version: 2.84.3
+      - name: libglvnd
+        version: 1.7.0
+      - name: libglx
+        version: 1.7.0
+      - name: libgomp
+        version: 15.1.0
+      - name: libhiredis
+        version: 1.0.2
+      - name: libiconv
+        version: '1.18'
+      - name: libjpeg-turbo
+        version: 3.1.0
+      - name: liblapack
+        version: 3.9.0
+      - name: libllvm20
+        version: 20.1.8
+      - name: liblzma
+        version: 5.8.1
+      - name: libmamba
+        version: 2.3.1
+      - name: libmpdec
+        version: 4.0.0
+      - name: libnghttp2
+        version: 1.64.0
+      - name: libntlm
+        version: '1.8'
+      - name: libopenblas
+        version: 0.3.30
+      - name: libopengl
+        version: 1.7.0
+      - name: libpciaccess
+        version: '0.18'
+      - name: libpng
+        version: 1.6.50
+      - name: libpq
+        version: '17.5'
+      - name: libsanitizer
+        version: 14.3.0
+      - name: libsolv
+        version: 0.7.35
+      - name: libsqlite
+        version: 3.50.4
+      - name: libssh2
+        version: 1.11.1
+      - name: libstdcxx
+        version: 15.1.0
+      - name: libstdcxx-devel_linux-64
+        version: 14.3.0
+      - name: libstdcxx-ng
+        version: 15.1.0
+      - name: libtiff
+        version: 4.7.0
+      - name: libuuid
+        version: 2.38.1
+      - name: libuv
+        version: 1.51.0
+      - name: libwebp-base
+        version: 1.6.0
+      - name: libxcb
+        version: 1.17.0
+      - name: libxcrypt
+        version: 4.4.36
+      - name: libxkbcommon
+        version: 1.10.0
+      - name: libxml2
+        version: 2.13.8
+      - name: libxslt
+        version: 1.1.43
+      - name: libzlib
+        version: 1.3.1
+      - name: lz4-c
+        version: 1.10.0
+      - name: lzo
+        version: '2.10'
+      - name: mamba
+        version: 2.3.1
+      - name: markupsafe
+        version: 3.0.2
+      - name: matplotlib
+        version: 3.10.5
+      - name: matplotlib-base
+        version: 3.10.5
+      - name: mpmath
+        version: 1.3.0
+      - name: munkres
+        version: 1.1.4
+      - name: ncurses
+        version: '6.5'
+      - name: networkx
+        version: '3.5'
+      - name: ninja
+        version: 1.13.1
+      - name: nlohmann_json
+        version: 3.11.3
+      - name: numpy
+        version: 2.3.2
+      - name: nvidia-cublas-cu12
+        version: 12.6.4.1
+      - name: nvidia-cuda-cupti-cu12
+        version: 12.6.80
+      - name: nvidia-cuda-nvrtc-cu12
+        version: 12.6.77
+      - name: nvidia-cuda-runtime-cu12
+        version: 12.6.77
+      - name: nvidia-cudnn-cu12
+        version: 9.5.1.17
+      - name: nvidia-cufft-cu12
+        version: 11.3.0.4
+      - name: nvidia-cufile-cu12
+        version: 1.11.1.6
+      - name: nvidia-curand-cu12
+        version: 10.3.7.77
+      - name: nvidia-cusolver-cu12
+        version: 11.7.1.2
+      - name: nvidia-cusparse-cu12
+        version: 12.5.4.2
+      - name: nvidia-cusparselt-cu12
+        version: 0.6.3
+      - name: nvidia-nccl-cu12
+        version: 2.26.2
+      - name: nvidia-nvjitlink-cu12
+        version: 12.6.85
+      - name: nvidia-nvtx-cu12
+        version: 12.6.77
+      - name: openjpeg
+        version: 2.5.3
+      - name: openldap
+        version: 2.6.10
+      - name: openssl
+        version: 3.5.1
+      - name: opt-einsum
+        version: 3.4.0
+      - name: packaging
+        version: '25.0'
+      - name: pandas
+        version: 2.3.1
+      - name: pcre2
+        version: '10.45'
+      - name: perl
+        version: 5.32.1
+      - name: pillow
+        version: 11.3.0
+      - name: pip
+        version: '25.2'
+      - name: pixman
+        version: 0.46.4
+      - name: pkg-config
+        version: 0.29.2
+      - name: platformdirs
+        version: 4.3.8
+      - name: pluggy
+        version: 1.6.0
+      - name: pthread-stubs
+        version: '0.4'
+      - name: py-cpuinfo
+        version: 9.0.0
+      - name: pygments
+        version: 2.19.2
+      - name: pyparsing
+        version: 3.2.3
+      - name: pyproject_hooks
+        version: 1.2.0
+      - name: pyside6
+        version: 6.9.1
+      - name: pytest
+        version: 8.4.1
+      - name: pytest-benchmark
+        version: 5.1.0
+      - name: python
+        version: 3.13.5
+      - name: python-build
+        version: 1.3.0
+      - name: python-dateutil
+        version: 2.9.0.post0
+      - name: python-tzdata
+        version: '2025.2'
+      - name: python_abi
+        version: '3.13'
+      - name: pytz
+        version: '2025.2'
+      - name: qhull
+        version: '2020.2'
+      - name: qt6-main
+        version: 6.9.1
+      - name: quantiphy
+        version: '2.20'
+      - name: readline
+        version: '8.2'
+      - name: reproc
+        version: 14.2.5.post0
+      - name: reproc-cpp
+        version: 14.2.5.post0
+      - name: rhash
+        version: 1.4.6
+      - name: scipy
+        version: 1.16.0
+      - name: setuptools
+        version: 80.9.0
+      - name: simdjson
+        version: 3.13.0
+      - name: six
+        version: 1.17.0
+      - name: sympy
+        version: 1.14.0
+      - name: sysroot_linux-64
+        version: '2.28'
+      - name: tk
+        version: 8.6.13
+      - name: tomli
+        version: 2.2.1
+      - name: torch
+        version: 2.7.1
+      - name: tornado
+        version: 6.5.1
+      - name: triton
+        version: 3.3.1
+      - name: typing_extensions
+        version: 4.14.1
+      - name: tzdata
+        version: 2025b
+      - name: vir-simd
+        version: 0.4.4
+      - name: virtualenv
+        version: 20.33.1
+      - name: wayland
+        version: 1.24.0
+      - name: wheel
+        version: 0.45.1
+      - name: xcb-util
+        version: 0.4.1
+      - name: xcb-util-cursor
+        version: 0.1.5
+      - name: xcb-util-image
+        version: 0.4.0
+      - name: xcb-util-keysyms
+        version: 0.4.1
+      - name: xcb-util-renderutil
+        version: 0.3.10
+      - name: xcb-util-wm
+        version: 0.4.2
+      - name: xkeyboard-config
+        version: '2.45'
+      - name: xorg-libice
+        version: 1.1.2
+      - name: xorg-libsm
+        version: 1.2.6
+      - name: xorg-libx11
+        version: 1.8.12
+      - name: xorg-libxau
+        version: 1.0.12
+      - name: xorg-libxcomposite
+        version: 0.4.6
+      - name: xorg-libxcursor
+        version: 1.2.3
+      - name: xorg-libxdamage
+        version: 1.1.6
+      - name: xorg-libxdmcp
+        version: 1.1.5
+      - name: xorg-libxext
+        version: 1.3.6
+      - name: xorg-libxfixes
+        version: 6.0.1
+      - name: xorg-libxi
+        version: 1.8.2
+      - name: xorg-libxrandr
+        version: 1.5.4
+      - name: xorg-libxrender
+        version: 0.9.12
+      - name: xorg-libxtst
+        version: 1.2.5
+      - name: xorg-libxxf86vm
+        version: 1.1.6
+      - name: yaml-cpp
+        version: 0.8.0
+      - name: zipp
+        version: 3.23.0
+      - name: zstd
+        version: 1.5.7
+      version: 0.7.5
+    htu_1000:
+      npart: 1000
+      push_per_sec: 6187.35902257151
+      scenario: htu
+      track_ns: 161619844
+    htu_10000:
+      npart: 10000
+      push_per_sec: 43874.93915423438
+      scenario: htu
+      track_ns: 227920544
+    htu_100000:
+      npart: 100000
+      push_per_sec: 110144.44406278171
+      scenario: htu
+      track_ns: 907898722
+    htu_1000000:
+      npart: 1000000
+      push_per_sec: 106370.54860057528
+      scenario: htu
+      track_ns: 9401098454
+    htu_10000000:
+      npart: 10000000
+      push_per_sec: 64840.81118289978
+      scenario: htu
+      track_ns: 154223857129
+    spacecharge_1000:
+      npart: 1000
+      push_per_sec: 76.48207652207864
+      scenario: spacecharge
+      track_ns: 13074958807
+    spacecharge_10000:
+      npart: 10000
+      push_per_sec: 762.5460956484036
+      scenario: spacecharge
+      track_ns: 13113961316
+    spacecharge_100000:
+      npart: 100000
+      push_per_sec: 7508.104843197354
+      scenario: spacecharge
+      track_ns: 13318940277
+    spacecharge_1000000:
+      npart: 1000000
+      push_per_sec: 67066.96306104399
+      scenario: spacecharge
+      track_ns: 14910470884
+    spacecharge_10000000:
+      npart: 10000000
+      push_per_sec: 336313.0314115084
+      scenario: spacecharge
+      track_ns: 29734203156
 cheetah-1cpu-dp:
   axel-dell:
     config:
@@ -888,6 +1414,522 @@ cheetah-1cpu-dp:
       push_per_sec: 32022.41655029833
       scenario: spacecharge
       track_ns: 31228124162
+  perlmutter:
+    config:
+      OMP_NUM_THREADS: '1'
+      code: cheetah
+      compile_backend: none
+      compile_mode: none
+      device: cpu
+      dtype: float64
+      env_file: benchmark-cpu-conda.yaml
+      env_name: benchmark-cpu
+      env_packages:
+      - name: _libgcc_mutex
+        version: '0.1'
+      - name: _openmp_mutex
+        version: '4.5'
+      - name: alsa-lib
+        version: 1.2.14
+      - name: binutils
+        version: '2.44'
+      - name: binutils_impl_linux-64
+        version: '2.44'
+      - name: binutils_linux-64
+        version: '2.44'
+      - name: brotli
+        version: 1.1.0
+      - name: brotli-bin
+        version: 1.1.0
+      - name: bzip2
+        version: 1.0.8
+      - name: c-ares
+        version: 1.34.5
+      - name: c-compiler
+        version: 1.11.0
+      - name: ca-certificates
+        version: 2025.8.3
+      - name: cairo
+        version: 1.18.4
+      - name: ccache
+        version: 4.11.3
+      - name: cheetah-accelerator
+        version: 0.7.5
+      - name: cmake
+        version: 4.1.0
+      - name: colorama
+        version: 0.4.6
+      - name: compilers
+        version: 1.11.0
+      - name: conda-gcc-specs
+        version: 14.3.0
+      - name: contourpy
+        version: 1.3.3
+      - name: cpp-expected
+        version: 1.1.0
+      - name: cxx-compiler
+        version: 1.11.0
+      - name: cycler
+        version: 0.12.1
+      - name: cyrus-sasl
+        version: 2.1.28
+      - name: dbus
+        version: 1.16.2
+      - name: distlib
+        version: 0.4.0
+      - name: double-conversion
+        version: 3.3.1
+      - name: doxygen
+        version: 1.13.2
+      - name: exceptiongroup
+        version: 1.3.0
+      - name: fftw
+        version: 3.3.10
+      - name: filelock
+        version: 3.18.0
+      - name: fmt
+        version: 11.2.0
+      - name: font-ttf-dejavu-sans-mono
+        version: '2.37'
+      - name: font-ttf-inconsolata
+        version: '3.000'
+      - name: font-ttf-source-code-pro
+        version: '2.038'
+      - name: font-ttf-ubuntu
+        version: '0.83'
+      - name: fontconfig
+        version: 2.15.0
+      - name: fonts-conda-ecosystem
+        version: '1'
+      - name: fonts-conda-forge
+        version: '1'
+      - name: fonttools
+        version: 4.59.0
+      - name: fortran-compiler
+        version: 1.11.0
+      - name: freetype
+        version: 2.13.3
+      - name: fsspec
+        version: 2025.7.0
+      - name: gcc
+        version: 14.3.0
+      - name: gcc_impl_linux-64
+        version: 14.3.0
+      - name: gcc_linux-64
+        version: 14.3.0
+      - name: gfortran
+        version: 14.3.0
+      - name: gfortran_impl_linux-64
+        version: 14.3.0
+      - name: gfortran_linux-64
+        version: 14.3.0
+      - name: git
+        version: 2.49.0
+      - name: graphite2
+        version: 1.3.14
+      - name: gxx
+        version: 14.3.0
+      - name: gxx_impl_linux-64
+        version: 14.3.0
+      - name: gxx_linux-64
+        version: 14.3.0
+      - name: harfbuzz
+        version: 11.3.3
+      - name: icu
+        version: '75.1'
+      - name: importlib-metadata
+        version: 8.7.0
+      - name: iniconfig
+        version: 2.0.0
+      - name: jinja2
+        version: 3.1.6
+      - name: kernel-headers_linux-64
+        version: 4.18.0
+      - name: keyutils
+        version: 1.6.1
+      - name: kiwisolver
+        version: 1.4.8
+      - name: krb5
+        version: 1.21.3
+      - name: lcms2
+        version: '2.17'
+      - name: ld_impl_linux-64
+        version: '2.44'
+      - name: lerc
+        version: 4.0.0
+      - name: libarchive
+        version: 3.8.1
+      - name: libblas
+        version: 3.9.0
+      - name: libbrotlicommon
+        version: 1.1.0
+      - name: libbrotlidec
+        version: 1.1.0
+      - name: libbrotlienc
+        version: 1.1.0
+      - name: libcblas
+        version: 3.9.0
+      - name: libclang-cpp20.1
+        version: 20.1.8
+      - name: libclang13
+        version: 20.1.8
+      - name: libcups
+        version: 2.3.3
+      - name: libcurl
+        version: 8.14.1
+      - name: libdeflate
+        version: '1.24'
+      - name: libdrm
+        version: 2.4.125
+      - name: libedit
+        version: 3.1.20250104
+      - name: libegl
+        version: 1.7.0
+      - name: libev
+        version: '4.33'
+      - name: libexpat
+        version: 2.7.1
+      - name: libffi
+        version: 3.4.6
+      - name: libfreetype
+        version: 2.13.3
+      - name: libfreetype6
+        version: 2.13.3
+      - name: libgcc
+        version: 15.1.0
+      - name: libgcc-devel_linux-64
+        version: 14.3.0
+      - name: libgcc-ng
+        version: 15.1.0
+      - name: libgfortran
+        version: 15.1.0
+      - name: libgfortran-ng
+        version: 15.1.0
+      - name: libgfortran5
+        version: 15.1.0
+      - name: libgl
+        version: 1.7.0
+      - name: libglib
+        version: 2.84.3
+      - name: libglvnd
+        version: 1.7.0
+      - name: libglx
+        version: 1.7.0
+      - name: libgomp
+        version: 15.1.0
+      - name: libhiredis
+        version: 1.0.2
+      - name: libiconv
+        version: '1.18'
+      - name: libjpeg-turbo
+        version: 3.1.0
+      - name: liblapack
+        version: 3.9.0
+      - name: libllvm20
+        version: 20.1.8
+      - name: liblzma
+        version: 5.8.1
+      - name: libmamba
+        version: 2.3.1
+      - name: libmpdec
+        version: 4.0.0
+      - name: libnghttp2
+        version: 1.64.0
+      - name: libntlm
+        version: '1.8'
+      - name: libopenblas
+        version: 0.3.30
+      - name: libopengl
+        version: 1.7.0
+      - name: libpciaccess
+        version: '0.18'
+      - name: libpng
+        version: 1.6.50
+      - name: libpq
+        version: '17.5'
+      - name: libsanitizer
+        version: 14.3.0
+      - name: libsolv
+        version: 0.7.35
+      - name: libsqlite
+        version: 3.50.4
+      - name: libssh2
+        version: 1.11.1
+      - name: libstdcxx
+        version: 15.1.0
+      - name: libstdcxx-devel_linux-64
+        version: 14.3.0
+      - name: libstdcxx-ng
+        version: 15.1.0
+      - name: libtiff
+        version: 4.7.0
+      - name: libuuid
+        version: 2.38.1
+      - name: libuv
+        version: 1.51.0
+      - name: libwebp-base
+        version: 1.6.0
+      - name: libxcb
+        version: 1.17.0
+      - name: libxcrypt
+        version: 4.4.36
+      - name: libxkbcommon
+        version: 1.10.0
+      - name: libxml2
+        version: 2.13.8
+      - name: libxslt
+        version: 1.1.43
+      - name: libzlib
+        version: 1.3.1
+      - name: lz4-c
+        version: 1.10.0
+      - name: lzo
+        version: '2.10'
+      - name: mamba
+        version: 2.3.1
+      - name: markupsafe
+        version: 3.0.2
+      - name: matplotlib
+        version: 3.10.5
+      - name: matplotlib-base
+        version: 3.10.5
+      - name: mpmath
+        version: 1.3.0
+      - name: munkres
+        version: 1.1.4
+      - name: ncurses
+        version: '6.5'
+      - name: networkx
+        version: '3.5'
+      - name: ninja
+        version: 1.13.1
+      - name: nlohmann_json
+        version: 3.11.3
+      - name: numpy
+        version: 2.3.2
+      - name: nvidia-cublas-cu12
+        version: 12.6.4.1
+      - name: nvidia-cuda-cupti-cu12
+        version: 12.6.80
+      - name: nvidia-cuda-nvrtc-cu12
+        version: 12.6.77
+      - name: nvidia-cuda-runtime-cu12
+        version: 12.6.77
+      - name: nvidia-cudnn-cu12
+        version: 9.5.1.17
+      - name: nvidia-cufft-cu12
+        version: 11.3.0.4
+      - name: nvidia-cufile-cu12
+        version: 1.11.1.6
+      - name: nvidia-curand-cu12
+        version: 10.3.7.77
+      - name: nvidia-cusolver-cu12
+        version: 11.7.1.2
+      - name: nvidia-cusparse-cu12
+        version: 12.5.4.2
+      - name: nvidia-cusparselt-cu12
+        version: 0.6.3
+      - name: nvidia-nccl-cu12
+        version: 2.26.2
+      - name: nvidia-nvjitlink-cu12
+        version: 12.6.85
+      - name: nvidia-nvtx-cu12
+        version: 12.6.77
+      - name: openjpeg
+        version: 2.5.3
+      - name: openldap
+        version: 2.6.10
+      - name: openssl
+        version: 3.5.1
+      - name: opt-einsum
+        version: 3.4.0
+      - name: packaging
+        version: '25.0'
+      - name: pandas
+        version: 2.3.1
+      - name: pcre2
+        version: '10.45'
+      - name: perl
+        version: 5.32.1
+      - name: pillow
+        version: 11.3.0
+      - name: pip
+        version: '25.2'
+      - name: pixman
+        version: 0.46.4
+      - name: pkg-config
+        version: 0.29.2
+      - name: platformdirs
+        version: 4.3.8
+      - name: pluggy
+        version: 1.6.0
+      - name: pthread-stubs
+        version: '0.4'
+      - name: py-cpuinfo
+        version: 9.0.0
+      - name: pygments
+        version: 2.19.2
+      - name: pyparsing
+        version: 3.2.3
+      - name: pyproject_hooks
+        version: 1.2.0
+      - name: pyside6
+        version: 6.9.1
+      - name: pytest
+        version: 8.4.1
+      - name: pytest-benchmark
+        version: 5.1.0
+      - name: python
+        version: 3.13.5
+      - name: python-build
+        version: 1.3.0
+      - name: python-dateutil
+        version: 2.9.0.post0
+      - name: python-tzdata
+        version: '2025.2'
+      - name: python_abi
+        version: '3.13'
+      - name: pytz
+        version: '2025.2'
+      - name: qhull
+        version: '2020.2'
+      - name: qt6-main
+        version: 6.9.1
+      - name: quantiphy
+        version: '2.20'
+      - name: readline
+        version: '8.2'
+      - name: reproc
+        version: 14.2.5.post0
+      - name: reproc-cpp
+        version: 14.2.5.post0
+      - name: rhash
+        version: 1.4.6
+      - name: scipy
+        version: 1.16.0
+      - name: setuptools
+        version: 80.9.0
+      - name: simdjson
+        version: 3.13.0
+      - name: six
+        version: 1.17.0
+      - name: sympy
+        version: 1.14.0
+      - name: sysroot_linux-64
+        version: '2.28'
+      - name: tk
+        version: 8.6.13
+      - name: tomli
+        version: 2.2.1
+      - name: torch
+        version: 2.7.1
+      - name: tornado
+        version: 6.5.1
+      - name: triton
+        version: 3.3.1
+      - name: typing_extensions
+        version: 4.14.1
+      - name: tzdata
+        version: 2025b
+      - name: vir-simd
+        version: 0.4.4
+      - name: virtualenv
+        version: 20.33.1
+      - name: wayland
+        version: 1.24.0
+      - name: wheel
+        version: 0.45.1
+      - name: xcb-util
+        version: 0.4.1
+      - name: xcb-util-cursor
+        version: 0.1.5
+      - name: xcb-util-image
+        version: 0.4.0
+      - name: xcb-util-keysyms
+        version: 0.4.1
+      - name: xcb-util-renderutil
+        version: 0.3.10
+      - name: xcb-util-wm
+        version: 0.4.2
+      - name: xkeyboard-config
+        version: '2.45'
+      - name: xorg-libice
+        version: 1.1.2
+      - name: xorg-libsm
+        version: 1.2.6
+      - name: xorg-libx11
+        version: 1.8.12
+      - name: xorg-libxau
+        version: 1.0.12
+      - name: xorg-libxcomposite
+        version: 0.4.6
+      - name: xorg-libxcursor
+        version: 1.2.3
+      - name: xorg-libxdamage
+        version: 1.1.6
+      - name: xorg-libxdmcp
+        version: 1.1.5
+      - name: xorg-libxext
+        version: 1.3.6
+      - name: xorg-libxfixes
+        version: 6.0.1
+      - name: xorg-libxi
+        version: 1.8.2
+      - name: xorg-libxrandr
+        version: 1.5.4
+      - name: xorg-libxrender
+        version: 0.9.12
+      - name: xorg-libxtst
+        version: 1.2.5
+      - name: xorg-libxxf86vm
+        version: 1.1.6
+      - name: yaml-cpp
+        version: 0.8.0
+      - name: zipp
+        version: 3.23.0
+      - name: zstd
+        version: 1.5.7
+      version: 0.7.5
+    htu_1000:
+      npart: 1000
+      push_per_sec: 5974.808034496438
+      scenario: htu
+      track_ns: 167369394
+    htu_10000:
+      npart: 10000
+      push_per_sec: 35826.12476772535
+      scenario: htu
+      track_ns: 279125919
+    htu_100000:
+      npart: 100000
+      push_per_sec: 67889.6016176126
+      scenario: htu
+      track_ns: 1472979626
+    htu_1000000:
+      npart: 1000000
+      push_per_sec: 53765.51755043982
+      scenario: htu
+      track_ns: 18599281576
+    spacecharge_1000:
+      npart: 1000
+      push_per_sec: 46.6496408150844
+      scenario: spacecharge
+      track_ns: 21436392275
+    spacecharge_10000:
+      npart: 10000
+      push_per_sec: 464.97085184493346
+      scenario: spacecharge
+      track_ns: 21506724476
+    spacecharge_100000:
+      npart: 100000
+      push_per_sec: 4601.977641565998
+      scenario: spacecharge
+      track_ns: 21729788319
+    spacecharge_1000000:
+      npart: 1000000
+      push_per_sec: 42027.81244704562
+      scenario: spacecharge
+      track_ns: 23793767550
 cheetah-1cpu-inductor-fm-simd:
   axel-dell:
     config:
@@ -1334,6 +2376,523 @@ cheetah-1cpu-inductor-fm-simd:
       push_per_sec: 163320.09904242324
       scenario: spacecharge
       track_ns: 6122945099
+  perlmutter:
+    config:
+      OMP_NUM_THREADS: '1'
+      code: cheetah
+      compile_backend: inductor
+      compile_backend_config: fast-math
+      compile_mode: default
+      device: cpu
+      dtype: float32
+      env_file: benchmark-cpu-conda.yaml
+      env_name: benchmark-cpu
+      env_packages:
+      - name: _libgcc_mutex
+        version: '0.1'
+      - name: _openmp_mutex
+        version: '4.5'
+      - name: alsa-lib
+        version: 1.2.14
+      - name: binutils
+        version: '2.44'
+      - name: binutils_impl_linux-64
+        version: '2.44'
+      - name: binutils_linux-64
+        version: '2.44'
+      - name: brotli
+        version: 1.1.0
+      - name: brotli-bin
+        version: 1.1.0
+      - name: bzip2
+        version: 1.0.8
+      - name: c-ares
+        version: 1.34.5
+      - name: c-compiler
+        version: 1.11.0
+      - name: ca-certificates
+        version: 2025.8.3
+      - name: cairo
+        version: 1.18.4
+      - name: ccache
+        version: 4.11.3
+      - name: cheetah-accelerator
+        version: 0.7.5
+      - name: cmake
+        version: 4.1.0
+      - name: colorama
+        version: 0.4.6
+      - name: compilers
+        version: 1.11.0
+      - name: conda-gcc-specs
+        version: 14.3.0
+      - name: contourpy
+        version: 1.3.3
+      - name: cpp-expected
+        version: 1.1.0
+      - name: cxx-compiler
+        version: 1.11.0
+      - name: cycler
+        version: 0.12.1
+      - name: cyrus-sasl
+        version: 2.1.28
+      - name: dbus
+        version: 1.16.2
+      - name: distlib
+        version: 0.4.0
+      - name: double-conversion
+        version: 3.3.1
+      - name: doxygen
+        version: 1.13.2
+      - name: exceptiongroup
+        version: 1.3.0
+      - name: fftw
+        version: 3.3.10
+      - name: filelock
+        version: 3.18.0
+      - name: fmt
+        version: 11.2.0
+      - name: font-ttf-dejavu-sans-mono
+        version: '2.37'
+      - name: font-ttf-inconsolata
+        version: '3.000'
+      - name: font-ttf-source-code-pro
+        version: '2.038'
+      - name: font-ttf-ubuntu
+        version: '0.83'
+      - name: fontconfig
+        version: 2.15.0
+      - name: fonts-conda-ecosystem
+        version: '1'
+      - name: fonts-conda-forge
+        version: '1'
+      - name: fonttools
+        version: 4.59.0
+      - name: fortran-compiler
+        version: 1.11.0
+      - name: freetype
+        version: 2.13.3
+      - name: fsspec
+        version: 2025.7.0
+      - name: gcc
+        version: 14.3.0
+      - name: gcc_impl_linux-64
+        version: 14.3.0
+      - name: gcc_linux-64
+        version: 14.3.0
+      - name: gfortran
+        version: 14.3.0
+      - name: gfortran_impl_linux-64
+        version: 14.3.0
+      - name: gfortran_linux-64
+        version: 14.3.0
+      - name: git
+        version: 2.49.0
+      - name: graphite2
+        version: 1.3.14
+      - name: gxx
+        version: 14.3.0
+      - name: gxx_impl_linux-64
+        version: 14.3.0
+      - name: gxx_linux-64
+        version: 14.3.0
+      - name: harfbuzz
+        version: 11.3.3
+      - name: icu
+        version: '75.1'
+      - name: importlib-metadata
+        version: 8.7.0
+      - name: iniconfig
+        version: 2.0.0
+      - name: jinja2
+        version: 3.1.6
+      - name: kernel-headers_linux-64
+        version: 4.18.0
+      - name: keyutils
+        version: 1.6.1
+      - name: kiwisolver
+        version: 1.4.8
+      - name: krb5
+        version: 1.21.3
+      - name: lcms2
+        version: '2.17'
+      - name: ld_impl_linux-64
+        version: '2.44'
+      - name: lerc
+        version: 4.0.0
+      - name: libarchive
+        version: 3.8.1
+      - name: libblas
+        version: 3.9.0
+      - name: libbrotlicommon
+        version: 1.1.0
+      - name: libbrotlidec
+        version: 1.1.0
+      - name: libbrotlienc
+        version: 1.1.0
+      - name: libcblas
+        version: 3.9.0
+      - name: libclang-cpp20.1
+        version: 20.1.8
+      - name: libclang13
+        version: 20.1.8
+      - name: libcups
+        version: 2.3.3
+      - name: libcurl
+        version: 8.14.1
+      - name: libdeflate
+        version: '1.24'
+      - name: libdrm
+        version: 2.4.125
+      - name: libedit
+        version: 3.1.20250104
+      - name: libegl
+        version: 1.7.0
+      - name: libev
+        version: '4.33'
+      - name: libexpat
+        version: 2.7.1
+      - name: libffi
+        version: 3.4.6
+      - name: libfreetype
+        version: 2.13.3
+      - name: libfreetype6
+        version: 2.13.3
+      - name: libgcc
+        version: 15.1.0
+      - name: libgcc-devel_linux-64
+        version: 14.3.0
+      - name: libgcc-ng
+        version: 15.1.0
+      - name: libgfortran
+        version: 15.1.0
+      - name: libgfortran-ng
+        version: 15.1.0
+      - name: libgfortran5
+        version: 15.1.0
+      - name: libgl
+        version: 1.7.0
+      - name: libglib
+        version: 2.84.3
+      - name: libglvnd
+        version: 1.7.0
+      - name: libglx
+        version: 1.7.0
+      - name: libgomp
+        version: 15.1.0
+      - name: libhiredis
+        version: 1.0.2
+      - name: libiconv
+        version: '1.18'
+      - name: libjpeg-turbo
+        version: 3.1.0
+      - name: liblapack
+        version: 3.9.0
+      - name: libllvm20
+        version: 20.1.8
+      - name: liblzma
+        version: 5.8.1
+      - name: libmamba
+        version: 2.3.1
+      - name: libmpdec
+        version: 4.0.0
+      - name: libnghttp2
+        version: 1.64.0
+      - name: libntlm
+        version: '1.8'
+      - name: libopenblas
+        version: 0.3.30
+      - name: libopengl
+        version: 1.7.0
+      - name: libpciaccess
+        version: '0.18'
+      - name: libpng
+        version: 1.6.50
+      - name: libpq
+        version: '17.5'
+      - name: libsanitizer
+        version: 14.3.0
+      - name: libsolv
+        version: 0.7.35
+      - name: libsqlite
+        version: 3.50.4
+      - name: libssh2
+        version: 1.11.1
+      - name: libstdcxx
+        version: 15.1.0
+      - name: libstdcxx-devel_linux-64
+        version: 14.3.0
+      - name: libstdcxx-ng
+        version: 15.1.0
+      - name: libtiff
+        version: 4.7.0
+      - name: libuuid
+        version: 2.38.1
+      - name: libuv
+        version: 1.51.0
+      - name: libwebp-base
+        version: 1.6.0
+      - name: libxcb
+        version: 1.17.0
+      - name: libxcrypt
+        version: 4.4.36
+      - name: libxkbcommon
+        version: 1.10.0
+      - name: libxml2
+        version: 2.13.8
+      - name: libxslt
+        version: 1.1.43
+      - name: libzlib
+        version: 1.3.1
+      - name: lz4-c
+        version: 1.10.0
+      - name: lzo
+        version: '2.10'
+      - name: mamba
+        version: 2.3.1
+      - name: markupsafe
+        version: 3.0.2
+      - name: matplotlib
+        version: 3.10.5
+      - name: matplotlib-base
+        version: 3.10.5
+      - name: mpmath
+        version: 1.3.0
+      - name: munkres
+        version: 1.1.4
+      - name: ncurses
+        version: '6.5'
+      - name: networkx
+        version: '3.5'
+      - name: ninja
+        version: 1.13.1
+      - name: nlohmann_json
+        version: 3.11.3
+      - name: numpy
+        version: 2.3.2
+      - name: nvidia-cublas-cu12
+        version: 12.6.4.1
+      - name: nvidia-cuda-cupti-cu12
+        version: 12.6.80
+      - name: nvidia-cuda-nvrtc-cu12
+        version: 12.6.77
+      - name: nvidia-cuda-runtime-cu12
+        version: 12.6.77
+      - name: nvidia-cudnn-cu12
+        version: 9.5.1.17
+      - name: nvidia-cufft-cu12
+        version: 11.3.0.4
+      - name: nvidia-cufile-cu12
+        version: 1.11.1.6
+      - name: nvidia-curand-cu12
+        version: 10.3.7.77
+      - name: nvidia-cusolver-cu12
+        version: 11.7.1.2
+      - name: nvidia-cusparse-cu12
+        version: 12.5.4.2
+      - name: nvidia-cusparselt-cu12
+        version: 0.6.3
+      - name: nvidia-nccl-cu12
+        version: 2.26.2
+      - name: nvidia-nvjitlink-cu12
+        version: 12.6.85
+      - name: nvidia-nvtx-cu12
+        version: 12.6.77
+      - name: openjpeg
+        version: 2.5.3
+      - name: openldap
+        version: 2.6.10
+      - name: openssl
+        version: 3.5.1
+      - name: opt-einsum
+        version: 3.4.0
+      - name: packaging
+        version: '25.0'
+      - name: pandas
+        version: 2.3.1
+      - name: pcre2
+        version: '10.45'
+      - name: perl
+        version: 5.32.1
+      - name: pillow
+        version: 11.3.0
+      - name: pip
+        version: '25.2'
+      - name: pixman
+        version: 0.46.4
+      - name: pkg-config
+        version: 0.29.2
+      - name: platformdirs
+        version: 4.3.8
+      - name: pluggy
+        version: 1.6.0
+      - name: pthread-stubs
+        version: '0.4'
+      - name: py-cpuinfo
+        version: 9.0.0
+      - name: pygments
+        version: 2.19.2
+      - name: pyparsing
+        version: 3.2.3
+      - name: pyproject_hooks
+        version: 1.2.0
+      - name: pyside6
+        version: 6.9.1
+      - name: pytest
+        version: 8.4.1
+      - name: pytest-benchmark
+        version: 5.1.0
+      - name: python
+        version: 3.13.5
+      - name: python-build
+        version: 1.3.0
+      - name: python-dateutil
+        version: 2.9.0.post0
+      - name: python-tzdata
+        version: '2025.2'
+      - name: python_abi
+        version: '3.13'
+      - name: pytz
+        version: '2025.2'
+      - name: qhull
+        version: '2020.2'
+      - name: qt6-main
+        version: 6.9.1
+      - name: quantiphy
+        version: '2.20'
+      - name: readline
+        version: '8.2'
+      - name: reproc
+        version: 14.2.5.post0
+      - name: reproc-cpp
+        version: 14.2.5.post0
+      - name: rhash
+        version: 1.4.6
+      - name: scipy
+        version: 1.16.0
+      - name: setuptools
+        version: 80.9.0
+      - name: simdjson
+        version: 3.13.0
+      - name: six
+        version: 1.17.0
+      - name: sympy
+        version: 1.14.0
+      - name: sysroot_linux-64
+        version: '2.28'
+      - name: tk
+        version: 8.6.13
+      - name: tomli
+        version: 2.2.1
+      - name: torch
+        version: 2.7.1
+      - name: tornado
+        version: 6.5.1
+      - name: triton
+        version: 3.3.1
+      - name: typing_extensions
+        version: 4.14.1
+      - name: tzdata
+        version: 2025b
+      - name: vir-simd
+        version: 0.4.4
+      - name: virtualenv
+        version: 20.33.1
+      - name: wayland
+        version: 1.24.0
+      - name: wheel
+        version: 0.45.1
+      - name: xcb-util
+        version: 0.4.1
+      - name: xcb-util-cursor
+        version: 0.1.5
+      - name: xcb-util-image
+        version: 0.4.0
+      - name: xcb-util-keysyms
+        version: 0.4.1
+      - name: xcb-util-renderutil
+        version: 0.3.10
+      - name: xcb-util-wm
+        version: 0.4.2
+      - name: xkeyboard-config
+        version: '2.45'
+      - name: xorg-libice
+        version: 1.1.2
+      - name: xorg-libsm
+        version: 1.2.6
+      - name: xorg-libx11
+        version: 1.8.12
+      - name: xorg-libxau
+        version: 1.0.12
+      - name: xorg-libxcomposite
+        version: 0.4.6
+      - name: xorg-libxcursor
+        version: 1.2.3
+      - name: xorg-libxdamage
+        version: 1.1.6
+      - name: xorg-libxdmcp
+        version: 1.1.5
+      - name: xorg-libxext
+        version: 1.3.6
+      - name: xorg-libxfixes
+        version: 6.0.1
+      - name: xorg-libxi
+        version: 1.8.2
+      - name: xorg-libxrandr
+        version: 1.5.4
+      - name: xorg-libxrender
+        version: 0.9.12
+      - name: xorg-libxtst
+        version: 1.2.5
+      - name: xorg-libxxf86vm
+        version: 1.1.6
+      - name: yaml-cpp
+        version: 0.8.0
+      - name: zipp
+        version: 3.23.0
+      - name: zstd
+        version: 1.5.7
+      version: 0.7.5
+    htu_1000:
+      npart: 1000
+      push_per_sec: 32439.260809159085
+      scenario: htu
+      track_ns: 30826843
+    htu_10000:
+      npart: 10000
+      push_per_sec: 98524.92618561792
+      scenario: htu
+      track_ns: 101497158
+    htu_100000:
+      npart: 100000
+      push_per_sec: 123575.1632300006
+      scenario: htu
+      track_ns: 809224098
+    htu_1000000:
+      npart: 1000000
+      push_per_sec: 126219.62017816197
+      scenario: htu
+      track_ns: 7922698536
+    spacecharge_1000:
+      npart: 1000
+      push_per_sec: 191.3870032295667
+      scenario: spacecharge
+      track_ns: 5225015195
+    spacecharge_10000:
+      npart: 10000
+      push_per_sec: 1910.0411810933474
+      scenario: spacecharge
+      track_ns: 5235489213
+    spacecharge_100000:
+      npart: 100000
+      push_per_sec: 18832.727188103956
+      scenario: spacecharge
+      track_ns: 5309905411
+    spacecharge_1000000:
+      npart: 1000000
+      push_per_sec: 165432.13908920967
+      scenario: spacecharge
+      track_ns: 6044774646
 cheetah-1cpu-inductor-fm-simd-dp:
   axel-dell:
     config:
@@ -1780,6 +3339,523 @@ cheetah-1cpu-inductor-fm-simd-dp:
       push_per_sec: 84639.06130289342
       scenario: spacecharge
       track_ns: 11814875834
+  perlmutter:
+    config:
+      OMP_NUM_THREADS: '1'
+      code: cheetah
+      compile_backend: inductor
+      compile_backend_config: fast-math
+      compile_mode: default
+      device: cpu
+      dtype: float64
+      env_file: benchmark-cpu-conda.yaml
+      env_name: benchmark-cpu
+      env_packages:
+      - name: _libgcc_mutex
+        version: '0.1'
+      - name: _openmp_mutex
+        version: '4.5'
+      - name: alsa-lib
+        version: 1.2.14
+      - name: binutils
+        version: '2.44'
+      - name: binutils_impl_linux-64
+        version: '2.44'
+      - name: binutils_linux-64
+        version: '2.44'
+      - name: brotli
+        version: 1.1.0
+      - name: brotli-bin
+        version: 1.1.0
+      - name: bzip2
+        version: 1.0.8
+      - name: c-ares
+        version: 1.34.5
+      - name: c-compiler
+        version: 1.11.0
+      - name: ca-certificates
+        version: 2025.8.3
+      - name: cairo
+        version: 1.18.4
+      - name: ccache
+        version: 4.11.3
+      - name: cheetah-accelerator
+        version: 0.7.5
+      - name: cmake
+        version: 4.1.0
+      - name: colorama
+        version: 0.4.6
+      - name: compilers
+        version: 1.11.0
+      - name: conda-gcc-specs
+        version: 14.3.0
+      - name: contourpy
+        version: 1.3.3
+      - name: cpp-expected
+        version: 1.1.0
+      - name: cxx-compiler
+        version: 1.11.0
+      - name: cycler
+        version: 0.12.1
+      - name: cyrus-sasl
+        version: 2.1.28
+      - name: dbus
+        version: 1.16.2
+      - name: distlib
+        version: 0.4.0
+      - name: double-conversion
+        version: 3.3.1
+      - name: doxygen
+        version: 1.13.2
+      - name: exceptiongroup
+        version: 1.3.0
+      - name: fftw
+        version: 3.3.10
+      - name: filelock
+        version: 3.18.0
+      - name: fmt
+        version: 11.2.0
+      - name: font-ttf-dejavu-sans-mono
+        version: '2.37'
+      - name: font-ttf-inconsolata
+        version: '3.000'
+      - name: font-ttf-source-code-pro
+        version: '2.038'
+      - name: font-ttf-ubuntu
+        version: '0.83'
+      - name: fontconfig
+        version: 2.15.0
+      - name: fonts-conda-ecosystem
+        version: '1'
+      - name: fonts-conda-forge
+        version: '1'
+      - name: fonttools
+        version: 4.59.0
+      - name: fortran-compiler
+        version: 1.11.0
+      - name: freetype
+        version: 2.13.3
+      - name: fsspec
+        version: 2025.7.0
+      - name: gcc
+        version: 14.3.0
+      - name: gcc_impl_linux-64
+        version: 14.3.0
+      - name: gcc_linux-64
+        version: 14.3.0
+      - name: gfortran
+        version: 14.3.0
+      - name: gfortran_impl_linux-64
+        version: 14.3.0
+      - name: gfortran_linux-64
+        version: 14.3.0
+      - name: git
+        version: 2.49.0
+      - name: graphite2
+        version: 1.3.14
+      - name: gxx
+        version: 14.3.0
+      - name: gxx_impl_linux-64
+        version: 14.3.0
+      - name: gxx_linux-64
+        version: 14.3.0
+      - name: harfbuzz
+        version: 11.3.3
+      - name: icu
+        version: '75.1'
+      - name: importlib-metadata
+        version: 8.7.0
+      - name: iniconfig
+        version: 2.0.0
+      - name: jinja2
+        version: 3.1.6
+      - name: kernel-headers_linux-64
+        version: 4.18.0
+      - name: keyutils
+        version: 1.6.1
+      - name: kiwisolver
+        version: 1.4.8
+      - name: krb5
+        version: 1.21.3
+      - name: lcms2
+        version: '2.17'
+      - name: ld_impl_linux-64
+        version: '2.44'
+      - name: lerc
+        version: 4.0.0
+      - name: libarchive
+        version: 3.8.1
+      - name: libblas
+        version: 3.9.0
+      - name: libbrotlicommon
+        version: 1.1.0
+      - name: libbrotlidec
+        version: 1.1.0
+      - name: libbrotlienc
+        version: 1.1.0
+      - name: libcblas
+        version: 3.9.0
+      - name: libclang-cpp20.1
+        version: 20.1.8
+      - name: libclang13
+        version: 20.1.8
+      - name: libcups
+        version: 2.3.3
+      - name: libcurl
+        version: 8.14.1
+      - name: libdeflate
+        version: '1.24'
+      - name: libdrm
+        version: 2.4.125
+      - name: libedit
+        version: 3.1.20250104
+      - name: libegl
+        version: 1.7.0
+      - name: libev
+        version: '4.33'
+      - name: libexpat
+        version: 2.7.1
+      - name: libffi
+        version: 3.4.6
+      - name: libfreetype
+        version: 2.13.3
+      - name: libfreetype6
+        version: 2.13.3
+      - name: libgcc
+        version: 15.1.0
+      - name: libgcc-devel_linux-64
+        version: 14.3.0
+      - name: libgcc-ng
+        version: 15.1.0
+      - name: libgfortran
+        version: 15.1.0
+      - name: libgfortran-ng
+        version: 15.1.0
+      - name: libgfortran5
+        version: 15.1.0
+      - name: libgl
+        version: 1.7.0
+      - name: libglib
+        version: 2.84.3
+      - name: libglvnd
+        version: 1.7.0
+      - name: libglx
+        version: 1.7.0
+      - name: libgomp
+        version: 15.1.0
+      - name: libhiredis
+        version: 1.0.2
+      - name: libiconv
+        version: '1.18'
+      - name: libjpeg-turbo
+        version: 3.1.0
+      - name: liblapack
+        version: 3.9.0
+      - name: libllvm20
+        version: 20.1.8
+      - name: liblzma
+        version: 5.8.1
+      - name: libmamba
+        version: 2.3.1
+      - name: libmpdec
+        version: 4.0.0
+      - name: libnghttp2
+        version: 1.64.0
+      - name: libntlm
+        version: '1.8'
+      - name: libopenblas
+        version: 0.3.30
+      - name: libopengl
+        version: 1.7.0
+      - name: libpciaccess
+        version: '0.18'
+      - name: libpng
+        version: 1.6.50
+      - name: libpq
+        version: '17.5'
+      - name: libsanitizer
+        version: 14.3.0
+      - name: libsolv
+        version: 0.7.35
+      - name: libsqlite
+        version: 3.50.4
+      - name: libssh2
+        version: 1.11.1
+      - name: libstdcxx
+        version: 15.1.0
+      - name: libstdcxx-devel_linux-64
+        version: 14.3.0
+      - name: libstdcxx-ng
+        version: 15.1.0
+      - name: libtiff
+        version: 4.7.0
+      - name: libuuid
+        version: 2.38.1
+      - name: libuv
+        version: 1.51.0
+      - name: libwebp-base
+        version: 1.6.0
+      - name: libxcb
+        version: 1.17.0
+      - name: libxcrypt
+        version: 4.4.36
+      - name: libxkbcommon
+        version: 1.10.0
+      - name: libxml2
+        version: 2.13.8
+      - name: libxslt
+        version: 1.1.43
+      - name: libzlib
+        version: 1.3.1
+      - name: lz4-c
+        version: 1.10.0
+      - name: lzo
+        version: '2.10'
+      - name: mamba
+        version: 2.3.1
+      - name: markupsafe
+        version: 3.0.2
+      - name: matplotlib
+        version: 3.10.5
+      - name: matplotlib-base
+        version: 3.10.5
+      - name: mpmath
+        version: 1.3.0
+      - name: munkres
+        version: 1.1.4
+      - name: ncurses
+        version: '6.5'
+      - name: networkx
+        version: '3.5'
+      - name: ninja
+        version: 1.13.1
+      - name: nlohmann_json
+        version: 3.11.3
+      - name: numpy
+        version: 2.3.2
+      - name: nvidia-cublas-cu12
+        version: 12.6.4.1
+      - name: nvidia-cuda-cupti-cu12
+        version: 12.6.80
+      - name: nvidia-cuda-nvrtc-cu12
+        version: 12.6.77
+      - name: nvidia-cuda-runtime-cu12
+        version: 12.6.77
+      - name: nvidia-cudnn-cu12
+        version: 9.5.1.17
+      - name: nvidia-cufft-cu12
+        version: 11.3.0.4
+      - name: nvidia-cufile-cu12
+        version: 1.11.1.6
+      - name: nvidia-curand-cu12
+        version: 10.3.7.77
+      - name: nvidia-cusolver-cu12
+        version: 11.7.1.2
+      - name: nvidia-cusparse-cu12
+        version: 12.5.4.2
+      - name: nvidia-cusparselt-cu12
+        version: 0.6.3
+      - name: nvidia-nccl-cu12
+        version: 2.26.2
+      - name: nvidia-nvjitlink-cu12
+        version: 12.6.85
+      - name: nvidia-nvtx-cu12
+        version: 12.6.77
+      - name: openjpeg
+        version: 2.5.3
+      - name: openldap
+        version: 2.6.10
+      - name: openssl
+        version: 3.5.1
+      - name: opt-einsum
+        version: 3.4.0
+      - name: packaging
+        version: '25.0'
+      - name: pandas
+        version: 2.3.1
+      - name: pcre2
+        version: '10.45'
+      - name: perl
+        version: 5.32.1
+      - name: pillow
+        version: 11.3.0
+      - name: pip
+        version: '25.2'
+      - name: pixman
+        version: 0.46.4
+      - name: pkg-config
+        version: 0.29.2
+      - name: platformdirs
+        version: 4.3.8
+      - name: pluggy
+        version: 1.6.0
+      - name: pthread-stubs
+        version: '0.4'
+      - name: py-cpuinfo
+        version: 9.0.0
+      - name: pygments
+        version: 2.19.2
+      - name: pyparsing
+        version: 3.2.3
+      - name: pyproject_hooks
+        version: 1.2.0
+      - name: pyside6
+        version: 6.9.1
+      - name: pytest
+        version: 8.4.1
+      - name: pytest-benchmark
+        version: 5.1.0
+      - name: python
+        version: 3.13.5
+      - name: python-build
+        version: 1.3.0
+      - name: python-dateutil
+        version: 2.9.0.post0
+      - name: python-tzdata
+        version: '2025.2'
+      - name: python_abi
+        version: '3.13'
+      - name: pytz
+        version: '2025.2'
+      - name: qhull
+        version: '2020.2'
+      - name: qt6-main
+        version: 6.9.1
+      - name: quantiphy
+        version: '2.20'
+      - name: readline
+        version: '8.2'
+      - name: reproc
+        version: 14.2.5.post0
+      - name: reproc-cpp
+        version: 14.2.5.post0
+      - name: rhash
+        version: 1.4.6
+      - name: scipy
+        version: 1.16.0
+      - name: setuptools
+        version: 80.9.0
+      - name: simdjson
+        version: 3.13.0
+      - name: six
+        version: 1.17.0
+      - name: sympy
+        version: 1.14.0
+      - name: sysroot_linux-64
+        version: '2.28'
+      - name: tk
+        version: 8.6.13
+      - name: tomli
+        version: 2.2.1
+      - name: torch
+        version: 2.7.1
+      - name: tornado
+        version: 6.5.1
+      - name: triton
+        version: 3.3.1
+      - name: typing_extensions
+        version: 4.14.1
+      - name: tzdata
+        version: 2025b
+      - name: vir-simd
+        version: 0.4.4
+      - name: virtualenv
+        version: 20.33.1
+      - name: wayland
+        version: 1.24.0
+      - name: wheel
+        version: 0.45.1
+      - name: xcb-util
+        version: 0.4.1
+      - name: xcb-util-cursor
+        version: 0.1.5
+      - name: xcb-util-image
+        version: 0.4.0
+      - name: xcb-util-keysyms
+        version: 0.4.1
+      - name: xcb-util-renderutil
+        version: 0.3.10
+      - name: xcb-util-wm
+        version: 0.4.2
+      - name: xkeyboard-config
+        version: '2.45'
+      - name: xorg-libice
+        version: 1.1.2
+      - name: xorg-libsm
+        version: 1.2.6
+      - name: xorg-libx11
+        version: 1.8.12
+      - name: xorg-libxau
+        version: 1.0.12
+      - name: xorg-libxcomposite
+        version: 0.4.6
+      - name: xorg-libxcursor
+        version: 1.2.3
+      - name: xorg-libxdamage
+        version: 1.1.6
+      - name: xorg-libxdmcp
+        version: 1.1.5
+      - name: xorg-libxext
+        version: 1.3.6
+      - name: xorg-libxfixes
+        version: 6.0.1
+      - name: xorg-libxi
+        version: 1.8.2
+      - name: xorg-libxrandr
+        version: 1.5.4
+      - name: xorg-libxrender
+        version: 0.9.12
+      - name: xorg-libxtst
+        version: 1.2.5
+      - name: xorg-libxxf86vm
+        version: 1.1.6
+      - name: yaml-cpp
+        version: 0.8.0
+      - name: zipp
+        version: 3.23.0
+      - name: zstd
+        version: 1.5.7
+      version: 0.7.5
+    htu_1000:
+      npart: 1000
+      push_per_sec: 30737.486984211137
+      scenario: htu
+      track_ns: 32533564
+    htu_10000:
+      npart: 10000
+      push_per_sec: 89897.7397029286
+      scenario: htu
+      track_ns: 111237502
+    htu_100000:
+      npart: 100000
+      push_per_sec: 110946.6322357255
+      scenario: htu
+      track_ns: 901334254
+    htu_1000000:
+      npart: 1000000
+      push_per_sec: 104795.72789048222
+      scenario: htu
+      track_ns: 9542373722
+    spacecharge_1000:
+      npart: 1000
+      push_per_sec: 89.26361387417359
+      scenario: spacecharge
+      track_ns: 11202772962
+    spacecharge_10000:
+      npart: 10000
+      push_per_sec: 892.611969047907
+      scenario: spacecharge
+      track_ns: 11203076305
+    spacecharge_100000:
+      npart: 100000
+      push_per_sec: 8850.919586222682
+      scenario: spacecharge
+      track_ns: 11298261048
+    spacecharge_1000000:
+      npart: 1000000
+      push_per_sec: 81796.65899494875
+      scenario: spacecharge
+      track_ns: 12225438206
 cheetah-1cpu-inductor-simd:
   axel-dell:
     config:
@@ -2670,6 +4746,532 @@ cheetah-6cpu:
       push_per_sec: 30609.934780236905
       scenario: spacecharge
       track_ns: 32669132005
+  perlmutter:
+    config:
+      OMP_NUM_THREADS: '6'
+      code: cheetah
+      compile_backend: none
+      compile_mode: none
+      device: cpu
+      dtype: float32
+      env_file: benchmark-cpu-conda.yaml
+      env_name: benchmark-cpu
+      env_packages:
+      - name: _libgcc_mutex
+        version: '0.1'
+      - name: _openmp_mutex
+        version: '4.5'
+      - name: alsa-lib
+        version: 1.2.14
+      - name: binutils
+        version: '2.44'
+      - name: binutils_impl_linux-64
+        version: '2.44'
+      - name: binutils_linux-64
+        version: '2.44'
+      - name: brotli
+        version: 1.1.0
+      - name: brotli-bin
+        version: 1.1.0
+      - name: bzip2
+        version: 1.0.8
+      - name: c-ares
+        version: 1.34.5
+      - name: c-compiler
+        version: 1.11.0
+      - name: ca-certificates
+        version: 2025.8.3
+      - name: cairo
+        version: 1.18.4
+      - name: ccache
+        version: 4.11.3
+      - name: cheetah-accelerator
+        version: 0.7.5
+      - name: cmake
+        version: 4.1.0
+      - name: colorama
+        version: 0.4.6
+      - name: compilers
+        version: 1.11.0
+      - name: conda-gcc-specs
+        version: 14.3.0
+      - name: contourpy
+        version: 1.3.3
+      - name: cpp-expected
+        version: 1.1.0
+      - name: cxx-compiler
+        version: 1.11.0
+      - name: cycler
+        version: 0.12.1
+      - name: cyrus-sasl
+        version: 2.1.28
+      - name: dbus
+        version: 1.16.2
+      - name: distlib
+        version: 0.4.0
+      - name: double-conversion
+        version: 3.3.1
+      - name: doxygen
+        version: 1.13.2
+      - name: exceptiongroup
+        version: 1.3.0
+      - name: fftw
+        version: 3.3.10
+      - name: filelock
+        version: 3.18.0
+      - name: fmt
+        version: 11.2.0
+      - name: font-ttf-dejavu-sans-mono
+        version: '2.37'
+      - name: font-ttf-inconsolata
+        version: '3.000'
+      - name: font-ttf-source-code-pro
+        version: '2.038'
+      - name: font-ttf-ubuntu
+        version: '0.83'
+      - name: fontconfig
+        version: 2.15.0
+      - name: fonts-conda-ecosystem
+        version: '1'
+      - name: fonts-conda-forge
+        version: '1'
+      - name: fonttools
+        version: 4.59.0
+      - name: fortran-compiler
+        version: 1.11.0
+      - name: freetype
+        version: 2.13.3
+      - name: fsspec
+        version: 2025.7.0
+      - name: gcc
+        version: 14.3.0
+      - name: gcc_impl_linux-64
+        version: 14.3.0
+      - name: gcc_linux-64
+        version: 14.3.0
+      - name: gfortran
+        version: 14.3.0
+      - name: gfortran_impl_linux-64
+        version: 14.3.0
+      - name: gfortran_linux-64
+        version: 14.3.0
+      - name: git
+        version: 2.49.0
+      - name: graphite2
+        version: 1.3.14
+      - name: gxx
+        version: 14.3.0
+      - name: gxx_impl_linux-64
+        version: 14.3.0
+      - name: gxx_linux-64
+        version: 14.3.0
+      - name: harfbuzz
+        version: 11.3.3
+      - name: icu
+        version: '75.1'
+      - name: importlib-metadata
+        version: 8.7.0
+      - name: iniconfig
+        version: 2.0.0
+      - name: jinja2
+        version: 3.1.6
+      - name: kernel-headers_linux-64
+        version: 4.18.0
+      - name: keyutils
+        version: 1.6.1
+      - name: kiwisolver
+        version: 1.4.8
+      - name: krb5
+        version: 1.21.3
+      - name: lcms2
+        version: '2.17'
+      - name: ld_impl_linux-64
+        version: '2.44'
+      - name: lerc
+        version: 4.0.0
+      - name: libarchive
+        version: 3.8.1
+      - name: libblas
+        version: 3.9.0
+      - name: libbrotlicommon
+        version: 1.1.0
+      - name: libbrotlidec
+        version: 1.1.0
+      - name: libbrotlienc
+        version: 1.1.0
+      - name: libcblas
+        version: 3.9.0
+      - name: libclang-cpp20.1
+        version: 20.1.8
+      - name: libclang13
+        version: 20.1.8
+      - name: libcups
+        version: 2.3.3
+      - name: libcurl
+        version: 8.14.1
+      - name: libdeflate
+        version: '1.24'
+      - name: libdrm
+        version: 2.4.125
+      - name: libedit
+        version: 3.1.20250104
+      - name: libegl
+        version: 1.7.0
+      - name: libev
+        version: '4.33'
+      - name: libexpat
+        version: 2.7.1
+      - name: libffi
+        version: 3.4.6
+      - name: libfreetype
+        version: 2.13.3
+      - name: libfreetype6
+        version: 2.13.3
+      - name: libgcc
+        version: 15.1.0
+      - name: libgcc-devel_linux-64
+        version: 14.3.0
+      - name: libgcc-ng
+        version: 15.1.0
+      - name: libgfortran
+        version: 15.1.0
+      - name: libgfortran-ng
+        version: 15.1.0
+      - name: libgfortran5
+        version: 15.1.0
+      - name: libgl
+        version: 1.7.0
+      - name: libglib
+        version: 2.84.3
+      - name: libglvnd
+        version: 1.7.0
+      - name: libglx
+        version: 1.7.0
+      - name: libgomp
+        version: 15.1.0
+      - name: libhiredis
+        version: 1.0.2
+      - name: libiconv
+        version: '1.18'
+      - name: libjpeg-turbo
+        version: 3.1.0
+      - name: liblapack
+        version: 3.9.0
+      - name: libllvm20
+        version: 20.1.8
+      - name: liblzma
+        version: 5.8.1
+      - name: libmamba
+        version: 2.3.1
+      - name: libmpdec
+        version: 4.0.0
+      - name: libnghttp2
+        version: 1.64.0
+      - name: libntlm
+        version: '1.8'
+      - name: libopenblas
+        version: 0.3.30
+      - name: libopengl
+        version: 1.7.0
+      - name: libpciaccess
+        version: '0.18'
+      - name: libpng
+        version: 1.6.50
+      - name: libpq
+        version: '17.5'
+      - name: libsanitizer
+        version: 14.3.0
+      - name: libsolv
+        version: 0.7.35
+      - name: libsqlite
+        version: 3.50.4
+      - name: libssh2
+        version: 1.11.1
+      - name: libstdcxx
+        version: 15.1.0
+      - name: libstdcxx-devel_linux-64
+        version: 14.3.0
+      - name: libstdcxx-ng
+        version: 15.1.0
+      - name: libtiff
+        version: 4.7.0
+      - name: libuuid
+        version: 2.38.1
+      - name: libuv
+        version: 1.51.0
+      - name: libwebp-base
+        version: 1.6.0
+      - name: libxcb
+        version: 1.17.0
+      - name: libxcrypt
+        version: 4.4.36
+      - name: libxkbcommon
+        version: 1.10.0
+      - name: libxml2
+        version: 2.13.8
+      - name: libxslt
+        version: 1.1.43
+      - name: libzlib
+        version: 1.3.1
+      - name: lz4-c
+        version: 1.10.0
+      - name: lzo
+        version: '2.10'
+      - name: mamba
+        version: 2.3.1
+      - name: markupsafe
+        version: 3.0.2
+      - name: matplotlib
+        version: 3.10.5
+      - name: matplotlib-base
+        version: 3.10.5
+      - name: mpmath
+        version: 1.3.0
+      - name: munkres
+        version: 1.1.4
+      - name: ncurses
+        version: '6.5'
+      - name: networkx
+        version: '3.5'
+      - name: ninja
+        version: 1.13.1
+      - name: nlohmann_json
+        version: 3.11.3
+      - name: numpy
+        version: 2.3.2
+      - name: nvidia-cublas-cu12
+        version: 12.6.4.1
+      - name: nvidia-cuda-cupti-cu12
+        version: 12.6.80
+      - name: nvidia-cuda-nvrtc-cu12
+        version: 12.6.77
+      - name: nvidia-cuda-runtime-cu12
+        version: 12.6.77
+      - name: nvidia-cudnn-cu12
+        version: 9.5.1.17
+      - name: nvidia-cufft-cu12
+        version: 11.3.0.4
+      - name: nvidia-cufile-cu12
+        version: 1.11.1.6
+      - name: nvidia-curand-cu12
+        version: 10.3.7.77
+      - name: nvidia-cusolver-cu12
+        version: 11.7.1.2
+      - name: nvidia-cusparse-cu12
+        version: 12.5.4.2
+      - name: nvidia-cusparselt-cu12
+        version: 0.6.3
+      - name: nvidia-nccl-cu12
+        version: 2.26.2
+      - name: nvidia-nvjitlink-cu12
+        version: 12.6.85
+      - name: nvidia-nvtx-cu12
+        version: 12.6.77
+      - name: openjpeg
+        version: 2.5.3
+      - name: openldap
+        version: 2.6.10
+      - name: openssl
+        version: 3.5.1
+      - name: opt-einsum
+        version: 3.4.0
+      - name: packaging
+        version: '25.0'
+      - name: pandas
+        version: 2.3.1
+      - name: pcre2
+        version: '10.45'
+      - name: perl
+        version: 5.32.1
+      - name: pillow
+        version: 11.3.0
+      - name: pip
+        version: '25.2'
+      - name: pixman
+        version: 0.46.4
+      - name: pkg-config
+        version: 0.29.2
+      - name: platformdirs
+        version: 4.3.8
+      - name: pluggy
+        version: 1.6.0
+      - name: pthread-stubs
+        version: '0.4'
+      - name: py-cpuinfo
+        version: 9.0.0
+      - name: pygments
+        version: 2.19.2
+      - name: pyparsing
+        version: 3.2.3
+      - name: pyproject_hooks
+        version: 1.2.0
+      - name: pyside6
+        version: 6.9.1
+      - name: pytest
+        version: 8.4.1
+      - name: pytest-benchmark
+        version: 5.1.0
+      - name: python
+        version: 3.13.5
+      - name: python-build
+        version: 1.3.0
+      - name: python-dateutil
+        version: 2.9.0.post0
+      - name: python-tzdata
+        version: '2025.2'
+      - name: python_abi
+        version: '3.13'
+      - name: pytz
+        version: '2025.2'
+      - name: qhull
+        version: '2020.2'
+      - name: qt6-main
+        version: 6.9.1
+      - name: quantiphy
+        version: '2.20'
+      - name: readline
+        version: '8.2'
+      - name: reproc
+        version: 14.2.5.post0
+      - name: reproc-cpp
+        version: 14.2.5.post0
+      - name: rhash
+        version: 1.4.6
+      - name: scipy
+        version: 1.16.0
+      - name: setuptools
+        version: 80.9.0
+      - name: simdjson
+        version: 3.13.0
+      - name: six
+        version: 1.17.0
+      - name: sympy
+        version: 1.14.0
+      - name: sysroot_linux-64
+        version: '2.28'
+      - name: tk
+        version: 8.6.13
+      - name: tomli
+        version: 2.2.1
+      - name: torch
+        version: 2.7.1
+      - name: tornado
+        version: 6.5.1
+      - name: triton
+        version: 3.3.1
+      - name: typing_extensions
+        version: 4.14.1
+      - name: tzdata
+        version: 2025b
+      - name: vir-simd
+        version: 0.4.4
+      - name: virtualenv
+        version: 20.33.1
+      - name: wayland
+        version: 1.24.0
+      - name: wheel
+        version: 0.45.1
+      - name: xcb-util
+        version: 0.4.1
+      - name: xcb-util-cursor
+        version: 0.1.5
+      - name: xcb-util-image
+        version: 0.4.0
+      - name: xcb-util-keysyms
+        version: 0.4.1
+      - name: xcb-util-renderutil
+        version: 0.3.10
+      - name: xcb-util-wm
+        version: 0.4.2
+      - name: xkeyboard-config
+        version: '2.45'
+      - name: xorg-libice
+        version: 1.1.2
+      - name: xorg-libsm
+        version: 1.2.6
+      - name: xorg-libx11
+        version: 1.8.12
+      - name: xorg-libxau
+        version: 1.0.12
+      - name: xorg-libxcomposite
+        version: 0.4.6
+      - name: xorg-libxcursor
+        version: 1.2.3
+      - name: xorg-libxdamage
+        version: 1.1.6
+      - name: xorg-libxdmcp
+        version: 1.1.5
+      - name: xorg-libxext
+        version: 1.3.6
+      - name: xorg-libxfixes
+        version: 6.0.1
+      - name: xorg-libxi
+        version: 1.8.2
+      - name: xorg-libxrandr
+        version: 1.5.4
+      - name: xorg-libxrender
+        version: 0.9.12
+      - name: xorg-libxtst
+        version: 1.2.5
+      - name: xorg-libxxf86vm
+        version: 1.1.6
+      - name: yaml-cpp
+        version: 0.8.0
+      - name: zipp
+        version: 3.23.0
+      - name: zstd
+        version: 1.5.7
+      version: 0.7.5
+    htu_1000:
+      npart: 1000
+      push_per_sec: 1680.7579847399813
+      scenario: htu
+      track_ns: 594969656
+    htu_10000:
+      npart: 10000
+      push_per_sec: 7585.33263883747
+      scenario: htu
+      track_ns: 1318333747
+    htu_100000:
+      npart: 100000
+      push_per_sec: 36281.73570179309
+      scenario: htu
+      track_ns: 2756207719
+    htu_1000000:
+      npart: 1000000
+      push_per_sec: 60040.91232796712
+      scenario: htu
+      track_ns: 16655309875
+    htu_10000000:
+      npart: 10000000
+      push_per_sec: 19860.14863233918
+      scenario: htu
+      track_ns: 503520904356
+    spacecharge_1000:
+      npart: 1000
+      push_per_sec: 33.00701275838944
+      scenario: spacecharge
+      track_ns: 30296592040
+    spacecharge_10000:
+      npart: 10000
+      push_per_sec: 329.2722875014555
+      scenario: spacecharge
+      track_ns: 30370001909
+    spacecharge_100000:
+      npart: 100000
+      push_per_sec: 3259.4677474293176
+      scenario: spacecharge
+      track_ns: 30679855654
+    spacecharge_1000000:
+      npart: 1000000
+      push_per_sec: 30181.65291730467
+      scenario: spacecharge
+      track_ns: 33132711543
+    spacecharge_10000000:
+      npart: 10000000
+      push_per_sec: 157008.4139259193
+      scenario: spacecharge
+      track_ns: 63690854203
 cheetah-6cpu-dp:
   axel-dell:
     config:
@@ -3115,6 +5717,522 @@ cheetah-6cpu-dp:
       push_per_sec: 17754.31183753934
       scenario: spacecharge
       track_ns: 56324345835
+  perlmutter:
+    config:
+      OMP_NUM_THREADS: '6'
+      code: cheetah
+      compile_backend: none
+      compile_mode: none
+      device: cpu
+      dtype: float64
+      env_file: benchmark-cpu-conda.yaml
+      env_name: benchmark-cpu
+      env_packages:
+      - name: _libgcc_mutex
+        version: '0.1'
+      - name: _openmp_mutex
+        version: '4.5'
+      - name: alsa-lib
+        version: 1.2.14
+      - name: binutils
+        version: '2.44'
+      - name: binutils_impl_linux-64
+        version: '2.44'
+      - name: binutils_linux-64
+        version: '2.44'
+      - name: brotli
+        version: 1.1.0
+      - name: brotli-bin
+        version: 1.1.0
+      - name: bzip2
+        version: 1.0.8
+      - name: c-ares
+        version: 1.34.5
+      - name: c-compiler
+        version: 1.11.0
+      - name: ca-certificates
+        version: 2025.8.3
+      - name: cairo
+        version: 1.18.4
+      - name: ccache
+        version: 4.11.3
+      - name: cheetah-accelerator
+        version: 0.7.5
+      - name: cmake
+        version: 4.1.0
+      - name: colorama
+        version: 0.4.6
+      - name: compilers
+        version: 1.11.0
+      - name: conda-gcc-specs
+        version: 14.3.0
+      - name: contourpy
+        version: 1.3.3
+      - name: cpp-expected
+        version: 1.1.0
+      - name: cxx-compiler
+        version: 1.11.0
+      - name: cycler
+        version: 0.12.1
+      - name: cyrus-sasl
+        version: 2.1.28
+      - name: dbus
+        version: 1.16.2
+      - name: distlib
+        version: 0.4.0
+      - name: double-conversion
+        version: 3.3.1
+      - name: doxygen
+        version: 1.13.2
+      - name: exceptiongroup
+        version: 1.3.0
+      - name: fftw
+        version: 3.3.10
+      - name: filelock
+        version: 3.18.0
+      - name: fmt
+        version: 11.2.0
+      - name: font-ttf-dejavu-sans-mono
+        version: '2.37'
+      - name: font-ttf-inconsolata
+        version: '3.000'
+      - name: font-ttf-source-code-pro
+        version: '2.038'
+      - name: font-ttf-ubuntu
+        version: '0.83'
+      - name: fontconfig
+        version: 2.15.0
+      - name: fonts-conda-ecosystem
+        version: '1'
+      - name: fonts-conda-forge
+        version: '1'
+      - name: fonttools
+        version: 4.59.0
+      - name: fortran-compiler
+        version: 1.11.0
+      - name: freetype
+        version: 2.13.3
+      - name: fsspec
+        version: 2025.7.0
+      - name: gcc
+        version: 14.3.0
+      - name: gcc_impl_linux-64
+        version: 14.3.0
+      - name: gcc_linux-64
+        version: 14.3.0
+      - name: gfortran
+        version: 14.3.0
+      - name: gfortran_impl_linux-64
+        version: 14.3.0
+      - name: gfortran_linux-64
+        version: 14.3.0
+      - name: git
+        version: 2.49.0
+      - name: graphite2
+        version: 1.3.14
+      - name: gxx
+        version: 14.3.0
+      - name: gxx_impl_linux-64
+        version: 14.3.0
+      - name: gxx_linux-64
+        version: 14.3.0
+      - name: harfbuzz
+        version: 11.3.3
+      - name: icu
+        version: '75.1'
+      - name: importlib-metadata
+        version: 8.7.0
+      - name: iniconfig
+        version: 2.0.0
+      - name: jinja2
+        version: 3.1.6
+      - name: kernel-headers_linux-64
+        version: 4.18.0
+      - name: keyutils
+        version: 1.6.1
+      - name: kiwisolver
+        version: 1.4.8
+      - name: krb5
+        version: 1.21.3
+      - name: lcms2
+        version: '2.17'
+      - name: ld_impl_linux-64
+        version: '2.44'
+      - name: lerc
+        version: 4.0.0
+      - name: libarchive
+        version: 3.8.1
+      - name: libblas
+        version: 3.9.0
+      - name: libbrotlicommon
+        version: 1.1.0
+      - name: libbrotlidec
+        version: 1.1.0
+      - name: libbrotlienc
+        version: 1.1.0
+      - name: libcblas
+        version: 3.9.0
+      - name: libclang-cpp20.1
+        version: 20.1.8
+      - name: libclang13
+        version: 20.1.8
+      - name: libcups
+        version: 2.3.3
+      - name: libcurl
+        version: 8.14.1
+      - name: libdeflate
+        version: '1.24'
+      - name: libdrm
+        version: 2.4.125
+      - name: libedit
+        version: 3.1.20250104
+      - name: libegl
+        version: 1.7.0
+      - name: libev
+        version: '4.33'
+      - name: libexpat
+        version: 2.7.1
+      - name: libffi
+        version: 3.4.6
+      - name: libfreetype
+        version: 2.13.3
+      - name: libfreetype6
+        version: 2.13.3
+      - name: libgcc
+        version: 15.1.0
+      - name: libgcc-devel_linux-64
+        version: 14.3.0
+      - name: libgcc-ng
+        version: 15.1.0
+      - name: libgfortran
+        version: 15.1.0
+      - name: libgfortran-ng
+        version: 15.1.0
+      - name: libgfortran5
+        version: 15.1.0
+      - name: libgl
+        version: 1.7.0
+      - name: libglib
+        version: 2.84.3
+      - name: libglvnd
+        version: 1.7.0
+      - name: libglx
+        version: 1.7.0
+      - name: libgomp
+        version: 15.1.0
+      - name: libhiredis
+        version: 1.0.2
+      - name: libiconv
+        version: '1.18'
+      - name: libjpeg-turbo
+        version: 3.1.0
+      - name: liblapack
+        version: 3.9.0
+      - name: libllvm20
+        version: 20.1.8
+      - name: liblzma
+        version: 5.8.1
+      - name: libmamba
+        version: 2.3.1
+      - name: libmpdec
+        version: 4.0.0
+      - name: libnghttp2
+        version: 1.64.0
+      - name: libntlm
+        version: '1.8'
+      - name: libopenblas
+        version: 0.3.30
+      - name: libopengl
+        version: 1.7.0
+      - name: libpciaccess
+        version: '0.18'
+      - name: libpng
+        version: 1.6.50
+      - name: libpq
+        version: '17.5'
+      - name: libsanitizer
+        version: 14.3.0
+      - name: libsolv
+        version: 0.7.35
+      - name: libsqlite
+        version: 3.50.4
+      - name: libssh2
+        version: 1.11.1
+      - name: libstdcxx
+        version: 15.1.0
+      - name: libstdcxx-devel_linux-64
+        version: 14.3.0
+      - name: libstdcxx-ng
+        version: 15.1.0
+      - name: libtiff
+        version: 4.7.0
+      - name: libuuid
+        version: 2.38.1
+      - name: libuv
+        version: 1.51.0
+      - name: libwebp-base
+        version: 1.6.0
+      - name: libxcb
+        version: 1.17.0
+      - name: libxcrypt
+        version: 4.4.36
+      - name: libxkbcommon
+        version: 1.10.0
+      - name: libxml2
+        version: 2.13.8
+      - name: libxslt
+        version: 1.1.43
+      - name: libzlib
+        version: 1.3.1
+      - name: lz4-c
+        version: 1.10.0
+      - name: lzo
+        version: '2.10'
+      - name: mamba
+        version: 2.3.1
+      - name: markupsafe
+        version: 3.0.2
+      - name: matplotlib
+        version: 3.10.5
+      - name: matplotlib-base
+        version: 3.10.5
+      - name: mpmath
+        version: 1.3.0
+      - name: munkres
+        version: 1.1.4
+      - name: ncurses
+        version: '6.5'
+      - name: networkx
+        version: '3.5'
+      - name: ninja
+        version: 1.13.1
+      - name: nlohmann_json
+        version: 3.11.3
+      - name: numpy
+        version: 2.3.2
+      - name: nvidia-cublas-cu12
+        version: 12.6.4.1
+      - name: nvidia-cuda-cupti-cu12
+        version: 12.6.80
+      - name: nvidia-cuda-nvrtc-cu12
+        version: 12.6.77
+      - name: nvidia-cuda-runtime-cu12
+        version: 12.6.77
+      - name: nvidia-cudnn-cu12
+        version: 9.5.1.17
+      - name: nvidia-cufft-cu12
+        version: 11.3.0.4
+      - name: nvidia-cufile-cu12
+        version: 1.11.1.6
+      - name: nvidia-curand-cu12
+        version: 10.3.7.77
+      - name: nvidia-cusolver-cu12
+        version: 11.7.1.2
+      - name: nvidia-cusparse-cu12
+        version: 12.5.4.2
+      - name: nvidia-cusparselt-cu12
+        version: 0.6.3
+      - name: nvidia-nccl-cu12
+        version: 2.26.2
+      - name: nvidia-nvjitlink-cu12
+        version: 12.6.85
+      - name: nvidia-nvtx-cu12
+        version: 12.6.77
+      - name: openjpeg
+        version: 2.5.3
+      - name: openldap
+        version: 2.6.10
+      - name: openssl
+        version: 3.5.1
+      - name: opt-einsum
+        version: 3.4.0
+      - name: packaging
+        version: '25.0'
+      - name: pandas
+        version: 2.3.1
+      - name: pcre2
+        version: '10.45'
+      - name: perl
+        version: 5.32.1
+      - name: pillow
+        version: 11.3.0
+      - name: pip
+        version: '25.2'
+      - name: pixman
+        version: 0.46.4
+      - name: pkg-config
+        version: 0.29.2
+      - name: platformdirs
+        version: 4.3.8
+      - name: pluggy
+        version: 1.6.0
+      - name: pthread-stubs
+        version: '0.4'
+      - name: py-cpuinfo
+        version: 9.0.0
+      - name: pygments
+        version: 2.19.2
+      - name: pyparsing
+        version: 3.2.3
+      - name: pyproject_hooks
+        version: 1.2.0
+      - name: pyside6
+        version: 6.9.1
+      - name: pytest
+        version: 8.4.1
+      - name: pytest-benchmark
+        version: 5.1.0
+      - name: python
+        version: 3.13.5
+      - name: python-build
+        version: 1.3.0
+      - name: python-dateutil
+        version: 2.9.0.post0
+      - name: python-tzdata
+        version: '2025.2'
+      - name: python_abi
+        version: '3.13'
+      - name: pytz
+        version: '2025.2'
+      - name: qhull
+        version: '2020.2'
+      - name: qt6-main
+        version: 6.9.1
+      - name: quantiphy
+        version: '2.20'
+      - name: readline
+        version: '8.2'
+      - name: reproc
+        version: 14.2.5.post0
+      - name: reproc-cpp
+        version: 14.2.5.post0
+      - name: rhash
+        version: 1.4.6
+      - name: scipy
+        version: 1.16.0
+      - name: setuptools
+        version: 80.9.0
+      - name: simdjson
+        version: 3.13.0
+      - name: six
+        version: 1.17.0
+      - name: sympy
+        version: 1.14.0
+      - name: sysroot_linux-64
+        version: '2.28'
+      - name: tk
+        version: 8.6.13
+      - name: tomli
+        version: 2.2.1
+      - name: torch
+        version: 2.7.1
+      - name: tornado
+        version: 6.5.1
+      - name: triton
+        version: 3.3.1
+      - name: typing_extensions
+        version: 4.14.1
+      - name: tzdata
+        version: 2025b
+      - name: vir-simd
+        version: 0.4.4
+      - name: virtualenv
+        version: 20.33.1
+      - name: wayland
+        version: 1.24.0
+      - name: wheel
+        version: 0.45.1
+      - name: xcb-util
+        version: 0.4.1
+      - name: xcb-util-cursor
+        version: 0.1.5
+      - name: xcb-util-image
+        version: 0.4.0
+      - name: xcb-util-keysyms
+        version: 0.4.1
+      - name: xcb-util-renderutil
+        version: 0.3.10
+      - name: xcb-util-wm
+        version: 0.4.2
+      - name: xkeyboard-config
+        version: '2.45'
+      - name: xorg-libice
+        version: 1.1.2
+      - name: xorg-libsm
+        version: 1.2.6
+      - name: xorg-libx11
+        version: 1.8.12
+      - name: xorg-libxau
+        version: 1.0.12
+      - name: xorg-libxcomposite
+        version: 0.4.6
+      - name: xorg-libxcursor
+        version: 1.2.3
+      - name: xorg-libxdamage
+        version: 1.1.6
+      - name: xorg-libxdmcp
+        version: 1.1.5
+      - name: xorg-libxext
+        version: 1.3.6
+      - name: xorg-libxfixes
+        version: 6.0.1
+      - name: xorg-libxi
+        version: 1.8.2
+      - name: xorg-libxrandr
+        version: 1.5.4
+      - name: xorg-libxrender
+        version: 0.9.12
+      - name: xorg-libxtst
+        version: 1.2.5
+      - name: xorg-libxxf86vm
+        version: 1.1.6
+      - name: yaml-cpp
+        version: 0.8.0
+      - name: zipp
+        version: 3.23.0
+      - name: zstd
+        version: 1.5.7
+      version: 0.7.5
+    htu_1000:
+      npart: 1000
+      push_per_sec: 1654.1700706936542
+      scenario: htu
+      track_ns: 604532761
+    htu_10000:
+      npart: 10000
+      push_per_sec: 6038.025769079131
+      scenario: htu
+      track_ns: 1656170474
+    htu_100000:
+      npart: 100000
+      push_per_sec: 27220.444455297296
+      scenario: htu
+      track_ns: 3673709302
+    htu_1000000:
+      npart: 1000000
+      push_per_sec: 19364.29451369238
+      scenario: htu
+      track_ns: 51641437249
+    spacecharge_1000:
+      npart: 1000
+      push_per_sec: 19.66893829936293
+      scenario: spacecharge
+      track_ns: 50841585081
+    spacecharge_10000:
+      npart: 10000
+      push_per_sec: 196.14086998023348
+      scenario: spacecharge
+      track_ns: 50983764888
+    spacecharge_100000:
+      npart: 100000
+      push_per_sec: 1946.0922054881632
+      scenario: spacecharge
+      track_ns: 51385026731
+    spacecharge_1000000:
+      npart: 1000000
+      push_per_sec: 18082.150149044173
+      scenario: spacecharge
+      track_ns: 55303157631
 cheetah-6cpu-inductor-fm-simd:
   axel-dell:
     config:
@@ -3561,6 +6679,523 @@ cheetah-6cpu-inductor-fm-simd:
       push_per_sec: 130424.03495371857
       scenario: spacecharge
       track_ns: 7667298442
+  perlmutter:
+    config:
+      OMP_NUM_THREADS: '6'
+      code: cheetah
+      compile_backend: inductor
+      compile_backend_config: fast-math
+      compile_mode: default
+      device: cpu
+      dtype: float32
+      env_file: benchmark-cpu-conda.yaml
+      env_name: benchmark-cpu
+      env_packages:
+      - name: _libgcc_mutex
+        version: '0.1'
+      - name: _openmp_mutex
+        version: '4.5'
+      - name: alsa-lib
+        version: 1.2.14
+      - name: binutils
+        version: '2.44'
+      - name: binutils_impl_linux-64
+        version: '2.44'
+      - name: binutils_linux-64
+        version: '2.44'
+      - name: brotli
+        version: 1.1.0
+      - name: brotli-bin
+        version: 1.1.0
+      - name: bzip2
+        version: 1.0.8
+      - name: c-ares
+        version: 1.34.5
+      - name: c-compiler
+        version: 1.11.0
+      - name: ca-certificates
+        version: 2025.8.3
+      - name: cairo
+        version: 1.18.4
+      - name: ccache
+        version: 4.11.3
+      - name: cheetah-accelerator
+        version: 0.7.5
+      - name: cmake
+        version: 4.1.0
+      - name: colorama
+        version: 0.4.6
+      - name: compilers
+        version: 1.11.0
+      - name: conda-gcc-specs
+        version: 14.3.0
+      - name: contourpy
+        version: 1.3.3
+      - name: cpp-expected
+        version: 1.1.0
+      - name: cxx-compiler
+        version: 1.11.0
+      - name: cycler
+        version: 0.12.1
+      - name: cyrus-sasl
+        version: 2.1.28
+      - name: dbus
+        version: 1.16.2
+      - name: distlib
+        version: 0.4.0
+      - name: double-conversion
+        version: 3.3.1
+      - name: doxygen
+        version: 1.13.2
+      - name: exceptiongroup
+        version: 1.3.0
+      - name: fftw
+        version: 3.3.10
+      - name: filelock
+        version: 3.18.0
+      - name: fmt
+        version: 11.2.0
+      - name: font-ttf-dejavu-sans-mono
+        version: '2.37'
+      - name: font-ttf-inconsolata
+        version: '3.000'
+      - name: font-ttf-source-code-pro
+        version: '2.038'
+      - name: font-ttf-ubuntu
+        version: '0.83'
+      - name: fontconfig
+        version: 2.15.0
+      - name: fonts-conda-ecosystem
+        version: '1'
+      - name: fonts-conda-forge
+        version: '1'
+      - name: fonttools
+        version: 4.59.0
+      - name: fortran-compiler
+        version: 1.11.0
+      - name: freetype
+        version: 2.13.3
+      - name: fsspec
+        version: 2025.7.0
+      - name: gcc
+        version: 14.3.0
+      - name: gcc_impl_linux-64
+        version: 14.3.0
+      - name: gcc_linux-64
+        version: 14.3.0
+      - name: gfortran
+        version: 14.3.0
+      - name: gfortran_impl_linux-64
+        version: 14.3.0
+      - name: gfortran_linux-64
+        version: 14.3.0
+      - name: git
+        version: 2.49.0
+      - name: graphite2
+        version: 1.3.14
+      - name: gxx
+        version: 14.3.0
+      - name: gxx_impl_linux-64
+        version: 14.3.0
+      - name: gxx_linux-64
+        version: 14.3.0
+      - name: harfbuzz
+        version: 11.3.3
+      - name: icu
+        version: '75.1'
+      - name: importlib-metadata
+        version: 8.7.0
+      - name: iniconfig
+        version: 2.0.0
+      - name: jinja2
+        version: 3.1.6
+      - name: kernel-headers_linux-64
+        version: 4.18.0
+      - name: keyutils
+        version: 1.6.1
+      - name: kiwisolver
+        version: 1.4.8
+      - name: krb5
+        version: 1.21.3
+      - name: lcms2
+        version: '2.17'
+      - name: ld_impl_linux-64
+        version: '2.44'
+      - name: lerc
+        version: 4.0.0
+      - name: libarchive
+        version: 3.8.1
+      - name: libblas
+        version: 3.9.0
+      - name: libbrotlicommon
+        version: 1.1.0
+      - name: libbrotlidec
+        version: 1.1.0
+      - name: libbrotlienc
+        version: 1.1.0
+      - name: libcblas
+        version: 3.9.0
+      - name: libclang-cpp20.1
+        version: 20.1.8
+      - name: libclang13
+        version: 20.1.8
+      - name: libcups
+        version: 2.3.3
+      - name: libcurl
+        version: 8.14.1
+      - name: libdeflate
+        version: '1.24'
+      - name: libdrm
+        version: 2.4.125
+      - name: libedit
+        version: 3.1.20250104
+      - name: libegl
+        version: 1.7.0
+      - name: libev
+        version: '4.33'
+      - name: libexpat
+        version: 2.7.1
+      - name: libffi
+        version: 3.4.6
+      - name: libfreetype
+        version: 2.13.3
+      - name: libfreetype6
+        version: 2.13.3
+      - name: libgcc
+        version: 15.1.0
+      - name: libgcc-devel_linux-64
+        version: 14.3.0
+      - name: libgcc-ng
+        version: 15.1.0
+      - name: libgfortran
+        version: 15.1.0
+      - name: libgfortran-ng
+        version: 15.1.0
+      - name: libgfortran5
+        version: 15.1.0
+      - name: libgl
+        version: 1.7.0
+      - name: libglib
+        version: 2.84.3
+      - name: libglvnd
+        version: 1.7.0
+      - name: libglx
+        version: 1.7.0
+      - name: libgomp
+        version: 15.1.0
+      - name: libhiredis
+        version: 1.0.2
+      - name: libiconv
+        version: '1.18'
+      - name: libjpeg-turbo
+        version: 3.1.0
+      - name: liblapack
+        version: 3.9.0
+      - name: libllvm20
+        version: 20.1.8
+      - name: liblzma
+        version: 5.8.1
+      - name: libmamba
+        version: 2.3.1
+      - name: libmpdec
+        version: 4.0.0
+      - name: libnghttp2
+        version: 1.64.0
+      - name: libntlm
+        version: '1.8'
+      - name: libopenblas
+        version: 0.3.30
+      - name: libopengl
+        version: 1.7.0
+      - name: libpciaccess
+        version: '0.18'
+      - name: libpng
+        version: 1.6.50
+      - name: libpq
+        version: '17.5'
+      - name: libsanitizer
+        version: 14.3.0
+      - name: libsolv
+        version: 0.7.35
+      - name: libsqlite
+        version: 3.50.4
+      - name: libssh2
+        version: 1.11.1
+      - name: libstdcxx
+        version: 15.1.0
+      - name: libstdcxx-devel_linux-64
+        version: 14.3.0
+      - name: libstdcxx-ng
+        version: 15.1.0
+      - name: libtiff
+        version: 4.7.0
+      - name: libuuid
+        version: 2.38.1
+      - name: libuv
+        version: 1.51.0
+      - name: libwebp-base
+        version: 1.6.0
+      - name: libxcb
+        version: 1.17.0
+      - name: libxcrypt
+        version: 4.4.36
+      - name: libxkbcommon
+        version: 1.10.0
+      - name: libxml2
+        version: 2.13.8
+      - name: libxslt
+        version: 1.1.43
+      - name: libzlib
+        version: 1.3.1
+      - name: lz4-c
+        version: 1.10.0
+      - name: lzo
+        version: '2.10'
+      - name: mamba
+        version: 2.3.1
+      - name: markupsafe
+        version: 3.0.2
+      - name: matplotlib
+        version: 3.10.5
+      - name: matplotlib-base
+        version: 3.10.5
+      - name: mpmath
+        version: 1.3.0
+      - name: munkres
+        version: 1.1.4
+      - name: ncurses
+        version: '6.5'
+      - name: networkx
+        version: '3.5'
+      - name: ninja
+        version: 1.13.1
+      - name: nlohmann_json
+        version: 3.11.3
+      - name: numpy
+        version: 2.3.2
+      - name: nvidia-cublas-cu12
+        version: 12.6.4.1
+      - name: nvidia-cuda-cupti-cu12
+        version: 12.6.80
+      - name: nvidia-cuda-nvrtc-cu12
+        version: 12.6.77
+      - name: nvidia-cuda-runtime-cu12
+        version: 12.6.77
+      - name: nvidia-cudnn-cu12
+        version: 9.5.1.17
+      - name: nvidia-cufft-cu12
+        version: 11.3.0.4
+      - name: nvidia-cufile-cu12
+        version: 1.11.1.6
+      - name: nvidia-curand-cu12
+        version: 10.3.7.77
+      - name: nvidia-cusolver-cu12
+        version: 11.7.1.2
+      - name: nvidia-cusparse-cu12
+        version: 12.5.4.2
+      - name: nvidia-cusparselt-cu12
+        version: 0.6.3
+      - name: nvidia-nccl-cu12
+        version: 2.26.2
+      - name: nvidia-nvjitlink-cu12
+        version: 12.6.85
+      - name: nvidia-nvtx-cu12
+        version: 12.6.77
+      - name: openjpeg
+        version: 2.5.3
+      - name: openldap
+        version: 2.6.10
+      - name: openssl
+        version: 3.5.1
+      - name: opt-einsum
+        version: 3.4.0
+      - name: packaging
+        version: '25.0'
+      - name: pandas
+        version: 2.3.1
+      - name: pcre2
+        version: '10.45'
+      - name: perl
+        version: 5.32.1
+      - name: pillow
+        version: 11.3.0
+      - name: pip
+        version: '25.2'
+      - name: pixman
+        version: 0.46.4
+      - name: pkg-config
+        version: 0.29.2
+      - name: platformdirs
+        version: 4.3.8
+      - name: pluggy
+        version: 1.6.0
+      - name: pthread-stubs
+        version: '0.4'
+      - name: py-cpuinfo
+        version: 9.0.0
+      - name: pygments
+        version: 2.19.2
+      - name: pyparsing
+        version: 3.2.3
+      - name: pyproject_hooks
+        version: 1.2.0
+      - name: pyside6
+        version: 6.9.1
+      - name: pytest
+        version: 8.4.1
+      - name: pytest-benchmark
+        version: 5.1.0
+      - name: python
+        version: 3.13.5
+      - name: python-build
+        version: 1.3.0
+      - name: python-dateutil
+        version: 2.9.0.post0
+      - name: python-tzdata
+        version: '2025.2'
+      - name: python_abi
+        version: '3.13'
+      - name: pytz
+        version: '2025.2'
+      - name: qhull
+        version: '2020.2'
+      - name: qt6-main
+        version: 6.9.1
+      - name: quantiphy
+        version: '2.20'
+      - name: readline
+        version: '8.2'
+      - name: reproc
+        version: 14.2.5.post0
+      - name: reproc-cpp
+        version: 14.2.5.post0
+      - name: rhash
+        version: 1.4.6
+      - name: scipy
+        version: 1.16.0
+      - name: setuptools
+        version: 80.9.0
+      - name: simdjson
+        version: 3.13.0
+      - name: six
+        version: 1.17.0
+      - name: sympy
+        version: 1.14.0
+      - name: sysroot_linux-64
+        version: '2.28'
+      - name: tk
+        version: 8.6.13
+      - name: tomli
+        version: 2.2.1
+      - name: torch
+        version: 2.7.1
+      - name: tornado
+        version: 6.5.1
+      - name: triton
+        version: 3.3.1
+      - name: typing_extensions
+        version: 4.14.1
+      - name: tzdata
+        version: 2025b
+      - name: vir-simd
+        version: 0.4.4
+      - name: virtualenv
+        version: 20.33.1
+      - name: wayland
+        version: 1.24.0
+      - name: wheel
+        version: 0.45.1
+      - name: xcb-util
+        version: 0.4.1
+      - name: xcb-util-cursor
+        version: 0.1.5
+      - name: xcb-util-image
+        version: 0.4.0
+      - name: xcb-util-keysyms
+        version: 0.4.1
+      - name: xcb-util-renderutil
+        version: 0.3.10
+      - name: xcb-util-wm
+        version: 0.4.2
+      - name: xkeyboard-config
+        version: '2.45'
+      - name: xorg-libice
+        version: 1.1.2
+      - name: xorg-libsm
+        version: 1.2.6
+      - name: xorg-libx11
+        version: 1.8.12
+      - name: xorg-libxau
+        version: 1.0.12
+      - name: xorg-libxcomposite
+        version: 0.4.6
+      - name: xorg-libxcursor
+        version: 1.2.3
+      - name: xorg-libxdamage
+        version: 1.1.6
+      - name: xorg-libxdmcp
+        version: 1.1.5
+      - name: xorg-libxext
+        version: 1.3.6
+      - name: xorg-libxfixes
+        version: 6.0.1
+      - name: xorg-libxi
+        version: 1.8.2
+      - name: xorg-libxrandr
+        version: 1.5.4
+      - name: xorg-libxrender
+        version: 0.9.12
+      - name: xorg-libxtst
+        version: 1.2.5
+      - name: xorg-libxxf86vm
+        version: 1.1.6
+      - name: yaml-cpp
+        version: 0.8.0
+      - name: zipp
+        version: 3.23.0
+      - name: zstd
+        version: 1.5.7
+      version: 0.7.5
+    htu_1000:
+      npart: 1000
+      push_per_sec: 5220.6087791574
+      scenario: htu
+      track_ns: 191548542
+    htu_10000:
+      npart: 10000
+      push_per_sec: 22182.86976196922
+      scenario: htu
+      track_ns: 450798301
+    htu_100000:
+      npart: 100000
+      push_per_sec: 72696.63492874557
+      scenario: htu
+      track_ns: 1375579490
+    htu_1000000:
+      npart: 1000000
+      push_per_sec: 108893.6014719561
+      scenario: htu
+      track_ns: 9183276028
+    spacecharge_1000:
+      npart: 1000
+      push_per_sec: 152.0386513218893
+      scenario: spacecharge
+      track_ns: 6577274866
+    spacecharge_10000:
+      npart: 10000
+      push_per_sec: 1517.7744027136316
+      scenario: spacecharge
+      track_ns: 6588594446
+    spacecharge_100000:
+      npart: 100000
+      push_per_sec: 14810.716176210695
+      scenario: spacecharge
+      track_ns: 6751867959
+    spacecharge_1000000:
+      npart: 1000000
+      push_per_sec: 123226.39303659205
+      scenario: spacecharge
+      track_ns: 8115144616
 cheetah-6cpu-inductor-fm-simd-dp:
   axel-dell:
     config:
@@ -4007,6 +7642,523 @@ cheetah-6cpu-inductor-fm-simd-dp:
       push_per_sec: 71489.15880214472
       scenario: spacecharge
       track_ns: 13988134939
+  perlmutter:
+    config:
+      OMP_NUM_THREADS: '6'
+      code: cheetah
+      compile_backend: inductor
+      compile_backend_config: fast-math
+      compile_mode: default
+      device: cpu
+      dtype: float64
+      env_file: benchmark-cpu-conda.yaml
+      env_name: benchmark-cpu
+      env_packages:
+      - name: _libgcc_mutex
+        version: '0.1'
+      - name: _openmp_mutex
+        version: '4.5'
+      - name: alsa-lib
+        version: 1.2.14
+      - name: binutils
+        version: '2.44'
+      - name: binutils_impl_linux-64
+        version: '2.44'
+      - name: binutils_linux-64
+        version: '2.44'
+      - name: brotli
+        version: 1.1.0
+      - name: brotli-bin
+        version: 1.1.0
+      - name: bzip2
+        version: 1.0.8
+      - name: c-ares
+        version: 1.34.5
+      - name: c-compiler
+        version: 1.11.0
+      - name: ca-certificates
+        version: 2025.8.3
+      - name: cairo
+        version: 1.18.4
+      - name: ccache
+        version: 4.11.3
+      - name: cheetah-accelerator
+        version: 0.7.5
+      - name: cmake
+        version: 4.1.0
+      - name: colorama
+        version: 0.4.6
+      - name: compilers
+        version: 1.11.0
+      - name: conda-gcc-specs
+        version: 14.3.0
+      - name: contourpy
+        version: 1.3.3
+      - name: cpp-expected
+        version: 1.1.0
+      - name: cxx-compiler
+        version: 1.11.0
+      - name: cycler
+        version: 0.12.1
+      - name: cyrus-sasl
+        version: 2.1.28
+      - name: dbus
+        version: 1.16.2
+      - name: distlib
+        version: 0.4.0
+      - name: double-conversion
+        version: 3.3.1
+      - name: doxygen
+        version: 1.13.2
+      - name: exceptiongroup
+        version: 1.3.0
+      - name: fftw
+        version: 3.3.10
+      - name: filelock
+        version: 3.18.0
+      - name: fmt
+        version: 11.2.0
+      - name: font-ttf-dejavu-sans-mono
+        version: '2.37'
+      - name: font-ttf-inconsolata
+        version: '3.000'
+      - name: font-ttf-source-code-pro
+        version: '2.038'
+      - name: font-ttf-ubuntu
+        version: '0.83'
+      - name: fontconfig
+        version: 2.15.0
+      - name: fonts-conda-ecosystem
+        version: '1'
+      - name: fonts-conda-forge
+        version: '1'
+      - name: fonttools
+        version: 4.59.0
+      - name: fortran-compiler
+        version: 1.11.0
+      - name: freetype
+        version: 2.13.3
+      - name: fsspec
+        version: 2025.7.0
+      - name: gcc
+        version: 14.3.0
+      - name: gcc_impl_linux-64
+        version: 14.3.0
+      - name: gcc_linux-64
+        version: 14.3.0
+      - name: gfortran
+        version: 14.3.0
+      - name: gfortran_impl_linux-64
+        version: 14.3.0
+      - name: gfortran_linux-64
+        version: 14.3.0
+      - name: git
+        version: 2.49.0
+      - name: graphite2
+        version: 1.3.14
+      - name: gxx
+        version: 14.3.0
+      - name: gxx_impl_linux-64
+        version: 14.3.0
+      - name: gxx_linux-64
+        version: 14.3.0
+      - name: harfbuzz
+        version: 11.3.3
+      - name: icu
+        version: '75.1'
+      - name: importlib-metadata
+        version: 8.7.0
+      - name: iniconfig
+        version: 2.0.0
+      - name: jinja2
+        version: 3.1.6
+      - name: kernel-headers_linux-64
+        version: 4.18.0
+      - name: keyutils
+        version: 1.6.1
+      - name: kiwisolver
+        version: 1.4.8
+      - name: krb5
+        version: 1.21.3
+      - name: lcms2
+        version: '2.17'
+      - name: ld_impl_linux-64
+        version: '2.44'
+      - name: lerc
+        version: 4.0.0
+      - name: libarchive
+        version: 3.8.1
+      - name: libblas
+        version: 3.9.0
+      - name: libbrotlicommon
+        version: 1.1.0
+      - name: libbrotlidec
+        version: 1.1.0
+      - name: libbrotlienc
+        version: 1.1.0
+      - name: libcblas
+        version: 3.9.0
+      - name: libclang-cpp20.1
+        version: 20.1.8
+      - name: libclang13
+        version: 20.1.8
+      - name: libcups
+        version: 2.3.3
+      - name: libcurl
+        version: 8.14.1
+      - name: libdeflate
+        version: '1.24'
+      - name: libdrm
+        version: 2.4.125
+      - name: libedit
+        version: 3.1.20250104
+      - name: libegl
+        version: 1.7.0
+      - name: libev
+        version: '4.33'
+      - name: libexpat
+        version: 2.7.1
+      - name: libffi
+        version: 3.4.6
+      - name: libfreetype
+        version: 2.13.3
+      - name: libfreetype6
+        version: 2.13.3
+      - name: libgcc
+        version: 15.1.0
+      - name: libgcc-devel_linux-64
+        version: 14.3.0
+      - name: libgcc-ng
+        version: 15.1.0
+      - name: libgfortran
+        version: 15.1.0
+      - name: libgfortran-ng
+        version: 15.1.0
+      - name: libgfortran5
+        version: 15.1.0
+      - name: libgl
+        version: 1.7.0
+      - name: libglib
+        version: 2.84.3
+      - name: libglvnd
+        version: 1.7.0
+      - name: libglx
+        version: 1.7.0
+      - name: libgomp
+        version: 15.1.0
+      - name: libhiredis
+        version: 1.0.2
+      - name: libiconv
+        version: '1.18'
+      - name: libjpeg-turbo
+        version: 3.1.0
+      - name: liblapack
+        version: 3.9.0
+      - name: libllvm20
+        version: 20.1.8
+      - name: liblzma
+        version: 5.8.1
+      - name: libmamba
+        version: 2.3.1
+      - name: libmpdec
+        version: 4.0.0
+      - name: libnghttp2
+        version: 1.64.0
+      - name: libntlm
+        version: '1.8'
+      - name: libopenblas
+        version: 0.3.30
+      - name: libopengl
+        version: 1.7.0
+      - name: libpciaccess
+        version: '0.18'
+      - name: libpng
+        version: 1.6.50
+      - name: libpq
+        version: '17.5'
+      - name: libsanitizer
+        version: 14.3.0
+      - name: libsolv
+        version: 0.7.35
+      - name: libsqlite
+        version: 3.50.4
+      - name: libssh2
+        version: 1.11.1
+      - name: libstdcxx
+        version: 15.1.0
+      - name: libstdcxx-devel_linux-64
+        version: 14.3.0
+      - name: libstdcxx-ng
+        version: 15.1.0
+      - name: libtiff
+        version: 4.7.0
+      - name: libuuid
+        version: 2.38.1
+      - name: libuv
+        version: 1.51.0
+      - name: libwebp-base
+        version: 1.6.0
+      - name: libxcb
+        version: 1.17.0
+      - name: libxcrypt
+        version: 4.4.36
+      - name: libxkbcommon
+        version: 1.10.0
+      - name: libxml2
+        version: 2.13.8
+      - name: libxslt
+        version: 1.1.43
+      - name: libzlib
+        version: 1.3.1
+      - name: lz4-c
+        version: 1.10.0
+      - name: lzo
+        version: '2.10'
+      - name: mamba
+        version: 2.3.1
+      - name: markupsafe
+        version: 3.0.2
+      - name: matplotlib
+        version: 3.10.5
+      - name: matplotlib-base
+        version: 3.10.5
+      - name: mpmath
+        version: 1.3.0
+      - name: munkres
+        version: 1.1.4
+      - name: ncurses
+        version: '6.5'
+      - name: networkx
+        version: '3.5'
+      - name: ninja
+        version: 1.13.1
+      - name: nlohmann_json
+        version: 3.11.3
+      - name: numpy
+        version: 2.3.2
+      - name: nvidia-cublas-cu12
+        version: 12.6.4.1
+      - name: nvidia-cuda-cupti-cu12
+        version: 12.6.80
+      - name: nvidia-cuda-nvrtc-cu12
+        version: 12.6.77
+      - name: nvidia-cuda-runtime-cu12
+        version: 12.6.77
+      - name: nvidia-cudnn-cu12
+        version: 9.5.1.17
+      - name: nvidia-cufft-cu12
+        version: 11.3.0.4
+      - name: nvidia-cufile-cu12
+        version: 1.11.1.6
+      - name: nvidia-curand-cu12
+        version: 10.3.7.77
+      - name: nvidia-cusolver-cu12
+        version: 11.7.1.2
+      - name: nvidia-cusparse-cu12
+        version: 12.5.4.2
+      - name: nvidia-cusparselt-cu12
+        version: 0.6.3
+      - name: nvidia-nccl-cu12
+        version: 2.26.2
+      - name: nvidia-nvjitlink-cu12
+        version: 12.6.85
+      - name: nvidia-nvtx-cu12
+        version: 12.6.77
+      - name: openjpeg
+        version: 2.5.3
+      - name: openldap
+        version: 2.6.10
+      - name: openssl
+        version: 3.5.1
+      - name: opt-einsum
+        version: 3.4.0
+      - name: packaging
+        version: '25.0'
+      - name: pandas
+        version: 2.3.1
+      - name: pcre2
+        version: '10.45'
+      - name: perl
+        version: 5.32.1
+      - name: pillow
+        version: 11.3.0
+      - name: pip
+        version: '25.2'
+      - name: pixman
+        version: 0.46.4
+      - name: pkg-config
+        version: 0.29.2
+      - name: platformdirs
+        version: 4.3.8
+      - name: pluggy
+        version: 1.6.0
+      - name: pthread-stubs
+        version: '0.4'
+      - name: py-cpuinfo
+        version: 9.0.0
+      - name: pygments
+        version: 2.19.2
+      - name: pyparsing
+        version: 3.2.3
+      - name: pyproject_hooks
+        version: 1.2.0
+      - name: pyside6
+        version: 6.9.1
+      - name: pytest
+        version: 8.4.1
+      - name: pytest-benchmark
+        version: 5.1.0
+      - name: python
+        version: 3.13.5
+      - name: python-build
+        version: 1.3.0
+      - name: python-dateutil
+        version: 2.9.0.post0
+      - name: python-tzdata
+        version: '2025.2'
+      - name: python_abi
+        version: '3.13'
+      - name: pytz
+        version: '2025.2'
+      - name: qhull
+        version: '2020.2'
+      - name: qt6-main
+        version: 6.9.1
+      - name: quantiphy
+        version: '2.20'
+      - name: readline
+        version: '8.2'
+      - name: reproc
+        version: 14.2.5.post0
+      - name: reproc-cpp
+        version: 14.2.5.post0
+      - name: rhash
+        version: 1.4.6
+      - name: scipy
+        version: 1.16.0
+      - name: setuptools
+        version: 80.9.0
+      - name: simdjson
+        version: 3.13.0
+      - name: six
+        version: 1.17.0
+      - name: sympy
+        version: 1.14.0
+      - name: sysroot_linux-64
+        version: '2.28'
+      - name: tk
+        version: 8.6.13
+      - name: tomli
+        version: 2.2.1
+      - name: torch
+        version: 2.7.1
+      - name: tornado
+        version: 6.5.1
+      - name: triton
+        version: 3.3.1
+      - name: typing_extensions
+        version: 4.14.1
+      - name: tzdata
+        version: 2025b
+      - name: vir-simd
+        version: 0.4.4
+      - name: virtualenv
+        version: 20.33.1
+      - name: wayland
+        version: 1.24.0
+      - name: wheel
+        version: 0.45.1
+      - name: xcb-util
+        version: 0.4.1
+      - name: xcb-util-cursor
+        version: 0.1.5
+      - name: xcb-util-image
+        version: 0.4.0
+      - name: xcb-util-keysyms
+        version: 0.4.1
+      - name: xcb-util-renderutil
+        version: 0.3.10
+      - name: xcb-util-wm
+        version: 0.4.2
+      - name: xkeyboard-config
+        version: '2.45'
+      - name: xorg-libice
+        version: 1.1.2
+      - name: xorg-libsm
+        version: 1.2.6
+      - name: xorg-libx11
+        version: 1.8.12
+      - name: xorg-libxau
+        version: 1.0.12
+      - name: xorg-libxcomposite
+        version: 0.4.6
+      - name: xorg-libxcursor
+        version: 1.2.3
+      - name: xorg-libxdamage
+        version: 1.1.6
+      - name: xorg-libxdmcp
+        version: 1.1.5
+      - name: xorg-libxext
+        version: 1.3.6
+      - name: xorg-libxfixes
+        version: 6.0.1
+      - name: xorg-libxi
+        version: 1.8.2
+      - name: xorg-libxrandr
+        version: 1.5.4
+      - name: xorg-libxrender
+        version: 0.9.12
+      - name: xorg-libxtst
+        version: 1.2.5
+      - name: xorg-libxxf86vm
+        version: 1.1.6
+      - name: yaml-cpp
+        version: 0.8.0
+      - name: zipp
+        version: 3.23.0
+      - name: zstd
+        version: 1.5.7
+      version: 0.7.5
+    htu_1000:
+      npart: 1000
+      push_per_sec: 5156.071659537659
+      scenario: htu
+      track_ns: 193946102
+    htu_10000:
+      npart: 10000
+      push_per_sec: 21069.320254847753
+      scenario: htu
+      track_ns: 474623760
+    htu_100000:
+      npart: 100000
+      push_per_sec: 71090.17063878871
+      scenario: htu
+      track_ns: 1406664228
+    htu_1000000:
+      npart: 1000000
+      push_per_sec: 97548.80864663776
+      scenario: htu
+      track_ns: 10251278451
+    spacecharge_1000:
+      npart: 1000
+      push_per_sec: 74.59565526699107
+      scenario: spacecharge
+      track_ns: 13405606485
+    spacecharge_10000:
+      npart: 10000
+      push_per_sec: 752.4896589921302
+      scenario: spacecharge
+      track_ns: 13289219168
+    spacecharge_100000:
+      npart: 100000
+      push_per_sec: 7416.683028196997
+      scenario: spacecharge
+      track_ns: 13483116323
+    spacecharge_1000000:
+      npart: 1000000
+      push_per_sec: 67091.17234175072
+      scenario: spacecharge
+      track_ns: 14905090567
 cheetah-6cpu-inductor-simd:
   axel-dell:
     config:
@@ -11971,6 +16123,458 @@ impactx-1cpu-fm-simd:
       push_per_sec: 396577.58949583414
       scenario: htu
       track_ns: 2521574659
+  perlmutter:
+    config:
+      CXXFLAGS: -march=native -ffast-math
+      ImpactX_COMPUTE: OMP
+      ImpactX_SIMD: 'ON'
+      OMP_NUM_THREADS: '1'
+      code: impactx
+      env_file: benchmark-cpu-conda.yaml
+      env_name: benchmark-cpu
+      env_packages:
+      - name: _libgcc_mutex
+        version: '0.1'
+      - name: _openmp_mutex
+        version: '4.5'
+      - name: alsa-lib
+        version: 1.2.14
+      - name: amrex
+        version: '25.7'
+      - name: binutils
+        version: '2.44'
+      - name: binutils_impl_linux-64
+        version: '2.44'
+      - name: binutils_linux-64
+        version: '2.44'
+      - name: brotli
+        version: 1.1.0
+      - name: brotli-bin
+        version: 1.1.0
+      - name: bzip2
+        version: 1.0.8
+      - name: c-ares
+        version: 1.34.5
+      - name: c-compiler
+        version: 1.11.0
+      - name: ca-certificates
+        version: 2025.8.3
+      - name: cairo
+        version: 1.18.4
+      - name: ccache
+        version: 4.11.3
+      - name: cmake
+        version: 4.0.3
+      - name: colorama
+        version: 0.4.6
+      - name: compilers
+        version: 1.11.0
+      - name: conda-gcc-specs
+        version: 14.3.0
+      - name: contourpy
+        version: 1.3.3
+      - name: cpp-expected
+        version: 1.1.0
+      - name: cxx-compiler
+        version: 1.11.0
+      - name: cycler
+        version: 0.12.1
+      - name: cyrus-sasl
+        version: 2.1.28
+      - name: dbus
+        version: 1.16.2
+      - name: distlib
+        version: 0.4.0
+      - name: double-conversion
+        version: 3.3.1
+      - name: doxygen
+        version: 1.13.2
+      - name: exceptiongroup
+        version: 1.3.0
+      - name: fftw
+        version: 3.3.10
+      - name: filelock
+        version: 3.18.0
+      - name: fmt
+        version: 11.2.0
+      - name: font-ttf-dejavu-sans-mono
+        version: '2.37'
+      - name: font-ttf-inconsolata
+        version: '3.000'
+      - name: font-ttf-source-code-pro
+        version: '2.038'
+      - name: font-ttf-ubuntu
+        version: '0.83'
+      - name: fontconfig
+        version: 2.15.0
+      - name: fonts-conda-ecosystem
+        version: '1'
+      - name: fonts-conda-forge
+        version: '1'
+      - name: fonttools
+        version: 4.59.0
+      - name: fortran-compiler
+        version: 1.11.0
+      - name: freetype
+        version: 2.13.3
+      - name: gcc
+        version: 14.3.0
+      - name: gcc_impl_linux-64
+        version: 14.3.0
+      - name: gcc_linux-64
+        version: 14.3.0
+      - name: gfortran
+        version: 14.3.0
+      - name: gfortran_impl_linux-64
+        version: 14.3.0
+      - name: gfortran_linux-64
+        version: 14.3.0
+      - name: git
+        version: 2.49.0
+      - name: graphite2
+        version: 1.3.14
+      - name: gxx
+        version: 14.3.0
+      - name: gxx_impl_linux-64
+        version: 14.3.0
+      - name: gxx_linux-64
+        version: 14.3.0
+      - name: harfbuzz
+        version: 11.3.3
+      - name: icu
+        version: '75.1'
+      - name: impactx
+        version: '25.7'
+      - name: importlib-metadata
+        version: 8.7.0
+      - name: iniconfig
+        version: 2.0.0
+      - name: kernel-headers_linux-64
+        version: 4.18.0
+      - name: keyutils
+        version: 1.6.1
+      - name: kiwisolver
+        version: 1.4.8
+      - name: krb5
+        version: 1.21.3
+      - name: lcms2
+        version: '2.17'
+      - name: ld_impl_linux-64
+        version: '2.44'
+      - name: lerc
+        version: 4.0.0
+      - name: libarchive
+        version: 3.8.1
+      - name: libblas
+        version: 3.9.0
+      - name: libbrotlicommon
+        version: 1.1.0
+      - name: libbrotlidec
+        version: 1.1.0
+      - name: libbrotlienc
+        version: 1.1.0
+      - name: libcblas
+        version: 3.9.0
+      - name: libclang-cpp20.1
+        version: 20.1.8
+      - name: libclang13
+        version: 20.1.8
+      - name: libcups
+        version: 2.3.3
+      - name: libcurl
+        version: 8.14.1
+      - name: libdeflate
+        version: '1.24'
+      - name: libdrm
+        version: 2.4.125
+      - name: libedit
+        version: 3.1.20250104
+      - name: libegl
+        version: 1.7.0
+      - name: libev
+        version: '4.33'
+      - name: libexpat
+        version: 2.7.1
+      - name: libffi
+        version: 3.4.6
+      - name: libfreetype
+        version: 2.13.3
+      - name: libfreetype6
+        version: 2.13.3
+      - name: libgcc
+        version: 15.1.0
+      - name: libgcc-devel_linux-64
+        version: 14.3.0
+      - name: libgcc-ng
+        version: 15.1.0
+      - name: libgfortran
+        version: 15.1.0
+      - name: libgfortran-ng
+        version: 15.1.0
+      - name: libgfortran5
+        version: 15.1.0
+      - name: libgl
+        version: 1.7.0
+      - name: libglib
+        version: 2.84.3
+      - name: libglvnd
+        version: 1.7.0
+      - name: libglx
+        version: 1.7.0
+      - name: libgomp
+        version: 15.1.0
+      - name: libhiredis
+        version: 1.0.2
+      - name: libiconv
+        version: '1.18'
+      - name: libjpeg-turbo
+        version: 3.1.0
+      - name: liblapack
+        version: 3.9.0
+      - name: libllvm20
+        version: 20.1.8
+      - name: liblzma
+        version: 5.8.1
+      - name: libmamba
+        version: 2.3.1
+      - name: libmpdec
+        version: 4.0.0
+      - name: libnghttp2
+        version: 1.64.0
+      - name: libntlm
+        version: '1.8'
+      - name: libopenblas
+        version: 0.3.30
+      - name: libopengl
+        version: 1.7.0
+      - name: libpciaccess
+        version: '0.18'
+      - name: libpng
+        version: 1.6.50
+      - name: libpq
+        version: '17.5'
+      - name: libsanitizer
+        version: 14.3.0
+      - name: libsolv
+        version: 0.7.35
+      - name: libsqlite
+        version: 3.50.4
+      - name: libssh2
+        version: 1.11.1
+      - name: libstdcxx
+        version: 15.1.0
+      - name: libstdcxx-devel_linux-64
+        version: 14.3.0
+      - name: libstdcxx-ng
+        version: 15.1.0
+      - name: libtiff
+        version: 4.7.0
+      - name: libuuid
+        version: 2.38.1
+      - name: libuv
+        version: 1.51.0
+      - name: libwebp-base
+        version: 1.6.0
+      - name: libxcb
+        version: 1.17.0
+      - name: libxcrypt
+        version: 4.4.36
+      - name: libxkbcommon
+        version: 1.10.0
+      - name: libxml2
+        version: 2.13.8
+      - name: libxslt
+        version: 1.1.43
+      - name: libzlib
+        version: 1.3.1
+      - name: lz4-c
+        version: 1.10.0
+      - name: lzo
+        version: '2.10'
+      - name: mamba
+        version: 2.3.1
+      - name: matplotlib
+        version: 3.10.5
+      - name: matplotlib-base
+        version: 3.10.5
+      - name: munkres
+        version: 1.1.4
+      - name: ncurses
+        version: '6.5'
+      - name: ninja
+        version: 1.13.1
+      - name: nlohmann_json
+        version: 3.11.3
+      - name: numpy
+        version: 2.3.2
+      - name: openjpeg
+        version: 2.5.3
+      - name: openldap
+        version: 2.6.10
+      - name: openssl
+        version: 3.5.1
+      - name: packaging
+        version: '25.0'
+      - name: pandas
+        version: 2.3.1
+      - name: pcre2
+        version: '10.45'
+      - name: perl
+        version: 5.32.1
+      - name: pillow
+        version: 11.3.0
+      - name: pip
+        version: '25.2'
+      - name: pixman
+        version: 0.46.4
+      - name: pkg-config
+        version: 0.29.2
+      - name: platformdirs
+        version: 4.3.8
+      - name: pluggy
+        version: 1.6.0
+      - name: pthread-stubs
+        version: '0.4'
+      - name: py-cpuinfo
+        version: 9.0.0
+      - name: pygments
+        version: 2.19.2
+      - name: pyparsing
+        version: 3.2.3
+      - name: pyproject_hooks
+        version: 1.2.0
+      - name: pyside6
+        version: 6.9.1
+      - name: pytest
+        version: 8.4.1
+      - name: pytest-benchmark
+        version: 5.1.0
+      - name: python
+        version: 3.13.5
+      - name: python-build
+        version: 1.3.0
+      - name: python-dateutil
+        version: 2.9.0.post0
+      - name: python-tzdata
+        version: '2025.2'
+      - name: python_abi
+        version: '3.13'
+      - name: pytz
+        version: '2025.2'
+      - name: qhull
+        version: '2020.2'
+      - name: qt6-main
+        version: 6.9.1
+      - name: quantiphy
+        version: '2.20'
+      - name: readline
+        version: '8.2'
+      - name: reproc
+        version: 14.2.5.post0
+      - name: reproc-cpp
+        version: 14.2.5.post0
+      - name: rhash
+        version: 1.4.6
+      - name: scipy
+        version: 1.16.0
+      - name: setuptools
+        version: 80.9.0
+      - name: simdjson
+        version: 3.13.0
+      - name: six
+        version: 1.17.0
+      - name: sysroot_linux-64
+        version: '2.28'
+      - name: tk
+        version: 8.6.13
+      - name: tomli
+        version: 2.2.1
+      - name: tornado
+        version: 6.5.1
+      - name: typing_extensions
+        version: 4.14.1
+      - name: tzdata
+        version: 2025b
+      - name: vir-simd
+        version: 0.4.4
+      - name: virtualenv
+        version: 20.33.1
+      - name: wayland
+        version: 1.24.0
+      - name: wheel
+        version: 0.45.1
+      - name: xcb-util
+        version: 0.4.1
+      - name: xcb-util-cursor
+        version: 0.1.5
+      - name: xcb-util-image
+        version: 0.4.0
+      - name: xcb-util-keysyms
+        version: 0.4.1
+      - name: xcb-util-renderutil
+        version: 0.3.10
+      - name: xcb-util-wm
+        version: 0.4.2
+      - name: xkeyboard-config
+        version: '2.45'
+      - name: xorg-libice
+        version: 1.1.2
+      - name: xorg-libsm
+        version: 1.2.6
+      - name: xorg-libx11
+        version: 1.8.12
+      - name: xorg-libxau
+        version: 1.0.12
+      - name: xorg-libxcomposite
+        version: 0.4.6
+      - name: xorg-libxcursor
+        version: 1.2.3
+      - name: xorg-libxdamage
+        version: 1.1.6
+      - name: xorg-libxdmcp
+        version: 1.1.5
+      - name: xorg-libxext
+        version: 1.3.6
+      - name: xorg-libxfixes
+        version: 6.0.1
+      - name: xorg-libxi
+        version: 1.8.2
+      - name: xorg-libxrandr
+        version: 1.5.4
+      - name: xorg-libxrender
+        version: 0.9.12
+      - name: xorg-libxtst
+        version: 1.2.5
+      - name: xorg-libxxf86vm
+        version: 1.1.6
+      - name: yaml-cpp
+        version: 0.8.0
+      - name: zipp
+        version: 3.23.0
+      - name: zstd
+        version: 1.5.7
+      gh_owner: BLAST-ImpactX
+      version: development
+    htu_1000:
+      npart: 1000
+      push_per_sec: 264268.7973074181
+      scenario: htu
+      track_ns: 3784026
+    htu_10000:
+      npart: 10000
+      push_per_sec: 299635.1642240408
+      scenario: htu
+      track_ns: 33373920
+    htu_100000:
+      npart: 100000
+      push_per_sec: 302081.58651509247
+      scenario: htu
+      track_ns: 331036397
+    htu_1000000:
+      npart: 1000000
+      push_per_sec: 303715.41533682734
+      scenario: htu
+      track_ns: 3292555957
 impactx-1cpu-fm-simd-dp:
   axel-dell:
     config:
@@ -12419,6 +17023,479 @@ impactx-1cpu-fm-simd-dp:
       push_per_sec: 68841.07747952339
       scenario: spacecharge
       track_ns: 14526210754
+  perlmutter:
+    config:
+      CXXFLAGS: -march=native -ffast-math
+      ImpactX_COMPUTE: OMP
+      ImpactX_PRECISION: DOUBLE
+      ImpactX_SIMD: 'ON'
+      OMP_NUM_THREADS: '1'
+      code: impactx
+      env_file: benchmark-cpu-conda.yaml
+      env_name: benchmark-cpu
+      env_packages:
+      - name: _libgcc_mutex
+        version: '0.1'
+      - name: _openmp_mutex
+        version: '4.5'
+      - name: alsa-lib
+        version: 1.2.14
+      - name: amrex
+        version: '25.7'
+      - name: binutils
+        version: '2.44'
+      - name: binutils_impl_linux-64
+        version: '2.44'
+      - name: binutils_linux-64
+        version: '2.44'
+      - name: brotli
+        version: 1.1.0
+      - name: brotli-bin
+        version: 1.1.0
+      - name: bzip2
+        version: 1.0.8
+      - name: c-ares
+        version: 1.34.5
+      - name: c-compiler
+        version: 1.11.0
+      - name: ca-certificates
+        version: 2025.8.3
+      - name: cairo
+        version: 1.18.4
+      - name: ccache
+        version: 4.11.3
+      - name: cmake
+        version: 4.0.3
+      - name: colorama
+        version: 0.4.6
+      - name: compilers
+        version: 1.11.0
+      - name: conda-gcc-specs
+        version: 14.3.0
+      - name: contourpy
+        version: 1.3.3
+      - name: cpp-expected
+        version: 1.1.0
+      - name: cxx-compiler
+        version: 1.11.0
+      - name: cycler
+        version: 0.12.1
+      - name: cyrus-sasl
+        version: 2.1.28
+      - name: dbus
+        version: 1.16.2
+      - name: distlib
+        version: 0.4.0
+      - name: double-conversion
+        version: 3.3.1
+      - name: doxygen
+        version: 1.13.2
+      - name: exceptiongroup
+        version: 1.3.0
+      - name: fftw
+        version: 3.3.10
+      - name: filelock
+        version: 3.18.0
+      - name: fmt
+        version: 11.2.0
+      - name: font-ttf-dejavu-sans-mono
+        version: '2.37'
+      - name: font-ttf-inconsolata
+        version: '3.000'
+      - name: font-ttf-source-code-pro
+        version: '2.038'
+      - name: font-ttf-ubuntu
+        version: '0.83'
+      - name: fontconfig
+        version: 2.15.0
+      - name: fonts-conda-ecosystem
+        version: '1'
+      - name: fonts-conda-forge
+        version: '1'
+      - name: fonttools
+        version: 4.59.0
+      - name: fortran-compiler
+        version: 1.11.0
+      - name: freetype
+        version: 2.13.3
+      - name: gcc
+        version: 14.3.0
+      - name: gcc_impl_linux-64
+        version: 14.3.0
+      - name: gcc_linux-64
+        version: 14.3.0
+      - name: gfortran
+        version: 14.3.0
+      - name: gfortran_impl_linux-64
+        version: 14.3.0
+      - name: gfortran_linux-64
+        version: 14.3.0
+      - name: git
+        version: 2.49.0
+      - name: graphite2
+        version: 1.3.14
+      - name: gxx
+        version: 14.3.0
+      - name: gxx_impl_linux-64
+        version: 14.3.0
+      - name: gxx_linux-64
+        version: 14.3.0
+      - name: harfbuzz
+        version: 11.3.3
+      - name: icu
+        version: '75.1'
+      - name: impactx
+        version: '25.7'
+      - name: importlib-metadata
+        version: 8.7.0
+      - name: iniconfig
+        version: 2.0.0
+      - name: kernel-headers_linux-64
+        version: 4.18.0
+      - name: keyutils
+        version: 1.6.1
+      - name: kiwisolver
+        version: 1.4.8
+      - name: krb5
+        version: 1.21.3
+      - name: lcms2
+        version: '2.17'
+      - name: ld_impl_linux-64
+        version: '2.44'
+      - name: lerc
+        version: 4.0.0
+      - name: libarchive
+        version: 3.8.1
+      - name: libblas
+        version: 3.9.0
+      - name: libbrotlicommon
+        version: 1.1.0
+      - name: libbrotlidec
+        version: 1.1.0
+      - name: libbrotlienc
+        version: 1.1.0
+      - name: libcblas
+        version: 3.9.0
+      - name: libclang-cpp20.1
+        version: 20.1.8
+      - name: libclang13
+        version: 20.1.8
+      - name: libcups
+        version: 2.3.3
+      - name: libcurl
+        version: 8.14.1
+      - name: libdeflate
+        version: '1.24'
+      - name: libdrm
+        version: 2.4.125
+      - name: libedit
+        version: 3.1.20250104
+      - name: libegl
+        version: 1.7.0
+      - name: libev
+        version: '4.33'
+      - name: libexpat
+        version: 2.7.1
+      - name: libffi
+        version: 3.4.6
+      - name: libfreetype
+        version: 2.13.3
+      - name: libfreetype6
+        version: 2.13.3
+      - name: libgcc
+        version: 15.1.0
+      - name: libgcc-devel_linux-64
+        version: 14.3.0
+      - name: libgcc-ng
+        version: 15.1.0
+      - name: libgfortran
+        version: 15.1.0
+      - name: libgfortran-ng
+        version: 15.1.0
+      - name: libgfortran5
+        version: 15.1.0
+      - name: libgl
+        version: 1.7.0
+      - name: libglib
+        version: 2.84.3
+      - name: libglvnd
+        version: 1.7.0
+      - name: libglx
+        version: 1.7.0
+      - name: libgomp
+        version: 15.1.0
+      - name: libhiredis
+        version: 1.0.2
+      - name: libiconv
+        version: '1.18'
+      - name: libjpeg-turbo
+        version: 3.1.0
+      - name: liblapack
+        version: 3.9.0
+      - name: libllvm20
+        version: 20.1.8
+      - name: liblzma
+        version: 5.8.1
+      - name: libmamba
+        version: 2.3.1
+      - name: libmpdec
+        version: 4.0.0
+      - name: libnghttp2
+        version: 1.64.0
+      - name: libntlm
+        version: '1.8'
+      - name: libopenblas
+        version: 0.3.30
+      - name: libopengl
+        version: 1.7.0
+      - name: libpciaccess
+        version: '0.18'
+      - name: libpng
+        version: 1.6.50
+      - name: libpq
+        version: '17.5'
+      - name: libsanitizer
+        version: 14.3.0
+      - name: libsolv
+        version: 0.7.35
+      - name: libsqlite
+        version: 3.50.4
+      - name: libssh2
+        version: 1.11.1
+      - name: libstdcxx
+        version: 15.1.0
+      - name: libstdcxx-devel_linux-64
+        version: 14.3.0
+      - name: libstdcxx-ng
+        version: 15.1.0
+      - name: libtiff
+        version: 4.7.0
+      - name: libuuid
+        version: 2.38.1
+      - name: libuv
+        version: 1.51.0
+      - name: libwebp-base
+        version: 1.6.0
+      - name: libxcb
+        version: 1.17.0
+      - name: libxcrypt
+        version: 4.4.36
+      - name: libxkbcommon
+        version: 1.10.0
+      - name: libxml2
+        version: 2.13.8
+      - name: libxslt
+        version: 1.1.43
+      - name: libzlib
+        version: 1.3.1
+      - name: lz4-c
+        version: 1.10.0
+      - name: lzo
+        version: '2.10'
+      - name: mamba
+        version: 2.3.1
+      - name: matplotlib
+        version: 3.10.5
+      - name: matplotlib-base
+        version: 3.10.5
+      - name: munkres
+        version: 1.1.4
+      - name: ncurses
+        version: '6.5'
+      - name: ninja
+        version: 1.13.1
+      - name: nlohmann_json
+        version: 3.11.3
+      - name: numpy
+        version: 2.3.2
+      - name: openjpeg
+        version: 2.5.3
+      - name: openldap
+        version: 2.6.10
+      - name: openssl
+        version: 3.5.1
+      - name: packaging
+        version: '25.0'
+      - name: pandas
+        version: 2.3.1
+      - name: pcre2
+        version: '10.45'
+      - name: perl
+        version: 5.32.1
+      - name: pillow
+        version: 11.3.0
+      - name: pip
+        version: '25.2'
+      - name: pixman
+        version: 0.46.4
+      - name: pkg-config
+        version: 0.29.2
+      - name: platformdirs
+        version: 4.3.8
+      - name: pluggy
+        version: 1.6.0
+      - name: pthread-stubs
+        version: '0.4'
+      - name: py-cpuinfo
+        version: 9.0.0
+      - name: pygments
+        version: 2.19.2
+      - name: pyparsing
+        version: 3.2.3
+      - name: pyproject_hooks
+        version: 1.2.0
+      - name: pyside6
+        version: 6.9.1
+      - name: pytest
+        version: 8.4.1
+      - name: pytest-benchmark
+        version: 5.1.0
+      - name: python
+        version: 3.13.5
+      - name: python-build
+        version: 1.3.0
+      - name: python-dateutil
+        version: 2.9.0.post0
+      - name: python-tzdata
+        version: '2025.2'
+      - name: python_abi
+        version: '3.13'
+      - name: pytz
+        version: '2025.2'
+      - name: qhull
+        version: '2020.2'
+      - name: qt6-main
+        version: 6.9.1
+      - name: quantiphy
+        version: '2.20'
+      - name: readline
+        version: '8.2'
+      - name: reproc
+        version: 14.2.5.post0
+      - name: reproc-cpp
+        version: 14.2.5.post0
+      - name: rhash
+        version: 1.4.6
+      - name: scipy
+        version: 1.16.0
+      - name: setuptools
+        version: 80.9.0
+      - name: simdjson
+        version: 3.13.0
+      - name: six
+        version: 1.17.0
+      - name: sysroot_linux-64
+        version: '2.28'
+      - name: tk
+        version: 8.6.13
+      - name: tomli
+        version: 2.2.1
+      - name: tornado
+        version: 6.5.1
+      - name: typing_extensions
+        version: 4.14.1
+      - name: tzdata
+        version: 2025b
+      - name: vir-simd
+        version: 0.4.4
+      - name: virtualenv
+        version: 20.33.1
+      - name: wayland
+        version: 1.24.0
+      - name: wheel
+        version: 0.45.1
+      - name: xcb-util
+        version: 0.4.1
+      - name: xcb-util-cursor
+        version: 0.1.5
+      - name: xcb-util-image
+        version: 0.4.0
+      - name: xcb-util-keysyms
+        version: 0.4.1
+      - name: xcb-util-renderutil
+        version: 0.3.10
+      - name: xcb-util-wm
+        version: 0.4.2
+      - name: xkeyboard-config
+        version: '2.45'
+      - name: xorg-libice
+        version: 1.1.2
+      - name: xorg-libsm
+        version: 1.2.6
+      - name: xorg-libx11
+        version: 1.8.12
+      - name: xorg-libxau
+        version: 1.0.12
+      - name: xorg-libxcomposite
+        version: 0.4.6
+      - name: xorg-libxcursor
+        version: 1.2.3
+      - name: xorg-libxdamage
+        version: 1.1.6
+      - name: xorg-libxdmcp
+        version: 1.1.5
+      - name: xorg-libxext
+        version: 1.3.6
+      - name: xorg-libxfixes
+        version: 6.0.1
+      - name: xorg-libxi
+        version: 1.8.2
+      - name: xorg-libxrandr
+        version: 1.5.4
+      - name: xorg-libxrender
+        version: 0.9.12
+      - name: xorg-libxtst
+        version: 1.2.5
+      - name: xorg-libxxf86vm
+        version: 1.1.6
+      - name: yaml-cpp
+        version: 0.8.0
+      - name: zipp
+        version: 3.23.0
+      - name: zstd
+        version: 1.5.7
+      gh_owner: BLAST-ImpactX
+      version: development
+    htu_1000:
+      npart: 1000
+      push_per_sec: 226560.24678754562
+      scenario: htu
+      track_ns: 4413837
+    htu_10000:
+      npart: 10000
+      push_per_sec: 253696.47175691047
+      scenario: htu
+      track_ns: 39417182
+    htu_100000:
+      npart: 100000
+      push_per_sec: 257808.4355090252
+      scenario: htu
+      track_ns: 387884903
+    htu_1000000:
+      npart: 1000000
+      push_per_sec: 254181.19809985324
+      scenario: htu
+      track_ns: 3934201300
+    spacecharge_1000:
+      npart: 1000
+      push_per_sec: 45.22462098587644
+      scenario: spacecharge
+      track_ns: 22111849214
+    spacecharge_10000:
+      npart: 10000
+      push_per_sec: 451.91205670950905
+      scenario: spacecharge
+      track_ns: 22128199174
+    spacecharge_100000:
+      npart: 100000
+      push_per_sec: 4498.352404164177
+      scenario: spacecharge
+      track_ns: 22230361478
+    spacecharge_1000000:
+      npart: 1000000
+      push_per_sec: 44432.2526115083
+      scenario: spacecharge
+      track_ns: 22506173809
 impactx-1cpu-simd:
   axel-dell:
     config:
@@ -14127,6 +19204,458 @@ impactx-6cpu-fm-simd:
       push_per_sec: 335370.39344894607
       scenario: htu
       track_ns: 2981777818
+  perlmutter:
+    config:
+      CXXFLAGS: -march=native -ffast-math
+      ImpactX_COMPUTE: OMP
+      ImpactX_SIMD: 'ON'
+      OMP_NUM_THREADS: '6'
+      code: impactx
+      env_file: benchmark-cpu-conda.yaml
+      env_name: benchmark-cpu
+      env_packages:
+      - name: _libgcc_mutex
+        version: '0.1'
+      - name: _openmp_mutex
+        version: '4.5'
+      - name: alsa-lib
+        version: 1.2.14
+      - name: amrex
+        version: '25.7'
+      - name: binutils
+        version: '2.44'
+      - name: binutils_impl_linux-64
+        version: '2.44'
+      - name: binutils_linux-64
+        version: '2.44'
+      - name: brotli
+        version: 1.1.0
+      - name: brotli-bin
+        version: 1.1.0
+      - name: bzip2
+        version: 1.0.8
+      - name: c-ares
+        version: 1.34.5
+      - name: c-compiler
+        version: 1.11.0
+      - name: ca-certificates
+        version: 2025.8.3
+      - name: cairo
+        version: 1.18.4
+      - name: ccache
+        version: 4.11.3
+      - name: cmake
+        version: 4.1.0
+      - name: colorama
+        version: 0.4.6
+      - name: compilers
+        version: 1.11.0
+      - name: conda-gcc-specs
+        version: 14.3.0
+      - name: contourpy
+        version: 1.3.3
+      - name: cpp-expected
+        version: 1.1.0
+      - name: cxx-compiler
+        version: 1.11.0
+      - name: cycler
+        version: 0.12.1
+      - name: cyrus-sasl
+        version: 2.1.28
+      - name: dbus
+        version: 1.16.2
+      - name: distlib
+        version: 0.4.0
+      - name: double-conversion
+        version: 3.3.1
+      - name: doxygen
+        version: 1.13.2
+      - name: exceptiongroup
+        version: 1.3.0
+      - name: fftw
+        version: 3.3.10
+      - name: filelock
+        version: 3.18.0
+      - name: fmt
+        version: 11.2.0
+      - name: font-ttf-dejavu-sans-mono
+        version: '2.37'
+      - name: font-ttf-inconsolata
+        version: '3.000'
+      - name: font-ttf-source-code-pro
+        version: '2.038'
+      - name: font-ttf-ubuntu
+        version: '0.83'
+      - name: fontconfig
+        version: 2.15.0
+      - name: fonts-conda-ecosystem
+        version: '1'
+      - name: fonts-conda-forge
+        version: '1'
+      - name: fonttools
+        version: 4.59.0
+      - name: fortran-compiler
+        version: 1.11.0
+      - name: freetype
+        version: 2.13.3
+      - name: gcc
+        version: 14.3.0
+      - name: gcc_impl_linux-64
+        version: 14.3.0
+      - name: gcc_linux-64
+        version: 14.3.0
+      - name: gfortran
+        version: 14.3.0
+      - name: gfortran_impl_linux-64
+        version: 14.3.0
+      - name: gfortran_linux-64
+        version: 14.3.0
+      - name: git
+        version: 2.49.0
+      - name: graphite2
+        version: 1.3.14
+      - name: gxx
+        version: 14.3.0
+      - name: gxx_impl_linux-64
+        version: 14.3.0
+      - name: gxx_linux-64
+        version: 14.3.0
+      - name: harfbuzz
+        version: 11.3.3
+      - name: icu
+        version: '75.1'
+      - name: impactx
+        version: '25.7'
+      - name: importlib-metadata
+        version: 8.7.0
+      - name: iniconfig
+        version: 2.0.0
+      - name: kernel-headers_linux-64
+        version: 4.18.0
+      - name: keyutils
+        version: 1.6.1
+      - name: kiwisolver
+        version: 1.4.8
+      - name: krb5
+        version: 1.21.3
+      - name: lcms2
+        version: '2.17'
+      - name: ld_impl_linux-64
+        version: '2.44'
+      - name: lerc
+        version: 4.0.0
+      - name: libarchive
+        version: 3.8.1
+      - name: libblas
+        version: 3.9.0
+      - name: libbrotlicommon
+        version: 1.1.0
+      - name: libbrotlidec
+        version: 1.1.0
+      - name: libbrotlienc
+        version: 1.1.0
+      - name: libcblas
+        version: 3.9.0
+      - name: libclang-cpp20.1
+        version: 20.1.8
+      - name: libclang13
+        version: 20.1.8
+      - name: libcups
+        version: 2.3.3
+      - name: libcurl
+        version: 8.14.1
+      - name: libdeflate
+        version: '1.24'
+      - name: libdrm
+        version: 2.4.125
+      - name: libedit
+        version: 3.1.20250104
+      - name: libegl
+        version: 1.7.0
+      - name: libev
+        version: '4.33'
+      - name: libexpat
+        version: 2.7.1
+      - name: libffi
+        version: 3.4.6
+      - name: libfreetype
+        version: 2.13.3
+      - name: libfreetype6
+        version: 2.13.3
+      - name: libgcc
+        version: 15.1.0
+      - name: libgcc-devel_linux-64
+        version: 14.3.0
+      - name: libgcc-ng
+        version: 15.1.0
+      - name: libgfortran
+        version: 15.1.0
+      - name: libgfortran-ng
+        version: 15.1.0
+      - name: libgfortran5
+        version: 15.1.0
+      - name: libgl
+        version: 1.7.0
+      - name: libglib
+        version: 2.84.3
+      - name: libglvnd
+        version: 1.7.0
+      - name: libglx
+        version: 1.7.0
+      - name: libgomp
+        version: 15.1.0
+      - name: libhiredis
+        version: 1.0.2
+      - name: libiconv
+        version: '1.18'
+      - name: libjpeg-turbo
+        version: 3.1.0
+      - name: liblapack
+        version: 3.9.0
+      - name: libllvm20
+        version: 20.1.8
+      - name: liblzma
+        version: 5.8.1
+      - name: libmamba
+        version: 2.3.1
+      - name: libmpdec
+        version: 4.0.0
+      - name: libnghttp2
+        version: 1.64.0
+      - name: libntlm
+        version: '1.8'
+      - name: libopenblas
+        version: 0.3.30
+      - name: libopengl
+        version: 1.7.0
+      - name: libpciaccess
+        version: '0.18'
+      - name: libpng
+        version: 1.6.50
+      - name: libpq
+        version: '17.5'
+      - name: libsanitizer
+        version: 14.3.0
+      - name: libsolv
+        version: 0.7.35
+      - name: libsqlite
+        version: 3.50.4
+      - name: libssh2
+        version: 1.11.1
+      - name: libstdcxx
+        version: 15.1.0
+      - name: libstdcxx-devel_linux-64
+        version: 14.3.0
+      - name: libstdcxx-ng
+        version: 15.1.0
+      - name: libtiff
+        version: 4.7.0
+      - name: libuuid
+        version: 2.38.1
+      - name: libuv
+        version: 1.51.0
+      - name: libwebp-base
+        version: 1.6.0
+      - name: libxcb
+        version: 1.17.0
+      - name: libxcrypt
+        version: 4.4.36
+      - name: libxkbcommon
+        version: 1.10.0
+      - name: libxml2
+        version: 2.13.8
+      - name: libxslt
+        version: 1.1.43
+      - name: libzlib
+        version: 1.3.1
+      - name: lz4-c
+        version: 1.10.0
+      - name: lzo
+        version: '2.10'
+      - name: mamba
+        version: 2.3.1
+      - name: matplotlib
+        version: 3.10.5
+      - name: matplotlib-base
+        version: 3.10.5
+      - name: munkres
+        version: 1.1.4
+      - name: ncurses
+        version: '6.5'
+      - name: ninja
+        version: 1.13.1
+      - name: nlohmann_json
+        version: 3.11.3
+      - name: numpy
+        version: 2.3.2
+      - name: openjpeg
+        version: 2.5.3
+      - name: openldap
+        version: 2.6.10
+      - name: openssl
+        version: 3.5.1
+      - name: packaging
+        version: '25.0'
+      - name: pandas
+        version: 2.3.1
+      - name: pcre2
+        version: '10.45'
+      - name: perl
+        version: 5.32.1
+      - name: pillow
+        version: 11.3.0
+      - name: pip
+        version: '25.2'
+      - name: pixman
+        version: 0.46.4
+      - name: pkg-config
+        version: 0.29.2
+      - name: platformdirs
+        version: 4.3.8
+      - name: pluggy
+        version: 1.6.0
+      - name: pthread-stubs
+        version: '0.4'
+      - name: py-cpuinfo
+        version: 9.0.0
+      - name: pygments
+        version: 2.19.2
+      - name: pyparsing
+        version: 3.2.3
+      - name: pyproject_hooks
+        version: 1.2.0
+      - name: pyside6
+        version: 6.9.1
+      - name: pytest
+        version: 8.4.1
+      - name: pytest-benchmark
+        version: 5.1.0
+      - name: python
+        version: 3.13.5
+      - name: python-build
+        version: 1.3.0
+      - name: python-dateutil
+        version: 2.9.0.post0
+      - name: python-tzdata
+        version: '2025.2'
+      - name: python_abi
+        version: '3.13'
+      - name: pytz
+        version: '2025.2'
+      - name: qhull
+        version: '2020.2'
+      - name: qt6-main
+        version: 6.9.1
+      - name: quantiphy
+        version: '2.20'
+      - name: readline
+        version: '8.2'
+      - name: reproc
+        version: 14.2.5.post0
+      - name: reproc-cpp
+        version: 14.2.5.post0
+      - name: rhash
+        version: 1.4.6
+      - name: scipy
+        version: 1.16.0
+      - name: setuptools
+        version: 80.9.0
+      - name: simdjson
+        version: 3.13.0
+      - name: six
+        version: 1.17.0
+      - name: sysroot_linux-64
+        version: '2.28'
+      - name: tk
+        version: 8.6.13
+      - name: tomli
+        version: 2.2.1
+      - name: tornado
+        version: 6.5.1
+      - name: typing_extensions
+        version: 4.14.1
+      - name: tzdata
+        version: 2025b
+      - name: vir-simd
+        version: 0.4.4
+      - name: virtualenv
+        version: 20.33.1
+      - name: wayland
+        version: 1.24.0
+      - name: wheel
+        version: 0.45.1
+      - name: xcb-util
+        version: 0.4.1
+      - name: xcb-util-cursor
+        version: 0.1.5
+      - name: xcb-util-image
+        version: 0.4.0
+      - name: xcb-util-keysyms
+        version: 0.4.1
+      - name: xcb-util-renderutil
+        version: 0.3.10
+      - name: xcb-util-wm
+        version: 0.4.2
+      - name: xkeyboard-config
+        version: '2.45'
+      - name: xorg-libice
+        version: 1.1.2
+      - name: xorg-libsm
+        version: 1.2.6
+      - name: xorg-libx11
+        version: 1.8.12
+      - name: xorg-libxau
+        version: 1.0.12
+      - name: xorg-libxcomposite
+        version: 0.4.6
+      - name: xorg-libxcursor
+        version: 1.2.3
+      - name: xorg-libxdamage
+        version: 1.1.6
+      - name: xorg-libxdmcp
+        version: 1.1.5
+      - name: xorg-libxext
+        version: 1.3.6
+      - name: xorg-libxfixes
+        version: 6.0.1
+      - name: xorg-libxi
+        version: 1.8.2
+      - name: xorg-libxrandr
+        version: 1.5.4
+      - name: xorg-libxrender
+        version: 0.9.12
+      - name: xorg-libxtst
+        version: 1.2.5
+      - name: xorg-libxxf86vm
+        version: 1.1.6
+      - name: yaml-cpp
+        version: 0.8.0
+      - name: zipp
+        version: 3.23.0
+      - name: zstd
+        version: 1.5.7
+      gh_owner: BLAST-ImpactX
+      version: development
+    htu_1000:
+      npart: 1000
+      push_per_sec: 45455.86780706348
+      scenario: htu
+      track_ns: 21999360
+    htu_10000:
+      npart: 10000
+      push_per_sec: 216919.92791316955
+      scenario: htu
+      track_ns: 46099960
+    htu_100000:
+      npart: 100000
+      push_per_sec: 238897.31421319
+      scenario: htu
+      track_ns: 418589888
+    htu_1000000:
+      npart: 1000000
+      push_per_sec: 242357.75972489564
+      scenario: htu
+      track_ns: 4126131555
 impactx-6cpu-fm-simd-dp:
   axel-dell:
     config:
@@ -14575,6 +20104,479 @@ impactx-6cpu-fm-simd-dp:
       push_per_sec: 67437.98485995876
       scenario: spacecharge
       track_ns: 14828438336
+  perlmutter:
+    config:
+      CXXFLAGS: -march=native -ffast-math
+      ImpactX_COMPUTE: OMP
+      ImpactX_PRECISION: DOUBLE
+      ImpactX_SIMD: 'ON'
+      OMP_NUM_THREADS: '6'
+      code: impactx
+      env_file: benchmark-cpu-conda.yaml
+      env_name: benchmark-cpu
+      env_packages:
+      - name: _libgcc_mutex
+        version: '0.1'
+      - name: _openmp_mutex
+        version: '4.5'
+      - name: alsa-lib
+        version: 1.2.14
+      - name: amrex
+        version: '25.7'
+      - name: binutils
+        version: '2.44'
+      - name: binutils_impl_linux-64
+        version: '2.44'
+      - name: binutils_linux-64
+        version: '2.44'
+      - name: brotli
+        version: 1.1.0
+      - name: brotli-bin
+        version: 1.1.0
+      - name: bzip2
+        version: 1.0.8
+      - name: c-ares
+        version: 1.34.5
+      - name: c-compiler
+        version: 1.11.0
+      - name: ca-certificates
+        version: 2025.8.3
+      - name: cairo
+        version: 1.18.4
+      - name: ccache
+        version: 4.11.3
+      - name: cmake
+        version: 4.1.0
+      - name: colorama
+        version: 0.4.6
+      - name: compilers
+        version: 1.11.0
+      - name: conda-gcc-specs
+        version: 14.3.0
+      - name: contourpy
+        version: 1.3.3
+      - name: cpp-expected
+        version: 1.1.0
+      - name: cxx-compiler
+        version: 1.11.0
+      - name: cycler
+        version: 0.12.1
+      - name: cyrus-sasl
+        version: 2.1.28
+      - name: dbus
+        version: 1.16.2
+      - name: distlib
+        version: 0.4.0
+      - name: double-conversion
+        version: 3.3.1
+      - name: doxygen
+        version: 1.13.2
+      - name: exceptiongroup
+        version: 1.3.0
+      - name: fftw
+        version: 3.3.10
+      - name: filelock
+        version: 3.18.0
+      - name: fmt
+        version: 11.2.0
+      - name: font-ttf-dejavu-sans-mono
+        version: '2.37'
+      - name: font-ttf-inconsolata
+        version: '3.000'
+      - name: font-ttf-source-code-pro
+        version: '2.038'
+      - name: font-ttf-ubuntu
+        version: '0.83'
+      - name: fontconfig
+        version: 2.15.0
+      - name: fonts-conda-ecosystem
+        version: '1'
+      - name: fonts-conda-forge
+        version: '1'
+      - name: fonttools
+        version: 4.59.0
+      - name: fortran-compiler
+        version: 1.11.0
+      - name: freetype
+        version: 2.13.3
+      - name: gcc
+        version: 14.3.0
+      - name: gcc_impl_linux-64
+        version: 14.3.0
+      - name: gcc_linux-64
+        version: 14.3.0
+      - name: gfortran
+        version: 14.3.0
+      - name: gfortran_impl_linux-64
+        version: 14.3.0
+      - name: gfortran_linux-64
+        version: 14.3.0
+      - name: git
+        version: 2.49.0
+      - name: graphite2
+        version: 1.3.14
+      - name: gxx
+        version: 14.3.0
+      - name: gxx_impl_linux-64
+        version: 14.3.0
+      - name: gxx_linux-64
+        version: 14.3.0
+      - name: harfbuzz
+        version: 11.3.3
+      - name: icu
+        version: '75.1'
+      - name: impactx
+        version: '25.7'
+      - name: importlib-metadata
+        version: 8.7.0
+      - name: iniconfig
+        version: 2.0.0
+      - name: kernel-headers_linux-64
+        version: 4.18.0
+      - name: keyutils
+        version: 1.6.1
+      - name: kiwisolver
+        version: 1.4.8
+      - name: krb5
+        version: 1.21.3
+      - name: lcms2
+        version: '2.17'
+      - name: ld_impl_linux-64
+        version: '2.44'
+      - name: lerc
+        version: 4.0.0
+      - name: libarchive
+        version: 3.8.1
+      - name: libblas
+        version: 3.9.0
+      - name: libbrotlicommon
+        version: 1.1.0
+      - name: libbrotlidec
+        version: 1.1.0
+      - name: libbrotlienc
+        version: 1.1.0
+      - name: libcblas
+        version: 3.9.0
+      - name: libclang-cpp20.1
+        version: 20.1.8
+      - name: libclang13
+        version: 20.1.8
+      - name: libcups
+        version: 2.3.3
+      - name: libcurl
+        version: 8.14.1
+      - name: libdeflate
+        version: '1.24'
+      - name: libdrm
+        version: 2.4.125
+      - name: libedit
+        version: 3.1.20250104
+      - name: libegl
+        version: 1.7.0
+      - name: libev
+        version: '4.33'
+      - name: libexpat
+        version: 2.7.1
+      - name: libffi
+        version: 3.4.6
+      - name: libfreetype
+        version: 2.13.3
+      - name: libfreetype6
+        version: 2.13.3
+      - name: libgcc
+        version: 15.1.0
+      - name: libgcc-devel_linux-64
+        version: 14.3.0
+      - name: libgcc-ng
+        version: 15.1.0
+      - name: libgfortran
+        version: 15.1.0
+      - name: libgfortran-ng
+        version: 15.1.0
+      - name: libgfortran5
+        version: 15.1.0
+      - name: libgl
+        version: 1.7.0
+      - name: libglib
+        version: 2.84.3
+      - name: libglvnd
+        version: 1.7.0
+      - name: libglx
+        version: 1.7.0
+      - name: libgomp
+        version: 15.1.0
+      - name: libhiredis
+        version: 1.0.2
+      - name: libiconv
+        version: '1.18'
+      - name: libjpeg-turbo
+        version: 3.1.0
+      - name: liblapack
+        version: 3.9.0
+      - name: libllvm20
+        version: 20.1.8
+      - name: liblzma
+        version: 5.8.1
+      - name: libmamba
+        version: 2.3.1
+      - name: libmpdec
+        version: 4.0.0
+      - name: libnghttp2
+        version: 1.64.0
+      - name: libntlm
+        version: '1.8'
+      - name: libopenblas
+        version: 0.3.30
+      - name: libopengl
+        version: 1.7.0
+      - name: libpciaccess
+        version: '0.18'
+      - name: libpng
+        version: 1.6.50
+      - name: libpq
+        version: '17.5'
+      - name: libsanitizer
+        version: 14.3.0
+      - name: libsolv
+        version: 0.7.35
+      - name: libsqlite
+        version: 3.50.4
+      - name: libssh2
+        version: 1.11.1
+      - name: libstdcxx
+        version: 15.1.0
+      - name: libstdcxx-devel_linux-64
+        version: 14.3.0
+      - name: libstdcxx-ng
+        version: 15.1.0
+      - name: libtiff
+        version: 4.7.0
+      - name: libuuid
+        version: 2.38.1
+      - name: libuv
+        version: 1.51.0
+      - name: libwebp-base
+        version: 1.6.0
+      - name: libxcb
+        version: 1.17.0
+      - name: libxcrypt
+        version: 4.4.36
+      - name: libxkbcommon
+        version: 1.10.0
+      - name: libxml2
+        version: 2.13.8
+      - name: libxslt
+        version: 1.1.43
+      - name: libzlib
+        version: 1.3.1
+      - name: lz4-c
+        version: 1.10.0
+      - name: lzo
+        version: '2.10'
+      - name: mamba
+        version: 2.3.1
+      - name: matplotlib
+        version: 3.10.5
+      - name: matplotlib-base
+        version: 3.10.5
+      - name: munkres
+        version: 1.1.4
+      - name: ncurses
+        version: '6.5'
+      - name: ninja
+        version: 1.13.1
+      - name: nlohmann_json
+        version: 3.11.3
+      - name: numpy
+        version: 2.3.2
+      - name: openjpeg
+        version: 2.5.3
+      - name: openldap
+        version: 2.6.10
+      - name: openssl
+        version: 3.5.1
+      - name: packaging
+        version: '25.0'
+      - name: pandas
+        version: 2.3.1
+      - name: pcre2
+        version: '10.45'
+      - name: perl
+        version: 5.32.1
+      - name: pillow
+        version: 11.3.0
+      - name: pip
+        version: '25.2'
+      - name: pixman
+        version: 0.46.4
+      - name: pkg-config
+        version: 0.29.2
+      - name: platformdirs
+        version: 4.3.8
+      - name: pluggy
+        version: 1.6.0
+      - name: pthread-stubs
+        version: '0.4'
+      - name: py-cpuinfo
+        version: 9.0.0
+      - name: pygments
+        version: 2.19.2
+      - name: pyparsing
+        version: 3.2.3
+      - name: pyproject_hooks
+        version: 1.2.0
+      - name: pyside6
+        version: 6.9.1
+      - name: pytest
+        version: 8.4.1
+      - name: pytest-benchmark
+        version: 5.1.0
+      - name: python
+        version: 3.13.5
+      - name: python-build
+        version: 1.3.0
+      - name: python-dateutil
+        version: 2.9.0.post0
+      - name: python-tzdata
+        version: '2025.2'
+      - name: python_abi
+        version: '3.13'
+      - name: pytz
+        version: '2025.2'
+      - name: qhull
+        version: '2020.2'
+      - name: qt6-main
+        version: 6.9.1
+      - name: quantiphy
+        version: '2.20'
+      - name: readline
+        version: '8.2'
+      - name: reproc
+        version: 14.2.5.post0
+      - name: reproc-cpp
+        version: 14.2.5.post0
+      - name: rhash
+        version: 1.4.6
+      - name: scipy
+        version: 1.16.0
+      - name: setuptools
+        version: 80.9.0
+      - name: simdjson
+        version: 3.13.0
+      - name: six
+        version: 1.17.0
+      - name: sysroot_linux-64
+        version: '2.28'
+      - name: tk
+        version: 8.6.13
+      - name: tomli
+        version: 2.2.1
+      - name: tornado
+        version: 6.5.1
+      - name: typing_extensions
+        version: 4.14.1
+      - name: tzdata
+        version: 2025b
+      - name: vir-simd
+        version: 0.4.4
+      - name: virtualenv
+        version: 20.33.1
+      - name: wayland
+        version: 1.24.0
+      - name: wheel
+        version: 0.45.1
+      - name: xcb-util
+        version: 0.4.1
+      - name: xcb-util-cursor
+        version: 0.1.5
+      - name: xcb-util-image
+        version: 0.4.0
+      - name: xcb-util-keysyms
+        version: 0.4.1
+      - name: xcb-util-renderutil
+        version: 0.3.10
+      - name: xcb-util-wm
+        version: 0.4.2
+      - name: xkeyboard-config
+        version: '2.45'
+      - name: xorg-libice
+        version: 1.1.2
+      - name: xorg-libsm
+        version: 1.2.6
+      - name: xorg-libx11
+        version: 1.8.12
+      - name: xorg-libxau
+        version: 1.0.12
+      - name: xorg-libxcomposite
+        version: 0.4.6
+      - name: xorg-libxcursor
+        version: 1.2.3
+      - name: xorg-libxdamage
+        version: 1.1.6
+      - name: xorg-libxdmcp
+        version: 1.1.5
+      - name: xorg-libxext
+        version: 1.3.6
+      - name: xorg-libxfixes
+        version: 6.0.1
+      - name: xorg-libxi
+        version: 1.8.2
+      - name: xorg-libxrandr
+        version: 1.5.4
+      - name: xorg-libxrender
+        version: 0.9.12
+      - name: xorg-libxtst
+        version: 1.2.5
+      - name: xorg-libxxf86vm
+        version: 1.1.6
+      - name: yaml-cpp
+        version: 0.8.0
+      - name: zipp
+        version: 3.23.0
+      - name: zstd
+        version: 1.5.7
+      gh_owner: BLAST-ImpactX
+      version: development
+    htu_1000:
+      npart: 1000
+      push_per_sec: 290402.37572375534
+      scenario: htu
+      track_ns: 3443498
+    htu_10000:
+      npart: 10000
+      push_per_sec: 203126.22224856543
+      scenario: htu
+      track_ns: 49230473
+    htu_100000:
+      npart: 100000
+      push_per_sec: 221767.96651850143
+      scenario: htu
+      track_ns: 450921752
+    htu_1000000:
+      npart: 1000000
+      push_per_sec: 221750.0234843254
+      scenario: htu
+      track_ns: 4509582386
+    spacecharge_1000:
+      npart: 1000
+      push_per_sec: 42.89996288452654
+      scenario: spacecharge
+      track_ns: 23310043477
+    spacecharge_10000:
+      npart: 10000
+      push_per_sec: 428.5694288052496
+      scenario: spacecharge
+      track_ns: 23333442210
+    spacecharge_100000:
+      npart: 100000
+      push_per_sec: 4297.078741439665
+      scenario: spacecharge
+      track_ns: 23271623821
+    spacecharge_1000000:
+      npart: 1000000
+      push_per_sec: 42736.469831788214
+      scenario: spacecharge
+      track_ns: 23399218605
 impactx-cuda-fm:
   axel-dell:
     config:
