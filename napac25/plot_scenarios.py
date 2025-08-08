@@ -169,7 +169,8 @@ for key, value in timings.items():
     if hostname in timings[key]:
         code_configs += [key]
 
-fig, ax = plt.subplots(figsize=(4.5, 2.2), layout='constrained')
+fig = plt.figure(figsize=(4.7, 2.2))  #, layout='constrained')
+ax = fig.gca()
 
 x = np.arange(len(scenarios))  # the label locations
 
@@ -277,5 +278,6 @@ offset_text = ax.yaxis.get_offset_text()
 # Coordinates are in axes coordinates (0 to 1)
 offset_text.set_position((-0.1, 1.0))
 
+plt.tight_layout()
 plt.show()
 
