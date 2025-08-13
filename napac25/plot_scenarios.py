@@ -59,6 +59,8 @@ def filter_config(config_name, code_config_vals):
             return True
             
     if napac_figure == 3:
+        if not "1cpu" in config_name:
+            return True
         if "6cpu" in config_name:
             return True
         if not "dp" in config_name:
@@ -96,8 +98,8 @@ if napac_figure == 2:
 #scenarios = ["spacecharge_1000", "spacecharge_10000", "spacecharge_100000", "spacecharge_1000000"]
 #scenario_labels = ["1k", "10k", "100k", "1M"]
 if napac_figure == 3:
-    scenarios = ["spacecharge_1000000"]
-    scenario_labels = ["1M"]
+    scenarios = ["spacecharge_1000000", "spacecharge_1000000"]
+    scenario_labels = ["1M", "1M"]
 
 # coloring & hatching of bar plots
 code_config_colors = {
@@ -241,18 +243,18 @@ for code_config in code_configs:
 
 ymin_data, ymax_data = ax.get_ylim()
 if napac_figure == 3:
-    ax.set_yscale('log')
-    ax.set_ylim(None, ymax_data * 4)
+    #ax.set_yscale('log')
+    ax.set_ylim(ymin_data, ymax_data * 1.5)
 else:
     ax.set_ylim(ymin_data, ymax_data * 1.15)
 
 # fix weird ordering columns/rows
 handles, labels = ax.get_legend_handles_labels()
-if napac_figure == 3:
-    new_order = [0, 2, 4, 1, 3, 5]
-    reordered_handles = [handles[i] for i in new_order]
-    reordered_labels = [labels[i] for i in new_order]
-    handles, labels = reordered_handles, reordered_labels
+#if napac_figure == 3:
+#    new_order = [0, 2, 4, 1, 3, 5]
+#    reordered_handles = [handles[i] for i in new_order]
+#    reordered_labels = [labels[i] for i in new_order]
+#    handles, labels = reordered_handles, reordered_labels
 
 ax.legend(
     handles,
@@ -271,8 +273,8 @@ ax.set_xticks(
 ax.set_xlabel("particles / beam")
 ax.set_ylabel("particles / second")
 
-if napac_figure != 3:
-    plt.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
+#if napac_figure != 3:
+plt.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
 offset_text = ax.yaxis.get_offset_text()
 # Set a new position for the offset text (e.g., slightly to the right and up)
 # Coordinates are in axes coordinates (0 to 1)
