@@ -1,11 +1,30 @@
+# pixi
+.pixi/
+
+# from-source builds (cloned sources, build trees, per-config installs)
+.builds/
+
+# Bmad: compiled Fortran driver + cmake build trees (rebuilt by codes/bmad/build.sh)
+codes/bmad/bmad_driver
+codes/bmad/production/
+codes/bmad/driver/production/
+
+# generated benchmark artifacts (these live on the `benchmarks` branch instead)
+results/
+plots/
+# per-run manifests: template-resolved input file(s) + run.sh (command+env). Published to the
+# benchmarks branch for author review; run OUTPUTS are never written here.
+runs/
+
+# diagnostics from runs
 diags*
+# AMReX/ImpactX crash backtraces (e.g. the ImpactX 2.5D-SC GPU segfault)
+Backtrace.*
 
 # python
-__pycache__
+__pycache__/
 *.pyc
 
-# napac25
-## jinja files
-napac25/install.sh
-napac25/run_cheetah_impactx.py
-napac25/spacecharge_cheetah_impactx.py
+# Perlmutter SLURM job stdout/stderr
+bench-*.o*
+bench-*.e*

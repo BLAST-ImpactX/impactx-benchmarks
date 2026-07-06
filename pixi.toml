@@ -1,0 +1,344 @@
+# Pixi workspace for the impactx-benchmarks suite.
+#
+# One isolated environment per simulation code, plus a "default" driver
+# environment that orchestrates the runs, validates physics, and plots.
+#
+# The driver shells out to each code environment via `pixi run -e <code> ...`.
+# Native build flags (-march=native -mtune=native) are injected per code via
+# `[feature.<code>.activation.env]`, which applies both locally and in CI
+# (the runner is always the host that executes the benchmark).
+#
+# Usage:
+#   pixi run build          # compile/install the from-source codes
+#   pixi run bench          # run the benchmark matrix (append CLI flags after --)
+#   pixi run validate       # re-run physics validation on stored results
+#   pixi run plot           # (re)generate plots from stored results
+#   pixi run metadata       # print host/OS/CPU/compiler + resolved versions
+#   pixi run publish        # (opt-in) commit results+plots to the benchmarks branch
+
+[workspace]
+name = "impactx-benchmarks"
+version = "0.1.0"
+description = "Automated correctness & performance benchmarks of beam-dynamics codes."
+authors = ["Axel Huebl <axelhuebl@lbl.gov>"]
+channels = ["conda-forge"]
+platforms = ["linux-64"]
+
+# Target Perlmutter's system glibc (2.38) so a lock solved on a newer host (e.g. local Ubuntu
+# glibc 2.39, or CI) stays valid there and pixi never selects a build needing glibc > 2.38.
+# conda-forge sysroot_linux-64 maxes at 2.34 (<= 2.38), so every native build is Perlmutter-safe;
+# the runtime libstdc++/libgcc (15.x) and gcc (14.x) are already the latest for best SIMD codegen.
+[system-requirements]
+libc = { family = "glibc", version = "2.38" }
+
+# --------------------------------------------------------------------------- #
+# Default feature = the orchestrator / driver / plotter environment.
+# --------------------------------------------------------------------------- #
+[dependencies]
+python = ">=3.11"
+jinja2 = "*"
+pyyaml = "*"
+numpy = "*"
+scipy = "*"
+matplotlib-base = "*"
+archspec = "*"   # CPU microarchitecture name for metadata (CI runner pool varies)
+
+[tasks]
+bench = { cmd = "python -m benchmarks.runner", description = "Run the benchmark matrix" }
+validate = { cmd = "python -m benchmarks.validate", description = "Validate physics of stored results" }
+plot = { cmd = "python -m benchmarks.plotting", description = "Generate plots from stored results" }
+metadata = { cmd = "python -m benchmarks.metadata", description = "Print host/env metadata" }
+publish = { cmd = "python -m benchmarks.publish", description = "Publish results to the benchmarks branch" }
+build = { cmd = "python -m benchmarks.build", description = "Build/install the from-source codes" }
+
+# --------------------------------------------------------------------------- #
+# ImpactX (source build: CMake/Ninja, OpenMP + SIMD + FFT, SP/DP).
+# --------------------------------------------------------------------------- #
+[feature.impactx]
+platforms = ["linux-64"]
+
+[feature.impactx.dependencies]
+python = ">=3.11"
+pip = "*"
+c-compiler = "*"
+cxx-compiler = "*"
+cmake = "*"
+ninja = "*"
+fftw = "*"
+vir-simd = "*"   # required by ImpactX_SIMD=ON (AMReX explicit SIMD backend)
+pkg-config = "*"
+numpy = "*"
+scipy = "*"      # ImpactX runtime dep (per conda-forge feedstock)
+quantiphy = "*"  # ImpactX runtime dep (per conda-forge feedstock)
+pandas = "*"     # beam.to_df() for per-particle spin readout (htu_spin)
+mpich = "*"            # ImpactX MPI build (ranks); OpenMP+MPI hybrid
+mpi4py = "*"
+libfabric-devel = "*"  # MPICH -lfabric link
+ccache = "*"
+
+[feature.impactx.activation.env]
+CXXFLAGS = "-march=native -mtune=native"
+CFLAGS = "-march=native -mtune=native"
+
+[feature.impactx.tasks]
+build-impactx = { cmd = "bash codes/impactx/build.sh", description = "Clone & compile ImpactX (DP)" }
+build-impactx-sp = { cmd = "IMPACTX_PRECISION=SINGLE bash codes/impactx/build.sh", description = "Compile ImpactX single-precision (into the impactx-sp env)" }
+# GPU (CUDA) builds: separate tree+env per precision (cuda-dp/cuda-sp). Set CUDA_ARCH for your GPU
+# (default 80 = A100/Perlmutter; e.g. 70=V100, 86=RTX30xx, 90=H100). Builds done tomorrow.
+build-impactx-cuda-dp = { cmd = "IMPACTX_DEVICE=cuda IMPACTX_PRECISION=DOUBLE bash codes/impactx/build.sh", description = "Compile ImpactX CUDA double (into impactx-cuda-dp)" }
+build-impactx-cuda-sp = { cmd = "IMPACTX_DEVICE=cuda IMPACTX_PRECISION=SINGLE bash codes/impactx/build.sh", description = "Compile ImpactX CUDA single (into impactx-cuda-sp)" }
+
+# --------------------------------------------------------------------------- #
+# Shared CUDA toolchain feature (composed into the ImpactX GPU envs).
+# NOTE: versions to be pinned/verified during tomorrow's GPU builds.
+# --------------------------------------------------------------------------- #
+[feature.cuda]
+platforms = ["linux-64"]
+
+[feature.cuda.dependencies]
+cuda-toolkit = "*"     # nvcc + CUDA libs for the ImpactX CUDA build
+cuda-nvtx-dev = "*"    # NVTX dev headers (nvtx3/nvToolsExt.h) -- AMReX_GpuDevice.cpp needs them;
+                       # cuda-toolkit ships only the nvtx runtime lib, not the headers
+cuda-version = "12.*"  # pin to match the host driver / Perlmutter at build time
+
+# NOTE: CUDA_ARCH is intentionally NOT pinned here -- codes/impactx/build.sh auto-detects the
+# GPU's compute capability (local A2000=86, Perlmutter A100=80) so the same env is portable.
+# Override with an explicit `CUDA_ARCH=<n>` env at build time if needed.
+
+# --------------------------------------------------------------------------- #
+# Cheetah (pip; PyTorch CPU; torch.compile/Inductor).
+# --------------------------------------------------------------------------- #
+[feature.cheetah.dependencies]
+python = ">=3.11"
+numpy = "*"
+scipy = "*"
+pytorch = { version = "*", channel = "conda-forge" }   # CPU build from conda-forge
+
+[feature.cheetah.pypi-dependencies]
+cheetah-accelerator = "==0.8.2"
+
+[feature.cheetah.activation.env]
+# Persistent Inductor cache so torch.compile artifacts survive across the auto-tune layout
+# subprocesses AND across runs/sessions (default is volatile /tmp/torchinductor_*). fx_graph_cache
+# is on by default in torch 2.12; this just makes it durable + repo-local. Compile-only; the
+# timed track reuses the in-process kernel either way, so measured numbers are unaffected.
+TORCHINDUCTOR_CACHE_DIR = "$PIXI_PROJECT_ROOT/.builds/cache/torchinductor"
+TORCHINDUCTOR_FX_GRAPH_CACHE = "1"
+
+# --------------------------------------------------------------------------- #
+# pyAT (source build for -march=native + OpenMP; DP only).
+# --------------------------------------------------------------------------- #
+[feature.pyat.dependencies]
+python = ">=3.11"
+pip = "*"
+c-compiler = "*"
+numpy = "*"
+scipy = "*"
+h5py = "*"
+
+[feature.pyat.activation.env]
+CFLAGS = "-O3 -march=native -mtune=native"
+OPENMP = "1"          # accelerator-toolbox setup.py reads this to enable OpenMP
+
+[feature.pyat.tasks]
+build-pyat = { cmd = "bash codes/pyat/build.sh", description = "Build pyAT from source (OpenMP+native)" }
+
+# --------------------------------------------------------------------------- #
+# PyORBIT3 (source build: Meson/C++/FFTW, MPI; DP only).
+# --------------------------------------------------------------------------- #
+[feature.pyorbit.dependencies]
+python = ">=3.11"
+pip = "*"
+c-compiler = "*"
+cxx-compiler = "*"
+meson = "*"
+meson-python = "*"
+ninja = "*"
+fftw = "*"
+pkg-config = "*"
+mpich = "*"
+mpi4py = "*"
+libfabric-devel = "*"  # provides libfabric.so dev symlink for MPICH's -lfabric link
+numpy = "*"
+scipy = "*"           # htu_lattice.py uses scipy.constants
+git = "*"             # meson.build derives the version via setuptools_scm + git
+setuptools_scm = "*"
+patchelf = "*"        # meson-python uses it for RPATH fixup of the built extensions
+
+[feature.pyorbit.activation.env]
+CXXFLAGS = "-march=native -mtune=native"
+CFLAGS = "-march=native -mtune=native"
+
+[feature.pyorbit.tasks]
+build-pyorbit = { cmd = "bash codes/pyorbit/build.sh", description = "Clone & compile PyORBIT3" }
+
+# --------------------------------------------------------------------------- #
+# Xsuite (pip; cffi JIT kernels w/ native flags via CFLAGS; OpenMP context).
+# --------------------------------------------------------------------------- #
+[feature.xsuite.dependencies]
+python = ">=3.11"
+pip = "*"
+setuptools = "*"      # cffi runtime kernel compilation needs it on Python >= 3.12
+c-compiler = "*"      # for on-the-fly cffi kernel compilation
+numpy = "*"
+scipy = "*"
+
+[feature.xsuite.activation.env]
+# cffi/distutils append CFLAGS when compiling Xsuite's runtime kernels. -ffast-math = the
+# fast-math-ON baseline (xobjects itself passes no fast-math; see machines/PERLMUTTER.md). The
+# kernel-cache salt includes CFLAGS, so this auto-invalidates the cache. -march=native is correct
+# on Perlmutter too (the cffi JIT compiles on the compute node = znver3).
+CFLAGS = "-O3 -march=native -mtune=native -ffast-math"
+# Fixed hash seed so the generated kernel source (hence our persistent kernel-cache key) is
+# deterministic across processes; pairs with scenarios/_xsuite_kernel_cache.py. Affects only
+# dict/set iteration order, never the physics (numpy RNG is separately seeded).
+PYTHONHASHSEED = "0"
+# persistent compiled-kernel cache (repo-local, gitignored); reused across auto-tune layouts + runs
+XSUITE_KERNEL_CACHE = "$PIXI_PROJECT_ROOT/.builds/cache/xsuite_kernels"
+
+[feature.xsuite.pypi-dependencies]
+xsuite = "==0.53.4"
+
+# --------------------------------------------------------------------------- #
+# SciBmad.jl (Julia registry package; native LLVM codegen; SP/DP).
+# --------------------------------------------------------------------------- #
+[feature.scibmad.dependencies]
+julia = ">=1.11"      # >=1.11 avoids the conda-forge Pkg.add SSL/CA bug
+
+[feature.scibmad.activation.env]
+JULIA_SSL_CA_ROOTS_PATH = ""    # belt-and-suspenders for the SSL/CA issue
+
+[feature.scibmad.tasks]
+build-scibmad = { cmd = "julia --project=codes/scibmad codes/scibmad/build.jl", description = "Instantiate the SciBmad Julia project" }
+
+# --------------------------------------------------------------------------- #
+# GPU (CUDA) envs for the pip/Julia codes (run on 1 GPU; DP/SP at runtime).
+# NOTE: CUDA package builds/versions to be verified during tomorrow's GPU builds.
+# --------------------------------------------------------------------------- #
+[feature.cheetah-gpu]
+platforms = ["linux-64"]
+
+# Tell the solver the target has a CUDA driver, so conda-forge picks the CUDA pytorch build
+# (the `cuda*_mkl_*` variants depend on the __cuda virtual package) instead of the cpu_mkl one.
+# pixi does NOT probe the driver by default. "12" = needs CUDA >=12 driver (host driver 610 >> that).
+[feature.cheetah-gpu.system-requirements]
+cuda = "12"
+
+[feature.cheetah-gpu.dependencies]
+# conda-forge ships CUDA pytorch only for py3.12/3.13 (no py3.14 cuda build yet), so pin 3.13.
+python = "3.13.*"
+numpy = "*"
+scipy = "*"
+# CUDA-enabled PyTorch (the cuda build is selected via the __cuda system-requirement above)
+pytorch = { version = "*", channel = "conda-forge" }
+cuda-version = "12.*"
+# torch.compile(inductor) on GPU codegens a `cuda_utils.c` launcher via Triton, which needs the
+# CUDA driver header (cuda.h, from cuda-driver-dev), the runtime headers (cuda-cudart-dev), ptxas
+# (cuda-nvcc), and a host C compiler. Without these the eager path works but compiled fails.
+cuda-driver-dev = "*"
+cuda-cudart-dev = "*"
+cuda-nvcc = "*"
+c-compiler = "*"
+
+[feature.cheetah-gpu.pypi-dependencies]
+cheetah-accelerator = "==0.8.2"
+
+[feature.cheetah-gpu.activation.env]
+TORCHINDUCTOR_CACHE_DIR = "$PIXI_PROJECT_ROOT/.builds/cache/torchinductor-gpu"
+TORCHINDUCTOR_FX_GRAPH_CACHE = "1"
+# point Triton/Inductor at the conda CUDA headers (where cuda.h / cuda_runtime.h live)
+CUDA_HOME = "$CONDA_PREFIX/targets/x86_64-linux"
+
+[feature.xsuite-gpu]
+platforms = ["linux-64"]
+
+[feature.xsuite-gpu.dependencies]
+python = ">=3.11"
+numpy = "*"
+scipy = "*"
+cupy = "*"             # xobjects ContextCupy backend (GPU FFT native; no scipy/pyfftw shim needed)
+cuda-version = "12.*"
+
+[feature.xsuite-gpu.pypi-dependencies]
+xsuite = "==0.53.4"
+
+# scibmad GPU reuses the scibmad (Julia) feature; only the build task + project differ.
+[feature.scibmad-gpu]
+platforms = ["linux-64"]
+
+[feature.scibmad-gpu.dependencies]
+julia = ">=1.11"
+
+[feature.scibmad-gpu.activation.env]
+JULIA_SSL_CA_ROOTS_PATH = ""
+
+[feature.scibmad-gpu.tasks]
+build-scibmad-gpu = { cmd = "julia --project=codes/scibmad-gpu codes/scibmad-gpu/build.jl", description = "Instantiate the SciBmad GPU Julia project (+ CUDA.jl)" }
+
+# --------------------------------------------------------------------------- #
+# Bmad (Fortran; native source build of bmad-ecosystem; driven by a small Fortran
+# driver linked to libbmad -- NO Tao/pytao). Deps mirror bmad-ecosystem's
+# .github/bmad-build-env.yaml (minus MPI/python). OpenMP + production -O2.
+# --------------------------------------------------------------------------- #
+[feature.bmad]
+platforms = ["linux-64"]
+
+[feature.bmad.dependencies]
+compilers = "*"        # gfortran + gcc/g++
+cmake = "*"
+make = "*"
+autoconf = "*"
+automake = "*"
+libtool = "*"
+m4 = "*"
+pkg-config = "*"
+gnuconfig = "*"
+git = "*"
+fftw = "*"
+gsl = "*"
+fgsl = "*"
+hdf5 = "*"
+lapack95 = "*"
+openblas = "*"
+libblas = { version = "*", build = "*openblas" }
+libcblas = "*"
+liblapack = "*"
+ncurses = "*"
+readline = "*"
+pgplot = "*"           # sim_utils quick_plot links a plot lib (ACC_PLOT_PACKAGE=pgplot)
+cairo = "*"
+pango = "*"
+xraylib = "*"
+xorg-libx11 = "*"
+xorg-libxt = "*"
+xorg-xproto = "*"
+
+[feature.bmad.activation.env]
+# native production flags; ACC_* build knobs are written to util/user_prefs by build.sh
+FFLAGS = "-O2 -march=native -mtune=native"
+FCFLAGS = "-O2 -march=native -mtune=native"
+
+[feature.bmad.tasks]
+build-bmad = { cmd = "bash codes/bmad/build.sh", description = "Source-build Bmad + the Fortran driver" }
+
+# --------------------------------------------------------------------------- #
+# Environments: each code is isolated (no driver deps leak in).
+# --------------------------------------------------------------------------- #
+[environments]
+default = { features = [], solve-group = "default" }
+impactx = { features = ["impactx"], no-default-feature = true }
+cheetah = { features = ["cheetah"], no-default-feature = true }
+pyat = { features = ["pyat"], no-default-feature = true }
+pyorbit = { features = ["pyorbit"], no-default-feature = true }
+xsuite = { features = ["xsuite"], no-default-feature = true }
+scibmad = { features = ["scibmad"], no-default-feature = true }
+bmad = { features = ["bmad"], no-default-feature = true }
+# single-precision ImpactX lives in its own env (separate SP-compiled build of the same source)
+impactx-sp = { features = ["impactx"], no-default-feature = true }
+# GPU (CUDA) envs: ImpactX needs a separate CUDA build per precision (impactx + cuda features);
+# the pip/Julia codes get one GPU env each (precision is a runtime switch). 1 GPU by default.
+impactx-cuda-dp = { features = ["impactx", "cuda"], no-default-feature = true }
+impactx-cuda-sp = { features = ["impactx", "cuda"], no-default-feature = true }
+cheetah-gpu = { features = ["cheetah-gpu"], no-default-feature = true }
+xsuite-gpu = { features = ["xsuite-gpu"], no-default-feature = true }
+scibmad-gpu = { features = ["scibmad-gpu"], no-default-feature = true }

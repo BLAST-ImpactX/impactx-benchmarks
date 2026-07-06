@@ -1,0 +1,3 @@
+[deps]
+CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
+SciBmad = "7bf6e793-a2ec-421f-8700-d1465381ee80"

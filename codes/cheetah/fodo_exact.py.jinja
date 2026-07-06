@@ -1,0 +1,81 @@
+#!/usr/bin/env python3
+# Auto-generated benchmark run script: cheetah / fodo_exact.
+# drift_kick_drift IS the exact (Bmad) non-paraxial map -- native exact FODO model.
+import json
+
+import torch
+
+import cheetah
+
+from scenarios._obs import Timer, beam_observables
+
+try:
+    torch.set_num_interop_threads({{ ncores }})  # match compute thread count
+except RuntimeError:
+    pass
+torch.set_num_threads({{ ncores }})
+torch.set_default_dtype(torch.{{ dtype }})
+torch.set_default_device("{{ device }}")
+torch.set_float32_matmul_precision("highest")
+
+p = {{ params }}
+npart = {{ npart }}
+total_energy_eV = (p["kin_energy_MeV"] + p["mass_MeV"]) * 1e6
+
+incoming = cheetah.ParticleBeam.from_twiss(
+    num_particles={{ npart }},
+    beta_x=torch.tensor(p["beta_x"]),
+    alpha_x=torch.tensor(p["alpha_x"]),
+    emittance_x=torch.tensor(p["emit_x"]),
+    beta_y=torch.tensor(p["beta_y"]),
+    alpha_y=torch.tensor(p["alpha_y"]),
+    emittance_y=torch.tensor(p["emit_y"]),
+    sigma_tau=torch.tensor(p["sigma_t"]),
+    sigma_p=torch.tensor(p["sigma_p"]),
+    energy=torch.tensor(total_energy_eV),
+)
+
+Lq = torch.tensor(p["quad_length"])
+Ld = torch.tensor(p["drift_length"])
+k1 = torch.tensor(p["k1"])
+# chromatic symplectic tracking (renamed from "bmadx" in newer Cheetah), NOT the
+# default purely-linear method, to match ImpactX/pyAT/Xsuite chromatic quad models
+TM = "drift_kick_drift"
+segment = cheetah.Segment(
+    elements=[
+        cheetah.Quadrupole(length=Lq, k1=k1, tracking_method=TM),
+        cheetah.Drift(length=Ld, tracking_method=TM),
+        cheetah.Quadrupole(length=Lq, k1=-k1, tracking_method=TM),
+        cheetah.Drift(length=Ld, tracking_method=TM),
+    ]
+)
+segment.to("{{ device }}")
+incoming.to("{{ device }}")
+
+{% if compile == "inductor" %}
+import torch._inductor.config as _ind
+_fast = {{ 'True' if fast_math else 'False' }}
+_ind.cpp.enable_unsafe_math_opt_flag = _fast
+_ind.cuda.use_fast_math = _fast
+_track = torch.compile(segment.track, backend="inductor")
+# warm-up on the SAME beam that is timed (compile + stabilize dynamo guards);
+# track is functional, so incoming is not mutated.
+for _ in range(3):
+    _track(incoming=incoming)
+with Timer() as t:
+    outgoing = _track(incoming=incoming)
+{% else %}
+segment.track(incoming=incoming)  # warm-up (NOT timed)
+with Timer() as t:
+    outgoing = segment.track(incoming=incoming)
+{% endif %}
+
+obs = beam_observables(
+    outgoing.x.detach().cpu().numpy(),
+    outgoing.px.detach().cpu().numpy(),
+    outgoing.y.detach().cpu().numpy(),
+    outgoing.py.detach().cpu().numpy(),
+)
+
+print(f"Track: {t.ns}ns")
+print("Validate: " + json.dumps(obs))

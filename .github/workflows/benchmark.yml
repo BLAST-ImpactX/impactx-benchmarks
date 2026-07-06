@@ -1,0 +1,110 @@
+name: benchmark
+
+# Continuous beam-dynamics benchmarks.
+#   * push to main        -> fast "smoke" subset (pip codes, small particle counts)
+#   * weekly schedule     -> full matrix (also compiles ImpactX/PyORBIT, Julia/SciBmad)
+#   * manual dispatch     -> full matrix, or a custom selection via inputs
+#
+# Results + plots are committed to the dedicated `benchmarks` branch and embedded
+# in the main README. Hosted runners are CPU-only -> the single public source of truth.
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 6 * * 1" # Mondays 06:00 UTC
+  workflow_dispatch:
+    inputs:
+      codes:
+        description: "Comma-separated codes (blank = all)"
+        default: ""
+      scenarios:
+        description: "Comma-separated scenarios (blank = all)"
+        default: ""
+      nparts:
+        description: "Comma-separated particle counts (blank = per-scenario sweep)"
+        default: ""
+      runs:
+        description: "Repetitions per measurement (min kept)"
+        default: "5"
+
+permissions:
+  contents: read
+
+# never let two publishing runs race on the benchmarks branch
+concurrency:
+  group: benchmark-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write # to push results/plots to the benchmarks branch
+    env:
+      BENCH_MACHINE_SLUG: github-ubuntu-24.04
+      BENCH_NCORES: "4"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: prefix-dev/setup-pixi@v0.9.6 # keep current via Dependabot
+        with:
+          pixi-version: v0.70.2
+          cache: true
+          run-install: false
+
+      - name: Select benchmark scope
+        id: scope
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "push" ]; then
+            # smoke: the quick-to-build codes (cheetah/xsuite pip, pyat source) on the
+            # tracking scenarios + small sizes -> fast regression + physics signal.
+            echo "codes=cheetah,pyat,xsuite"   >> "$GITHUB_OUTPUT"
+            echo "scenarios=fodo_chromatic,fodo_exact,htu" >> "$GITHUB_OUTPUT"
+            echo "nparts=1000,10000"           >> "$GITHUB_OUTPUT"
+            echo "runs=3"                      >> "$GITHUB_OUTPUT"
+          else
+            # full matrix: all 7 codes x 6 scenarios (fodo_chromatic, fodo_exact, htu,
+            # htu_spin, spacecharge[3D], spacecharge_2p5d). Also compiles ImpactX/PyORBIT,
+            # SciBmad, and Bmad (native Fortran libbmad build).
+            # dispatch inputs override; blanks => all codes / all scenarios / per-scenario sweep.
+            echo "codes=${{ github.event.inputs.codes }}"         >> "$GITHUB_OUTPUT"
+            echo "scenarios=${{ github.event.inputs.scenarios }}" >> "$GITHUB_OUTPUT"
+            echo "nparts=${{ github.event.inputs.nparts }}"       >> "$GITHUB_OUTPUT"
+            echo "runs=${{ github.event.inputs.runs || '5' }}"    >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build code environments
+        run: |
+          CODES="${{ steps.scope.outputs.codes }}"
+          pixi run -e default python -m benchmarks.build ${CODES:+--codes "$CODES"}
+
+      - name: Run benchmark matrix
+        run: |
+          ARGS=""
+          [ -n "${{ steps.scope.outputs.codes }}" ]     && ARGS="$ARGS --codes ${{ steps.scope.outputs.codes }}"
+          [ -n "${{ steps.scope.outputs.scenarios }}" ] && ARGS="$ARGS --scenarios ${{ steps.scope.outputs.scenarios }}"
+          [ -n "${{ steps.scope.outputs.nparts }}" ]    && ARGS="$ARGS --nparts ${{ steps.scope.outputs.nparts }}"
+          pixi run -e default bench $ARGS --runs ${{ steps.scope.outputs.runs }} --ncores 4 --skip-build
+
+      - name: Validate physics & plot
+        run: |
+          pixi run -e default validate
+          pixi run -e default plot
+
+      - name: Upload run artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: |
+            results/
+            plots/
+
+      - name: Publish to benchmarks branch
+        # Only the FULL matrix (schedule / manual dispatch) publishes the canonical
+        # results+plots. The push "smoke" run uploads artifacts only, so it never
+        # overwrites the comprehensive plots embedded in the README.
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: pixi run -e default python -m benchmarks.publish --push

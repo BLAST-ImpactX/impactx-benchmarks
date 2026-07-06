@@ -1,0 +1,17 @@
+&beam_track_params
+  lat_filename = '{{ lat_filename }}'
+  ran_seed = 12345
+  spin = {{ spin }}
+  n_warmup = 1
+  beam_init%n_particle = {{ npart }}
+  beam_init%n_bunch = 1
+  beam_init%a_emit = {{ params.emit_x }}
+  beam_init%b_emit = {{ params.emit_y }}
+  beam_init%sig_z = {{ params.sigma_t }}
+  beam_init%sig_pz = {{ params.sigma_p }}
+  beam_init%center(6) = {{ params.get('mu_p', 0.0) }}
+  beam_init%distribution_type = 'ran_gauss', 'ran_gauss', 'ran_gauss'
+{% if spin == 'T' %}
+  beam_init%spin = 0.0, 0.0, 1.0
+{% endif %}
+/

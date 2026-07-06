@@ -1,0 +1,90 @@
+#!/usr/bin/env julia
+# Auto-generated benchmark run script: SciBmad.jl / htu_spin (HTU beamline + spin).
+# Same HTU lattice as htu (spec-baked), tracked with spin (Bunch spin=true allocates
+# identity rotation quaternions). Beam starts fully spin-aligned (+z); the chicane
+# differentially precesses spins -> depolarization, measured as the RMS spin spread.
+using SciBmad
+using Random, Statistics
+{% if device == "cuda" %}
+using CUDA  # GPU: CuArray bunch + KernelAbstractions CUDA backend
+{% endif %}
+
+const NPART = {{ npart }}
+mass_MeV = {{ params.mass_MeV }}
+total_energy_eV = {{ params.total_energy_eV }}
+emit_x = {{ params.emit_x }}; emit_y = {{ params.emit_y }}
+beta_x = {{ params.beta_x }}; beta_y = {{ params.beta_y }}
+alpha_x = {{ params.alpha_x }}; alpha_y = {{ params.alpha_y }}
+sigma_t = {{ params.sigma_t }}; sigma_p = {{ params.sigma_p }}; mu_p = {{ params.mu_p }}
+
+Random.seed!(12345)
+function gaussian_plane(emit, beta, alpha, n)
+    s11 = emit * beta; s12 = -emit * alpha; s22 = emit * (1 + alpha^2) / beta
+    L11 = sqrt(s11); L21 = s12 / L11; L22 = sqrt(max(s22 - L21^2, 0.0))
+    z1 = randn(n); z2 = randn(n)
+    return L11 .* z1, L21 .* z1 .+ L22 .* z2
+end
+
+v0 = zeros({{ "Float32" if precision == "single" else "Float64" }}, NPART, 6)  # SP/DP via cfg.precision
+x, px = gaussian_plane(emit_x, beta_x, alpha_x, NPART)
+y, py = gaussian_plane(emit_y, beta_y, alpha_y, NPART)
+v0[:, 1] .= x; v0[:, 2] .= px; v0[:, 3] .= y; v0[:, 4] .= py
+v0[:, 5] .= sigma_t .* randn(NPART)
+v0[:, 6] .= sigma_p .* randn(NPART) .+ mu_p
+
+{% if device == "cuda" %}
+v0 = CuArray(v0)  # move the (CPU-seeded) beam to the GPU
+{% endif %}
+sp = Species("electron")
+els = LineElement[]
+{% for el in htu_spec %}
+{% if el.kind == "drift" %}
+push!(els, Drift(L={{ el.L }}))
+{% elif el.kind == "quad" %}
+push!(els, Quadrupole(Kn1={{ el.k1 }}, L={{ el.L }}, tracking_method=MatrixKick()))
+{% elif el.kind == "bend" %}
+{% if el.angle|abs > 1e-12 %}
+push!(els, SBend(L={{ el.L }}, angle={{ el.angle }}))
+{% else %}
+push!(els, Drift(L={{ el.L }}))
+{% endif %}
+{% else %}
+push!(els, Marker())
+{% endif %}
+{% endfor %}
+bl = Beamline(els, species_ref=sp, E_ref=total_energy_eV)
+
+# spin vector for each particle: rotate the initial +z spin by the tracked quaternion
+# q = [w x y z];  R(q)·(0,0,1) = (2(xz+wy), 2(yz-wx), 1-2(x^2+y^2))
+function spin_vectors(q)
+    w = @view q[:, 1]; x = @view q[:, 2]; y = @view q[:, 3]; z = @view q[:, 4]
+    sx = 2 .* (x .* z .+ w .* y)
+    sy = 2 .* (y .* z .- w .* x)
+    sz = 1 .- 2 .* (x .^ 2 .+ y .^ 2)
+    return sx, sy, sz
+end
+
+function track_fresh()
+    b = Bunch(v=copy(v0), spin=true, species=sp, p_over_q_ref=bl.p_over_q_ref)
+{% if device == "cuda" %}
+    CUDA.@sync track!(b, bl; use_KA=true, use_explicit_SIMD=false)
+{% else %}
+    track!(b, bl; use_cpu_multithreading=true, use_KA=false, use_explicit_SIMD=false)
+{% endif %}
+    return b
+end
+
+track_fresh()  # warm-up: Julia JIT (NOT timed)
+b = Bunch(v=copy(v0), spin=true, species=sp, p_over_q_ref=bl.p_over_q_ref)
+t0 = time_ns()
+{% if device == "cuda" %}
+CUDA.@sync track!(b, bl; use_KA=true, use_explicit_SIMD=false)
+{% else %}
+track!(b, bl; use_cpu_multithreading=true, use_KA=false, use_explicit_SIMD=false)
+{% endif %}
+dt = time_ns() - t0
+
+sx, sy, sz = spin_vectors(Array(b.q))
+println("Track: ", dt, "ns")
+println("Validate: {\"sigma_sx\": ", std(sx), ", \"sigma_sy\": ", std(sy),
+        ", \"sigma_sz\": ", std(sz), "}")

@@ -1,0 +1,26 @@
+! Auto-generated Bmad lattice: BELLA HTU beamline (exact bmad_standard tracking).
+! Built from the shared htu_lattice "spec" (same k1/angle/length as the other codes).
+parameter[geometry] = open
+parameter[particle] = electron
+beginning[e_tot] = {{ params.total_energy_eV }}
+beginning[beta_a] = {{ params.beta_x }}
+beginning[alpha_a] = {{ params.alpha_x }}
+beginning[beta_b] = {{ params.beta_y }}
+beginning[alpha_b] = {{ params.alpha_y }}
+
+{% for el in htu_spec %}
+{% if el.kind == "drift" %}
+e{{ loop.index }}: drift, L = {{ el.L }}
+{% elif el.kind == "quad" %}
+e{{ loop.index }}: quadrupole, L = {{ el.L }}, k1 = {{ el.k1 }}
+{% elif el.kind == "bend" and el.angle|abs > 1e-12 %}
+e{{ loop.index }}: sbend, L = {{ el.L }}, angle = {{ el.angle }}
+{% elif el.kind == "bend" %}
+e{{ loop.index }}: drift, L = {{ el.L }}
+{% else %}
+e{{ loop.index }}: marker
+{% endif %}
+{% endfor %}
+
+htu: line = ({% for el in htu_spec %}e{{ loop.index }}{{ ", " if not loop.last else "" }}{% endfor %})
+use, htu
