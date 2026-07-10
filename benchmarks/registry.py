@@ -367,14 +367,57 @@ class Config:
     options: dict = field(default_factory=dict)
     #: override the pixi env (e.g. impactx-sp: a separate single-precision compiled build)
     env_override: Optional[str] = None
+    #: the verification baseline (ImpactX DP, IEEE/no-fast-math): its observables are the truth
+    #: that validation compares every run against (it is a normal, shown IEEE bar too).
+    is_reference: bool = False
+    #: fast-math variant. False = IEEE (the solid front bar); True = fast-math (drawn as a lighter
+    #: bar *behind* its IEEE sibling). Compile-time codes get a separate env (see fm_companions);
+    #: runtime-toggle codes (cheetah-compiled, xsuite) reuse the env and flip it via BENCH_FASTMATH.
+    fast_math: bool = False
 
     @property
     def pixi_env(self) -> str:
         return self.env_override or CODES[self.code].pixi_env
 
+    @property
+    def base_name(self) -> str:
+        """Name of the IEEE sibling this config pairs with in plots (self if IEEE)."""
+        return self.name[:-3] if self.name.endswith("-fm") else self.name
+
 
 def _cfg(name, code, precision, **kw) -> Config:
     return Config(name=name, code=code, precision=precision, **kw)
+
+
+# Compile-time fast-math codes need a SECOND build+env for the fast-math variant; the map is
+# base-env -> fast-math-env. Runtime-toggle codes (cheetah-compiled, xsuite) are absent here and
+# reuse their env (the runner sets BENCH_FASTMATH / TORCHINDUCTOR_USE_FAST_MATH per config).
+_FM_BUILD_ENV = {
+    "impactx": "impactx-fm", "impactx-sp": "impactx-sp-fm",
+    "impactx-cuda-dp": "impactx-cuda-dp-fm", "impactx-cuda-sp": "impactx-cuda-sp-fm",
+    "pyat": "pyat-fm", "pyorbit": "pyorbit-fm", "bmad": "bmad-fm",
+}
+
+
+def _supports_fastmath(cfg: Config) -> bool:
+    """Whether a fast-math (overlay) variant exists for this base config."""
+    if cfg.code == "scibmad":
+        return False  # no fast-math knob (Julia 1.12 removed --math-mode; no @fastmath upstream)
+    if cfg.code == "cheetah" and cfg.options.get("compile") != "inductor":
+        return False  # eager Torch has no fast-math; only the compiled variant does
+    return True
+
+
+def _fm_companion(cfg: Config) -> Optional[Config]:
+    """The fast-math sibling of an IEEE base config (or None if unsupported)."""
+    if cfg.fast_math or not _supports_fastmath(cfg):
+        return None
+    env = _FM_BUILD_ENV.get(cfg.pixi_env, cfg.pixi_env)  # separate build env, or same (runtime)
+    return Config(
+        name=cfg.name + "-fm", code=cfg.code, precision=cfg.precision, device=cfg.device,
+        ncores=cfg.ncores, sc_model=cfg.sc_model, options=cfg.options,
+        env_override=env, fast_math=True,
+    )
 
 
 # NOTE: only CPU configs are defined here. The GitHub-hosted runners are CPU-only
@@ -388,43 +431,36 @@ def _cfg(name, code, precision, **kw) -> Config:
 # and serve as the single public source of truth. GPU (device="cuda") variants will
 # be added later for local runs whose results are committed to the same harness; the
 # `device` field already supports them and the runner filters by --device (default cpu).
-CONFIGS: dict[str, Config] = {c.name: c for c in [
-    # -- ImpactX: OpenMP + SIMD; 3D-PIC space charge ---------------------------
-    # NOTE: single precision needs a *separate* compiled build (different CMake
-    # flags). It is omitted for now since SP ImpactX has no space charge anyway
-    # (impactx#1078); a per-precision build dir + PYTHONPATH switch can add it later.
+# BASE (IEEE / non-fast-math) configs -- the solid front bars. Each fast-math-capable base gets a
+# "-fm" companion generated below (a lighter bar drawn behind it); see _fm_companion.
+_BASE_CONFIGS = [
+    # -- ImpactX: OpenMP + SIMD; 3D-PIC space charge. The DP-CPU IEEE build is also the verification
+    #    baseline (is_reference) that all runs are validated against.
     _cfg("impactx-cpu-simd-dp", "impactx", DOUBLE,
-         options={"simd": True, "compute": "OMP"}),
-    # -- Cheetah: PyTorch threads, optional torch.compile (Inductor + fast-math) -
-    #    NOTE: single-precision (SP) configs are disabled for now (DP-only campaign);
-    #    re-enable cheetah-cpu-sp / cheetah-cpu-compiled-sp to compare precisions.
+         options={"simd": True, "compute": "OMP"}, is_reference=True),
+    # -- Cheetah: PyTorch threads; eager (no fast-math) + torch.compile (Inductor; fast-math via -fm)
     _cfg("cheetah-cpu-dp", "cheetah", DOUBLE, options={"compile": "none"}),
-    _cfg("cheetah-cpu-compiled-dp", "cheetah", DOUBLE,
-         options={"compile": "inductor", "fast_math": True}),
+    _cfg("cheetah-cpu-compiled-dp", "cheetah", DOUBLE, options={"compile": "inductor"}),
     # -- pyAT: OpenMP, native; tracking only -----------------------------------
     _cfg("pyat-cpu-dp", "pyat", DOUBLE, options={}),
     # -- PyORBIT3: MPI; does both 3D and 2.5D PIC (template per scenario) -------
     _cfg("pyorbit-cpu-dp", "pyorbit", DOUBLE, options={}),
     # -- Xsuite: OpenMP context; 2.5D PIC --------------------------------------
     _cfg("xsuite-cpu-dp", "xsuite", DOUBLE, options={}),
-    # -- SciBmad.jl: Julia threads; tracking only (SP disabled for now) --------
+    # -- SciBmad.jl: Julia threads; tracking only (no fast-math knob) ----------
     _cfg("scibmad-cpu-dp", "scibmad", DOUBLE, options={}),
     # -- Bmad: native Fortran driver (libbmad, no Tao); exact-native + spin -----
     _cfg("bmad-cpu-dp", "bmad", DOUBLE, options={}),
-    # -- Single-precision (FP32) variants: only ImpactX/Cheetah/SciBmad support it.
-    #    ImpactX SP is a SEPARATE compiled build in the impactx-sp env. Cheetah/SciBmad SP is a
-    #    runtime dtype switch.
+    # -- Single-precision (FP32) variants: only ImpactX/Cheetah/SciBmad. ImpactX SP is a SEPARATE
+    #    compiled build (impactx-sp env); Cheetah/SciBmad SP is a runtime dtype switch.
     _cfg("impactx-cpu-simd-sp", "impactx", SINGLE,
          options={"simd": True, "compute": "OMP"}, env_override="impactx-sp"),
     _cfg("cheetah-cpu-sp", "cheetah", SINGLE, options={"compile": "none"}),
-    _cfg("cheetah-cpu-compiled-sp", "cheetah", SINGLE,
-         options={"compile": "inductor", "fast_math": True}),
+    _cfg("cheetah-cpu-compiled-sp", "cheetah", SINGLE, options={"compile": "inductor"}),
     _cfg("scibmad-cpu-sp", "scibmad", SINGLE, options={}),
-    # -- GPU (CUDA) variants, device="cuda" -> own pixi GPU env. Run on 1 GPU by default in DP+SP
-    #    (multi-GPU on Perlmutter later). Only ImpactX/Cheetah/SciBmad/Xsuite have a CUDA path;
-    #    pyAT/PyORBIT/Bmad stay CPU-only. ImpactX needs a separate compiled CUDA build per
-    #    precision (impactx-cuda-dp/sp envs); Cheetah (torch.cuda) / Xsuite (cupy) / SciBmad
-    #    (CUDA.jl) switch device at runtime within one GPU env.
+    # -- GPU (CUDA) variants, device="cuda" -> own pixi GPU env. 1 GPU by default (DP+SP). Only
+    #    ImpactX/Cheetah/SciBmad/Xsuite have a CUDA path; pyAT/PyORBIT/Bmad stay CPU-only. ImpactX
+    #    needs a separate compiled CUDA build per precision; Cheetah/Xsuite/SciBmad switch at runtime.
     _cfg("impactx-cuda-dp", "impactx", DOUBLE, device="cuda",
          options={"compute": "CUDA"}, env_override="impactx-cuda-dp"),
     _cfg("impactx-cuda-sp", "impactx", SINGLE, device="cuda",
@@ -434,13 +470,20 @@ CONFIGS: dict[str, Config] = {c.name: c for c in [
     _cfg("cheetah-cuda-sp", "cheetah", SINGLE, device="cuda",
          options={"compile": "none"}, env_override="cheetah-gpu"),
     _cfg("cheetah-cuda-compiled-dp", "cheetah", DOUBLE, device="cuda",
-         options={"compile": "inductor", "fast_math": True}, env_override="cheetah-gpu"),
+         options={"compile": "inductor"}, env_override="cheetah-gpu"),
     _cfg("cheetah-cuda-compiled-sp", "cheetah", SINGLE, device="cuda",
-         options={"compile": "inductor", "fast_math": True}, env_override="cheetah-gpu"),
+         options={"compile": "inductor"}, env_override="cheetah-gpu"),
     _cfg("xsuite-cuda-dp", "xsuite", DOUBLE, device="cuda", options={}, env_override="xsuite-gpu"),
     _cfg("scibmad-cuda-dp", "scibmad", DOUBLE, device="cuda", options={}, env_override="scibmad-gpu"),
     _cfg("scibmad-cuda-sp", "scibmad", SINGLE, device="cuda", options={}, env_override="scibmad-gpu"),
-]}
+]
+
+CONFIGS: dict[str, Config] = {c.name: c for c in _BASE_CONFIGS}
+# Fast-math overlay companions (compile-time codes -> their -fm env; runtime codes -> same env).
+for _b in _BASE_CONFIGS:
+    _fm = _fm_companion(_b)
+    if _fm is not None:
+        CONFIGS[_fm.name] = _fm
 
 
 # --------------------------------------------------------------------------- #

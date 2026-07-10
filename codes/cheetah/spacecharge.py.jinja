@@ -57,6 +57,7 @@ incoming.to("{{ device }}")
 import torch._inductor.config as _ind
 _fast = {{ 'True' if fast_math else 'False' }}
 _ind.cpp.enable_unsafe_math_opt_flag = _fast
+_ind.cpp.enable_floating_point_contract_flag = "fast"  # FMA fusion ON, matching gcc/nvcc default in every other code (apples-to-apples)
 _ind.cuda.use_fast_math = _fast
 _track = torch.compile(segment.track, backend="inductor")
 # warm-up on the SAME beam that is timed (compile + stabilize dynamo guards);

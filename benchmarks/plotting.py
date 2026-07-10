@@ -95,52 +95,55 @@ def _select_npart(data: dict, scenario: str, npart_override=None) -> int | None:
     return max(pool, key=lambda n: (pool[n], n))
 
 
-def _entries_for(data: dict, scenario: str, npart: int) -> list[tuple[str, dict, str, str]]:
-    """``(config_name|None, entry, label, code)`` per bar, grouped DP|SP per code.
+def _entries_for(data: dict, scenario: str, npart: int) -> list[tuple]:
+    """``(config_name|None, entry, label, code, fm_entry)`` per bar, grouped DP|SP per code.
 
     Layout rules:
-      * a code with at least one supported config shows, per config "base" (the name minus the
-        trailing ``-dp``/``-sp``), its DP bar immediately followed by its SP bar -- and if the
-        code has no SP build, a grey "no SP" stub takes the SP slot (so DP|SP pairs line up);
-      * a code that is *entirely* unsupported for this scenario collapses to a SINGLE bar
-        (e.g. Cheetah in htu_spin / 2.5D-SC, SciBmad in space charge).
-    The ``code`` field is the grouping key: the plot adds x-spacing whenever it changes, so each
-    code's DP|SP bars sit together with a gap before the next code.
+      * bars are the IEEE (non-fast-math) configs; each carries its fast-math sibling's entry
+        (``fm_entry``, or None) which the plot draws as a lighter bar BEHIND it;
+      * per config "base" (name minus ``-dp``/``-sp``) the DP bar is followed by the SP bar, with a
+        grey "no SP" stub if the code has no SP build (so DP|SP pairs line up);
+      * a code entirely unsupported for this scenario collapses to a SINGLE bar.
+    ``code`` is the grouping key (x-spacing changes with it).
     """
     key = results_mod.measurement_key(scenario, npart)
-    per_code: dict[str, list[tuple[str, object, dict]]] = {}
+    results = data.get("results", {})
+    per_code: dict[str, list[tuple]] = {}
     for cfg_name, cfg in CONFIGS.items():
-        entry = data.get("results", {}).get(cfg_name, {}).get(key)
+        if cfg.fast_math:
+            continue  # fast-math variants are overlays on their IEEE sibling, not standalone bars
+        entry = results.get(cfg_name, {}).get(key)
         if entry is not None:
-            per_code.setdefault(cfg.code, []).append((cfg_name, cfg, entry))
-    out: list[tuple[str, dict, str, str]] = []
+            fm_entry = results.get(cfg_name + "-fm", {}).get(key) if (cfg_name + "-fm") in CONFIGS else None
+            per_code.setdefault(cfg.code, []).append((cfg_name, cfg, entry, fm_entry))
+    out: list[tuple] = []
     for code in CODES:
         items = per_code.get(code)
         if not items:
             continue
         items.sort(key=lambda t: t[0])
-        if all(e.get("status") == "unsupported_physics" for _, _, e in items):
-            cfg_name, _, entry = items[0]
-            out.append((cfg_name, entry, code, code))  # one collapsed bar, labelled by code
+        if all(e.get("status") == "unsupported_physics" for _, _, e, _ in items):
+            cfg_name, _, entry, fm_entry = items[0]
+            out.append((cfg_name, entry, code, code, fm_entry))  # one collapsed bar, labelled by code
             continue
         pairs: dict[str, dict] = {}
         order: list[str] = []
-        for cfg_name, cfg, entry in items:
+        for cfg_name, cfg, entry, fm_entry in items:
             base = re.sub(r"-(dp|sp)$", "", cfg_name)
             if base not in pairs:
                 pairs[base] = {}
                 order.append(base)
-            pairs[base][cfg.precision] = (cfg_name, entry)
+            pairs[base][cfg.precision] = (cfg_name, entry, fm_entry)
         for base in order:
             pr = pairs[base]
             if "double" in pr:
-                cn, en = pr["double"]
-                out.append((cn, en, cn, code))
+                cn, en, fe = pr["double"]
+                out.append((cn, en, cn, code, fe))
             if "single" in pr:
-                cn, en = pr["single"]
-                out.append((cn, en, cn, code))
+                cn, en, fe = pr["single"]
+                out.append((cn, en, cn, code, fe))
             else:  # DP-only code -> grey "no SP" stub in the SP slot
-                out.append((None, {"status": "sp_na", "physics": None}, f"{base}-sp", code))
+                out.append((None, {"status": "sp_na", "physics": None}, f"{base}-sp", code, None))
     return out
 
 
@@ -175,8 +178,8 @@ def _gpu_entries_for(data: dict, scenario: str, npart: int) -> list[tuple[str, d
         best_sort = None            # (rung, -push, cfg_name) -- min() picks preferred+fastest
         best = None                 # (cfg_name, entry, rung)
         for cfg_name, cfg in CONFIGS.items():
-            if cfg.code != code:
-                continue
+            if cfg.code != code or cfg.fast_math:
+                continue  # IEEE bars only (fast-math variants aren't shown in the GPU comparison)
             rung = _GPU_RUNG.get((cfg.device, cfg.precision))
             if rung is None:
                 continue
@@ -209,14 +212,16 @@ def plot_scenario(data: dict, scenario: str, npart=None, out_dir: Path = PLOTS_D
     untuned = sc.untuned_codes if sc else {}
     any_untuned = False
 
-    labels = [lbl for _, _, lbl, _ in entries]
-    codes = [cd for _, _, _, cd in entries]
-    heights = []
-    for _, e, _, _ in entries:
+    labels = [lbl for _, _, lbl, _, _ in entries]
+    codes = [cd for _, _, _, cd, _ in entries]
+    heights, fm_heights = [], []
+    for _, e, _, _, fe in entries:
         h = e.get("push_per_sec") if e.get("status") == "supported" else 0.0
         heights.append(h or 0.0)
+        fh = fe.get("push_per_sec") if (fe and fe.get("status") == "supported") else 0.0
+        fm_heights.append(fh or 0.0)
 
-    ymax = _compute_ylim(heights)
+    ymax = _compute_ylim(heights + fm_heights)  # the fast-math overlay is usually the tallest
 
     # x-positions: bars step by 1 within a code, with an extra gap when the code changes,
     # so each code's DP|SP bars group together with whitespace before the next code.
@@ -233,7 +238,8 @@ def plot_scenario(data: dict, scenario: str, npart=None, out_dir: Path = PLOTS_D
 
     fig, ax = plt.subplots(figsize=(max(5.0, 0.62 * span), 3.2))
 
-    for i, (cfg_name, entry, label, code) in enumerate(entries):
+    any_fm = False
+    for i, (cfg_name, entry, label, code, fm_entry) in enumerate(entries):
         xi = xs[i]
         color = CODE_COLORS.get(code, "gray")
         status = entry.get("status")
@@ -248,10 +254,20 @@ def plot_scenario(data: dict, scenario: str, npart=None, out_dir: Path = PLOTS_D
                     fontsize=7, rotation=90, color="dimgray")
             continue
 
+        # fast-math overlay: same-colour, lighter bar drawn BEHIND (lower zorder). Fast-math is
+        # usually faster, so its extra height peeks above the solid IEEE bar = the speedup.
+        fmh = fm_heights[i]
+        if fmh > 0:
+            ax.bar(xi, fmh, color=color, width=0.8, alpha=0.28, linewidth=0, zorder=1)
+            if fmh > h * 1.02:  # annotate the fast-math top only when it clears the IEEE bar
+                ax.text(xi, fmh + ymax * 0.01, f"{fmh:.1e}", ha="center", va="bottom",
+                        fontsize=5.5, color=color, alpha=0.9)
+            any_fm = True
+
         dashed = physics in DASHED_PHYSICS
         # full height -- the fastest bar (winner) is always shown completely
         bar = ax.bar(xi, h, color=color, edgecolor="black", width=0.8,
-                     linewidth=1.3, alpha=0.55 if dashed else 0.95)[0]
+                     linewidth=1.3, alpha=0.55 if dashed else 0.95, zorder=2)[0]
         if dashed:
             bar.set_linestyle((0, (4, 2)))
             bar.set_hatch("//")
@@ -279,12 +295,18 @@ def plot_scenario(data: dict, scenario: str, npart=None, out_dir: Path = PLOTS_D
     title = (sc.display_name or sc.name) if sc else scenario
     _ptag = {"double": "FP64", "single": "FP32"}
     precs = sorted({_ptag.get(CONFIGS[c].precision, CONFIGS[c].precision)
-                    for c, e, _, _ in entries if e.get("status") == "supported"})
+                    for c, e, _, _, _ in entries if e.get("status") == "supported" and c in CONFIGS})
     plabel = "/".join(precs) if precs else ""
     ax.set_title(f"{title}  (n = {npart:,} particles, {plabel}){ref}", fontsize=9)
     ax.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
-    # footers: code versions (always) + asterisk note (if any untuned codes)
-    bottom = 0.13 if any_untuned else 0.08
+    # footers: code versions (always) + asterisk note (untuned) + fast-math-overlay note
+    notes = []
+    if any_untuned:
+        notes.append(sc.untuned_note if sc and sc.untuned_note
+                     else "*  lacks a tuned model for this problem; runs a costlier one")
+    if any_fm:
+        notes.append("lighter bar = fast-math (relaxed FP), drawn behind its IEEE bar")
+    bottom = 0.08 + 0.045 * len(notes)
     fig.tight_layout(rect=[0, bottom, 1, 1])
     cv = (data.get("metadata") or {}).get("code_version") or {}
     seen, present = set(), []
@@ -295,10 +317,8 @@ def plot_scenario(data: dict, scenario: str, npart=None, out_dir: Path = PLOTS_D
     if present:
         fig.text(0.01, 0.012, "versions:  " + "   ·   ".join(present),
                  fontsize=5.5, color="dimgray")
-    if any_untuned:
-        note = (sc.untuned_note if sc and sc.untuned_note
-                else "*  lacks a tuned model for this problem; runs a costlier one")
-        fig.text(0.01, 0.012 + 0.045, note, fontsize=6.5, color="dimgray", style="italic")
+    for j, note in enumerate(notes):
+        fig.text(0.01, 0.012 + 0.045 * (j + 1), note, fontsize=6.5, color="dimgray", style="italic")
 
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / f"{scenario}.svg"

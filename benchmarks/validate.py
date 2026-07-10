@@ -85,15 +85,24 @@ def reference_observables(data: dict, scenario: str, npart: int) -> Optional[dic
                 return ref
 
     ref_code = "impactx" if sc.reference == "analytic" else sc.reference
-    for cfg in CONFIGS.values():
+
+    def _matches(cfg: Config) -> bool:
         if cfg.code != ref_code or cfg.precision != "double":
-            continue
+            return False
         # the reference must itself use the intended model
         if sc.intended_model and cfg.sc_model and cfg.sc_model != sc.intended_model:
-            continue
-        entry = data.get("results", {}).get(cfg.name, {}).get(key)
-        if entry and entry.get("observables"):
-            return entry["observables"]
+            return False
+        return True
+
+    # Prefer the designated IEEE baseline (impactx-ref: DP, fast-math OFF) as the physics truth;
+    # fall back to any DP config of the reference code (e.g. the fast-math ImpactX) if it wasn't run.
+    for want_ref in (True, False):
+        for cfg in CONFIGS.values():
+            if not _matches(cfg) or (want_ref and not cfg.is_reference):
+                continue
+            entry = data.get("results", {}).get(cfg.name, {}).get(key)
+            if entry and entry.get("observables"):
+                return entry["observables"]
     return None
 
 

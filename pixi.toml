@@ -81,12 +81,17 @@ CXXFLAGS = "-march=native -mtune=native"
 CFLAGS = "-march=native -mtune=native"
 
 [feature.impactx.tasks]
-build-impactx = { cmd = "bash codes/impactx/build.sh", description = "Clone & compile ImpactX (DP)" }
-build-impactx-sp = { cmd = "IMPACTX_PRECISION=SINGLE bash codes/impactx/build.sh", description = "Compile ImpactX single-precision (into the impactx-sp env)" }
-# GPU (CUDA) builds: separate tree+env per precision (cuda-dp/cuda-sp). Set CUDA_ARCH for your GPU
-# (default 80 = A100/Perlmutter; e.g. 70=V100, 86=RTX30xx, 90=H100). Builds done tomorrow.
-build-impactx-cuda-dp = { cmd = "IMPACTX_DEVICE=cuda IMPACTX_PRECISION=DOUBLE bash codes/impactx/build.sh", description = "Compile ImpactX CUDA double (into impactx-cuda-dp)" }
-build-impactx-cuda-sp = { cmd = "IMPACTX_DEVICE=cuda IMPACTX_PRECISION=SINGLE bash codes/impactx/build.sh", description = "Compile ImpactX CUDA single (into impactx-cuda-sp)" }
+# IEEE (BENCH_FASTMATH=0) is the base build; the paired "-fm" task adds the fast-math overlay build.
+# The DP-CPU IEEE build (build-impactx) is ALSO the verification baseline (config impactx-cpu-simd-dp).
+build-impactx = { cmd = "BENCH_FASTMATH=0 bash codes/impactx/build.sh", description = "Compile ImpactX DP CPU IEEE (baseline)" }
+build-impactx-fm = { cmd = "BENCH_FASTMATH=1 bash codes/impactx/build.sh", description = "Compile ImpactX DP CPU fast-math (into impactx-fm)" }
+build-impactx-sp = { cmd = "BENCH_FASTMATH=0 IMPACTX_PRECISION=SINGLE bash codes/impactx/build.sh", description = "Compile ImpactX SP CPU IEEE (into impactx-sp)" }
+build-impactx-sp-fm = { cmd = "BENCH_FASTMATH=1 IMPACTX_PRECISION=SINGLE bash codes/impactx/build.sh", description = "Compile ImpactX SP CPU fast-math (into impactx-sp-fm)" }
+# GPU (CUDA) builds: separate tree+env per precision & fast-math. CUDA_ARCH auto-detects (A100=80).
+build-impactx-cuda-dp = { cmd = "BENCH_FASTMATH=0 IMPACTX_DEVICE=cuda IMPACTX_PRECISION=DOUBLE bash codes/impactx/build.sh", description = "Compile ImpactX CUDA DP IEEE (into impactx-cuda-dp)" }
+build-impactx-cuda-dp-fm = { cmd = "BENCH_FASTMATH=1 IMPACTX_DEVICE=cuda IMPACTX_PRECISION=DOUBLE bash codes/impactx/build.sh", description = "Compile ImpactX CUDA DP fast-math (into impactx-cuda-dp-fm)" }
+build-impactx-cuda-sp = { cmd = "BENCH_FASTMATH=0 IMPACTX_DEVICE=cuda IMPACTX_PRECISION=SINGLE bash codes/impactx/build.sh", description = "Compile ImpactX CUDA SP IEEE (into impactx-cuda-sp)" }
+build-impactx-cuda-sp-fm = { cmd = "BENCH_FASTMATH=1 IMPACTX_DEVICE=cuda IMPACTX_PRECISION=SINGLE bash codes/impactx/build.sh", description = "Compile ImpactX CUDA SP fast-math (into impactx-cuda-sp-fm)" }
 
 # --------------------------------------------------------------------------- #
 # Shared CUDA toolchain feature (composed into the ImpactX GPU envs).
@@ -141,7 +146,8 @@ CFLAGS = "-O3 -march=native -mtune=native"
 OPENMP = "1"          # accelerator-toolbox setup.py reads this to enable OpenMP
 
 [feature.pyat.tasks]
-build-pyat = { cmd = "bash codes/pyat/build.sh", description = "Build pyAT from source (OpenMP+native)" }
+build-pyat = { cmd = "BENCH_FASTMATH=0 bash codes/pyat/build.sh", description = "Build pyAT IEEE (OpenMP+native)" }
+build-pyat-fm = { cmd = "BENCH_FASTMATH=1 bash codes/pyat/build.sh", description = "Build pyAT fast-math (into pyat-fm)" }
 
 # --------------------------------------------------------------------------- #
 # PyORBIT3 (source build: Meson/C++/FFTW, MPI; DP only).
@@ -170,7 +176,8 @@ CXXFLAGS = "-march=native -mtune=native"
 CFLAGS = "-march=native -mtune=native"
 
 [feature.pyorbit.tasks]
-build-pyorbit = { cmd = "bash codes/pyorbit/build.sh", description = "Clone & compile PyORBIT3" }
+build-pyorbit = { cmd = "BENCH_FASTMATH=0 bash codes/pyorbit/build.sh", description = "Compile PyORBIT3 IEEE" }
+build-pyorbit-fm = { cmd = "BENCH_FASTMATH=1 bash codes/pyorbit/build.sh", description = "Compile PyORBIT3 fast-math (into pyorbit-fm)" }
 
 # --------------------------------------------------------------------------- #
 # Xsuite (pip; cffi JIT kernels w/ native flags via CFLAGS; OpenMP context).
@@ -184,11 +191,11 @@ numpy = "*"
 scipy = "*"
 
 [feature.xsuite.activation.env]
-# cffi/distutils append CFLAGS when compiling Xsuite's runtime kernels. -ffast-math = the
-# fast-math-ON baseline (xobjects itself passes no fast-math; see machines/PERLMUTTER.md). The
-# kernel-cache salt includes CFLAGS, so this auto-invalidates the cache. -march=native is correct
-# on Perlmutter too (the cffi JIT compiles on the compute node = znver3).
-CFLAGS = "-O3 -march=native -mtune=native -ffast-math"
+# cffi/distutils append CFLAGS when compiling Xsuite's runtime kernels. Fast-math is NOT baked here:
+# it's a per-config RUNTIME toggle -- make_context() injects -ffast-math into the kernel compile when
+# BENCH_FASTMATH=1 (the kernel-cache salt includes it, so IEEE/fast-math cache separately). -march=native
+# is correct on Perlmutter too (the cffi JIT compiles on the compute node = znver3).
+CFLAGS = "-O3 -march=native -mtune=native"
 # Fixed hash seed so the generated kernel source (hence our persistent kernel-cache key) is
 # deterministic across processes; pairs with scenarios/_xsuite_kernel_cache.py. Affects only
 # dict/set iteration order, never the physics (numpy RNG is separately seeded).
@@ -319,13 +326,15 @@ FFLAGS = "-O2 -march=native -mtune=native"
 FCFLAGS = "-O2 -march=native -mtune=native"
 
 [feature.bmad.tasks]
-build-bmad = { cmd = "bash codes/bmad/build.sh", description = "Source-build Bmad + the Fortran driver" }
+build-bmad = { cmd = "BENCH_FASTMATH=0 bash codes/bmad/build.sh", description = "Source-build Bmad IEEE + driver" }
+build-bmad-fm = { cmd = "BENCH_FASTMATH=1 bash codes/bmad/build.sh", description = "Source-build Bmad fast-math (into bmad-fm)" }
 
 # --------------------------------------------------------------------------- #
 # Environments: each code is isolated (no driver deps leak in).
 # --------------------------------------------------------------------------- #
 [environments]
 default = { features = [], solve-group = "default" }
+# Base (IEEE) envs. impactx here is the DP-CPU IEEE build = the verification baseline.
 impactx = { features = ["impactx"], no-default-feature = true }
 cheetah = { features = ["cheetah"], no-default-feature = true }
 pyat = { features = ["pyat"], no-default-feature = true }
@@ -335,10 +344,19 @@ scibmad = { features = ["scibmad"], no-default-feature = true }
 bmad = { features = ["bmad"], no-default-feature = true }
 # single-precision ImpactX lives in its own env (separate SP-compiled build of the same source)
 impactx-sp = { features = ["impactx"], no-default-feature = true }
-# GPU (CUDA) envs: ImpactX needs a separate CUDA build per precision (impactx + cuda features);
-# the pip/Julia codes get one GPU env each (precision is a runtime switch). 1 GPU by default.
+# Fast-math (overlay) build envs for the compile-time codes -- second build of the same feature,
+# compiled with BENCH_FASTMATH=1 into its own tree (see codes/*/build.sh).
+impactx-fm = { features = ["impactx"], no-default-feature = true }
+impactx-sp-fm = { features = ["impactx"], no-default-feature = true }
+pyat-fm = { features = ["pyat"], no-default-feature = true }
+pyorbit-fm = { features = ["pyorbit"], no-default-feature = true }
+bmad-fm = { features = ["bmad"], no-default-feature = true }
+# GPU (CUDA) envs: ImpactX needs a separate CUDA build per precision AND fast-math (impactx + cuda
+# features); the pip/Julia codes get one GPU env each (precision + fast-math are runtime switches).
 impactx-cuda-dp = { features = ["impactx", "cuda"], no-default-feature = true }
 impactx-cuda-sp = { features = ["impactx", "cuda"], no-default-feature = true }
+impactx-cuda-dp-fm = { features = ["impactx", "cuda"], no-default-feature = true }
+impactx-cuda-sp-fm = { features = ["impactx", "cuda"], no-default-feature = true }
 cheetah-gpu = { features = ["cheetah-gpu"], no-default-feature = true }
 xsuite-gpu = { features = ["xsuite-gpu"], no-default-feature = true }
 scibmad-gpu = { features = ["scibmad-gpu"], no-default-feature = true }

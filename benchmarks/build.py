@@ -27,15 +27,24 @@ BUILD_TASKS = {
 
 # extra CPU (env, build-task) pairs a code needs beyond its main env, e.g. a separate
 # single-precision compiled build that lives in its own env.
+# extra CPU (env, task) pairs beyond a code's main IEEE env: the SP build and the fast-math (-fm)
+# overlay builds for the compile-time codes. (The main impactx env is the DP IEEE baseline.)
 EXTRA_ENVS = {
-    "impactx": [("impactx-sp", "build-impactx-sp")],
+    "impactx": [("impactx-sp", "build-impactx-sp"),
+                ("impactx-fm", "build-impactx-fm"),
+                ("impactx-sp-fm", "build-impactx-sp-fm")],
+    "pyat": [("pyat-fm", "build-pyat-fm")],
+    "pyorbit": [("pyorbit-fm", "build-pyorbit-fm")],
+    "bmad": [("bmad-fm", "build-bmad-fm")],
 }
 
 # GPU (CUDA) envs per code -- built ONLY with --device cuda (never on CPU/CI runs). A code
 # absent here has no GPU variant (pyAT/PyORBIT/Bmad stay CPU-only). task=None => pip/pixi-only env.
 GPU_ENVS = {
     "impactx": [("impactx-cuda-dp", "build-impactx-cuda-dp"),
-                ("impactx-cuda-sp", "build-impactx-cuda-sp")],
+                ("impactx-cuda-sp", "build-impactx-cuda-sp"),
+                ("impactx-cuda-dp-fm", "build-impactx-cuda-dp-fm"),
+                ("impactx-cuda-sp-fm", "build-impactx-cuda-sp-fm")],
     "cheetah": [("cheetah-gpu", None)],
     "xsuite": [("xsuite-gpu", None)],
     "scibmad": [("scibmad-gpu", "build-scibmad-gpu")],

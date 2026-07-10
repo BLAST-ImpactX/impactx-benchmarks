@@ -21,7 +21,11 @@ DEVICE="${IMPACTX_DEVICE:-cpu}"                 # cpu | cuda (later)
 PRECISION="${IMPACTX_PRECISION:-DOUBLE}"
 case "$PRECISION" in SINGLE) ptag=sp ;; *) ptag=dp ;; esac
 case "$DEVICE"    in cuda)   COMPUTE=CUDA ;; *) COMPUTE=OMP ;; esac
-TAG="${DEVICE}-${ptag}"                         # cpu-dp, cpu-sp, cuda-dp, cuda-sp
+# Fast-math is baked at compile time, so an IEEE (BENCH_FASTMATH=0) build needs its OWN tree+env
+# (tag suffix "-ieee") -- this is the DP verification baseline (impactx-ref). Default (ON) keeps
+# the plain tag, so existing fast-math builds are unaffected.
+case "${BENCH_FASTMATH:-1}" in 0|off|OFF|false) FMBOOL=OFF; fmtag="-ieee" ;; *) FMBOOL=ON; fmtag="" ;; esac
+TAG="${DEVICE}-${ptag}${fmtag}"                 # cpu-dp, cpu-sp, cuda-dp, cuda-sp (+ -ieee if OFF)
 SRC=".builds/src/impactx-${TAG}"               # dedicated tree => dedicated build dir + AMReX
 mkdir -p .builds/src
 
@@ -58,18 +62,19 @@ if [ "$DEVICE" = "cuda" ]; then
 else
     EXTRA_CMAKE=( "IMPACTX_CMAKE_ImpactX_SIMD=ON" )
 fi
-# Fast-math (BENCH_FASTMATH, default 1/ON). CPU -ffast-math via ImpactX_FASTMATH -> AMReX_FASTMATH;
-# CUDA --use_fast_math via AMReX_CUDA_FASTMATH (ON by AMReX default -- set explicitly so BENCH_FASTMATH
-# also controls the OFF case). See the fast-math defaults in machines/PERLMUTTER.md.
-case "${BENCH_FASTMATH:-1}" in 0|off|OFF|false) FMBOOL=OFF ;; *) FMBOOL=ON ;; esac
-EXTRA_CMAKE+=( "IMPACTX_CMAKE_ImpactX_FASTMATH=${FMBOOL}" )
+# Fast-math (FMBOOL from BENCH_FASTMATH, computed above with the tag).
+# HOST/CPU: we do NOT use AMReX_FASTMATH -- it adds -ffast-math *without* -fno-finite-math-only, and
+# AMReX quad/bend maps call sinh/cosh whose __*_finite symbols modern glibc (>=2.31) removed -> the
+# .so fails to load (undefined symbol). Instead drive host fast-math through CXXFLAGS/CFLAGS with the
+# -fno-finite-math-only guard (last -march also wins over the activation's -march=native).
+# DEVICE/CUDA: AMReX_CUDA_FASTMATH -> nvcc --use_fast_math (no glibc _finite issue on the GPU).
 [ "$DEVICE" = "cuda" ] && EXTRA_CMAKE+=( "IMPACTX_CMAKE_AMReX_CUDA_FASTMATH=${FMBOOL}" )
-echo "ImpactX fast-math = ${FMBOOL}"
-# CPU microarchitecture: append after the activation's -march=native (GCC honors the LAST -march),
-# so BENCH_ARCH=znver3 targets Perlmutter Zen3; default native is a harmless no-op.
+FMFLAGS=""
+[ "$FMBOOL" = "ON" ] && FMFLAGS="-ffast-math -fno-finite-math-only"
+echo "ImpactX fast-math = ${FMBOOL} (tag=${TAG}); host FMFLAGS='${FMFLAGS}'"
 MARCH="${BENCH_ARCH:-native}"
-export CXXFLAGS="${CXXFLAGS:-} -march=${MARCH} -mtune=${MARCH}"
-export CFLAGS="${CFLAGS:-} -march=${MARCH} -mtune=${MARCH}"
+export CXXFLAGS="${CXXFLAGS:-} -march=${MARCH} -mtune=${MARCH} ${FMFLAGS}"
+export CFLAGS="${CFLAGS:-} -march=${MARCH} -mtune=${MARCH} ${FMFLAGS}"
 # ImpactX pip build reads these env vars (see impactx.readthedocs.io install/cmake)
 env IMPACTX_COMPUTE="$COMPUTE" \
     IMPACTX_PRECISION="$PRECISION" \

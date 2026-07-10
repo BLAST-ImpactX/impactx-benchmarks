@@ -90,7 +90,11 @@ def _runtime_env(cfg: Config, threads: int) -> dict:
         # MPICH (Perlmutter), a harmless no-op on our conda-forge MPICH (which is NOT GPU-aware:
         # its query stays 0, so AMReX correctly keeps it off and never passes device ptrs to it).
         env.setdefault("MPICH_GPU_SUPPORT_ENABLED", "1")
-    if cfg.options.get("fast_math") and cfg.code == "cheetah":
+    # Fast-math per config. Build-time codes (ImpactX/pyAT/PyORBIT/Bmad) already carry it in their
+    # env; this only drives the RUNTIME-toggle codes: Xsuite (make_context reads BENCH_FASTMATH for
+    # the cffi/cupy compile) and Cheetah/Inductor (TORCHINDUCTOR_USE_FAST_MATH).
+    env["BENCH_FASTMATH"] = "1" if cfg.fast_math else "0"
+    if cfg.fast_math and cfg.code == "cheetah":
         env["TORCHINDUCTOR_USE_FAST_MATH"] = "1"
     return env
 
@@ -264,6 +268,7 @@ def _render_context(cfg: Config, sc: Scenario, npart: int, threads: int) -> dict
         "precision": cfg.precision,
         "dtype": "float64" if cfg.precision == "double" else "float32",
         "device": cfg.device,
+        "fast_math": cfg.fast_math,   # Cheetah/Inductor template reads this (runtime toggle)
         "params": params,
         **cfg.options,
     }

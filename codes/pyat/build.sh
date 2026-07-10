@@ -11,7 +11,7 @@ SPEC="accelerator-toolbox${PYAT_VERSION:+==${PYAT_VERSION}}"
 # is a no-op); add -ffast-math when BENCH_FASTMATH=1 (the default). See machines/PERLMUTTER.md.
 MARCH="${BENCH_ARCH:-native}"
 EXTRA_CFLAGS="-march=${MARCH} -mtune=${MARCH}"
-case "${BENCH_FASTMATH:-1}" in 0|off|OFF|false) : ;; *) EXTRA_CFLAGS="${EXTRA_CFLAGS} -ffast-math" ;; esac
+case "${BENCH_FASTMATH:-1}" in 0|off|OFF|false) : ;; *) EXTRA_CFLAGS="${EXTRA_CFLAGS} -ffast-math -fno-finite-math-only" ;; esac
 export CFLAGS="${CFLAGS:-} ${EXTRA_CFLAGS}"
 echo "pyAT CFLAGS=${CFLAGS}"
 

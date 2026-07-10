@@ -77,6 +77,28 @@ class ContextCpuThreadedFFT(xo.ContextCpu):
             return super().plan_FFT(data, axes)
 
 
+def _make_cpu_context(threaded_fft: bool, omp_num_threads: int):
+    """A CPU context (threaded-FFT for space charge, else plain) that, by default, compiles kernels
+    with ``-ffast-math`` -- the runtime fast-math toggle (xsuite's activation CFLAGS no longer bakes
+    it). The kernel-cache salt includes ``extra_compile_args``, so IEEE and fast-math kernels cache
+    separately. ``BENCH_FASTMATH=0`` gives the plain IEEE context."""
+    import xobjects as xo
+    base = ContextCpuThreadedFFT if threaded_fft else xo.ContextCpu
+    if not _fastmath_on():
+        return base(omp_num_threads=omp_num_threads)
+
+    class _FastMathCpu(base):
+        def build_kernels(self, *args, **kwargs):
+            # -fno-finite-math-only: -ffast-math implies -ffinite-math-only, which redirects some
+            # libm calls to __*_finite symbols that modern glibc (>=2.31) removed -> undefined symbol
+            # at load. Keep the fast-math opts, drop that redirection.
+            kwargs["extra_compile_args"] = (
+                "-ffast-math", "-fno-finite-math-only", *kwargs.get("extra_compile_args", ()))
+            return super().build_kernels(*args, **kwargs)
+
+    return _FastMathCpu(omp_num_threads=omp_num_threads)
+
+
 def make_context(device: str, omp_num_threads: int = 0, threaded_fft: bool = False):
     """Return the xobjects context for the run.
 
@@ -87,7 +109,4 @@ def make_context(device: str, omp_num_threads: int = 0, threaded_fft: bool = Fal
     """
     if device == "cuda":
         return _make_cupy_context()  # ContextCupy (+ --use_fast_math unless BENCH_FASTMATH=0)
-    if threaded_fft:
-        return ContextCpuThreadedFFT(omp_num_threads=omp_num_threads)
-    import xobjects as xo
-    return xo.ContextCpu(omp_num_threads=omp_num_threads)
+    return _make_cpu_context(threaded_fft, omp_num_threads)  # +-ffast-math unless BENCH_FASTMATH=0

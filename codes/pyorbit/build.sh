@@ -26,7 +26,7 @@ echo "Using PyORBIT3 version $SETUPTOOLS_SCM_PRETEND_VERSION"
 # is a no-op); add -ffast-math when BENCH_FASTMATH=1 (the default). See machines/PERLMUTTER.md.
 MARCH="${BENCH_ARCH:-native}"
 EXTRA_FLAGS="-march=${MARCH} -mtune=${MARCH}"
-case "${BENCH_FASTMATH:-1}" in 0|off|OFF|false) : ;; *) EXTRA_FLAGS="${EXTRA_FLAGS} -ffast-math" ;; esac
+case "${BENCH_FASTMATH:-1}" in 0|off|OFF|false) : ;; *) EXTRA_FLAGS="${EXTRA_FLAGS} -ffast-math -fno-finite-math-only" ;; esac
 export CXXFLAGS="${CXXFLAGS:-} ${EXTRA_FLAGS}"
 export CFLAGS="${CFLAGS:-} ${EXTRA_FLAGS}"
 echo "PyORBIT CXXFLAGS=${CXXFLAGS}"

@@ -44,7 +44,7 @@ source util/dist_source_me
 # NOTE: verify the ACC build honors FFLAGS/FCFLAGS (Master.cmake) -- if not, these are inert.
 MARCH="${BENCH_ARCH:-native}"
 EXTRA_F="-march=${MARCH} -mtune=${MARCH}"
-case "${BENCH_FASTMATH:-1}" in 0|off|OFF|false) : ;; *) EXTRA_F="${EXTRA_F} -ffast-math" ;; esac
+case "${BENCH_FASTMATH:-1}" in 0|off|OFF|false) : ;; *) EXTRA_F="${EXTRA_F} -ffast-math -fno-finite-math-only" ;; esac
 export FFLAGS="${FFLAGS:-} ${EXTRA_F}"
 export FCFLAGS="${FCFLAGS:-} ${EXTRA_F}"
 echo "Bmad FFLAGS=${FFLAGS}"
