@@ -263,7 +263,17 @@ def plot_scenario(data: dict, scenario: str, npart=None, out_dir: Path = PLOTS_D
         # usually faster, so its extra height peeks above the solid IEEE bar = the speedup.
         fmh = fm_heights[i]
         if fmh > 0:
-            ax.bar(xi, fmh, color=color, width=0.8, alpha=0.28, linewidth=0, zorder=1)
+            # A fast-math run can be FASTER while being physically WRONG (seen: cheetah SP
+            # space charge, emit_x off by ~8e9% under -ffast-math). Mark such an overlay with
+            # the same dashed+hatched convention the solid bars use, so it can never read as a
+            # credible speedup just because it is tall.
+            fm_bad = (fm_entry or {}).get("physics") in DASHED_PHYSICS
+            fmbar = ax.bar(xi, fmh, color=color, width=0.8, alpha=0.28,
+                           linewidth=1.0 if fm_bad else 0, zorder=1,
+                           edgecolor="black" if fm_bad else "none")[0]
+            if fm_bad:
+                fmbar.set_linestyle((0, (4, 2)))
+                fmbar.set_hatch("//")
             # Annotate the fast-math top only when it clears the IEEE bar's own value label (a
             # 1-2 line 6.5pt block sitting directly above that bar) -- otherwise the two labels
             # overlap for the common case of a small speedup. The overlay bar still shows it.
