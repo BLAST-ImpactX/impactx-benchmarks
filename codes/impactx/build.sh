@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 # Build & install ImpactX into the active pixi environment.
 #
-# Each (device, precision) combination gets its OWN source tree + build dir AND its own pixi
-# env, so builds never share a CMake/AMReX tree and a pip install of one never overwrites
-# another (same package name). Tag = <device>-<precision>:
-#   cpu-dp  -> .builds/src/impactx-cpu-dp   (env: impactx)
-#   cpu-sp  -> .builds/src/impactx-cpu-sp   (env: impactx-sp)
-#   cuda-*  -> .builds/src/impactx-cuda-*    (added later)
+# Each (device, precision, fast-math) combination gets its OWN source tree + build dir AND its own
+# pixi env, so builds never share a CMake/AMReX tree and a pip install of one never overwrites
+# another (same package name). Tag = <device>-<precision>-<fastmath>:
+#   cpu-dp-ieee -> .builds/src/impactx-cpu-dp-ieee (env: impactx    -- the verification baseline)
+#   cpu-dp-fm   -> .builds/src/impactx-cpu-dp-fm   (env: impactx-fm)
+#   cpu-sp-*    -> .builds/src/impactx-cpu-sp-*    (envs: impactx-sp / impactx-sp-fm)
+#   cuda-*      -> .builds/src/impactx-cuda-*      (envs: impactx-cuda-{dp,sp}[-fm])
 # In a dedicated tree, -DImpactX_PRECISION alone controls fields AND particles.
 # CXXFLAGS=-march=native -mtune=native come from the feature activation env; we additionally
 # append -march=$BENCH_ARCH (default native; znver3 on Perlmutter -- last -march wins) and route
@@ -21,11 +22,11 @@ DEVICE="${IMPACTX_DEVICE:-cpu}"                 # cpu | cuda (later)
 PRECISION="${IMPACTX_PRECISION:-DOUBLE}"
 case "$PRECISION" in SINGLE) ptag=sp ;; *) ptag=dp ;; esac
 case "$DEVICE"    in cuda)   COMPUTE=CUDA ;; *) COMPUTE=OMP ;; esac
-# Fast-math is baked at compile time, so an IEEE (BENCH_FASTMATH=0) build needs its OWN tree+env
-# (tag suffix "-ieee") -- this is the DP verification baseline (impactx-ref). Default (ON) keeps
-# the plain tag, so existing fast-math builds are unaffected.
-case "${BENCH_FASTMATH:-1}" in 0|off|OFF|false) FMBOOL=OFF; fmtag="-ieee" ;; *) FMBOOL=ON; fmtag="" ;; esac
-TAG="${DEVICE}-${ptag}${fmtag}"                 # cpu-dp, cpu-sp, cuda-dp, cuda-sp (+ -ieee if OFF)
+# Fast-math is baked at compile time, so IEEE and fast-math each need their OWN tree+env. Both tags
+# are EXPLICIT (-ieee / -fm) so neither can collide with a legacy bare "<device>-<prec>" tree and
+# silently reuse its CMake cache (see the stale-cache guard below).
+case "${BENCH_FASTMATH:-1}" in 0|off|OFF|false) FMBOOL=OFF; fmtag="-ieee" ;; *) FMBOOL=ON; fmtag="-fm" ;; esac
+TAG="${DEVICE}-${ptag}${fmtag}"                 # e.g. cpu-dp-ieee, cpu-dp-fm, cuda-sp-fm
 SRC=".builds/src/impactx-${TAG}"               # dedicated tree => dedicated build dir + AMReX
 mkdir -p .builds/src
 
@@ -75,6 +76,24 @@ echo "ImpactX fast-math = ${FMBOOL} (tag=${TAG}); host FMFLAGS='${FMFLAGS}'"
 MARCH="${BENCH_ARCH:-native}"
 export CXXFLAGS="${CXXFLAGS:-} -march=${MARCH} -mtune=${MARCH} ${FMFLAGS}"
 export CFLAGS="${CFLAGS:-} -march=${MARCH} -mtune=${MARCH} ${FMFLAGS}"
+# CMake seeds CMAKE_CXX_FLAGS from $CXXFLAGS only on the FIRST configure; afterwards the cache is
+# sticky and the env is IGNORED. So a changed fast-math/arch would SILENTLY produce a stale build.
+# Wipe the build dir whenever the cached flags disagree with what we want.
+# NOTE: keep this -e/-o pipefail safe -- on a fresh tree $SRC/build does not exist and `find` would
+# fail the pipeline and abort the script.
+CACHE=""
+if [ -d "$SRC/build" ]; then
+    CACHE="$(find "$SRC/build" -name CMakeCache.txt 2>/dev/null | head -1 || true)"
+fi
+if [ -n "$CACHE" ]; then
+    cached="$(grep -m1 '^CMAKE_CXX_FLAGS:STRING=' "$CACHE" | cut -d= -f2-)"
+    case "$cached" in *-ffast-math*) had_fm=ON ;; *) had_fm=OFF ;; esac
+    case "$cached" in *"-march=${MARCH}"*) had_arch=yes ;; *) had_arch=no ;; esac
+    if [ "$had_fm" != "$FMBOOL" ] || [ "$had_arch" != "yes" ]; then
+        echo "build flags changed (fast-math ${had_fm}->${FMBOOL}, arch ${MARCH}) -> wiping ${SRC}/build"
+        rm -rf "${SRC}/build"
+    fi
+fi
 # ImpactX pip build reads these env vars (see impactx.readthedocs.io install/cmake)
 env IMPACTX_COMPUTE="$COMPUTE" \
     IMPACTX_PRECISION="$PRECISION" \

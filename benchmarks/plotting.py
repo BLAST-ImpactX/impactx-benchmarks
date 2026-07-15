@@ -95,8 +95,9 @@ def _select_npart(data: dict, scenario: str, npart_override=None) -> int | None:
     return max(pool, key=lambda n: (pool[n], n))
 
 
-def _entries_for(data: dict, scenario: str, npart: int) -> list[tuple]:
+def _entries_for(data: dict, scenario: str, npart: int, device: str | None = None) -> list[tuple]:
     """``(config_name|None, entry, label, code, fm_entry)`` per bar, grouped DP|SP per code.
+    ``device`` "cpu"/"gpu" restricts to that device's configs; None = both (combined).
 
     Layout rules:
       * bars are the IEEE (non-fast-math) configs; each carries its fast-math sibling's entry
@@ -108,10 +109,13 @@ def _entries_for(data: dict, scenario: str, npart: int) -> list[tuple]:
     """
     key = results_mod.measurement_key(scenario, npart)
     results = data.get("results", {})
+    want_dev = {"cpu": "cpu", "gpu": "cuda"}.get(device)  # None => both devices (combined)
     per_code: dict[str, list[tuple]] = {}
     for cfg_name, cfg in CONFIGS.items():
         if cfg.fast_math:
             continue  # fast-math variants are overlays on their IEEE sibling, not standalone bars
+        if want_dev is not None and cfg.device != want_dev:
+            continue  # device-filtered (_cpu / _gpu) view
         entry = results.get(cfg_name, {}).get(key)
         if entry is not None:
             fm_entry = results.get(cfg_name + "-fm", {}).get(key) if (cfg_name + "-fm") in CONFIGS else None
@@ -200,13 +204,14 @@ def _compute_ylim(heights: list[float]) -> float:
     return max(pos) * YHEADROOM if pos else 1.0
 
 
-def plot_scenario(data: dict, scenario: str, npart=None, out_dir: Path = PLOTS_DIR) -> Path | None:
+def plot_scenario(data: dict, scenario: str, npart=None, out_dir: Path = PLOTS_DIR,
+                  device: str | None = None) -> Path | None:
     npart = _select_npart(data, scenario, npart)
     if npart is None:
         return None
-    entries = _entries_for(data, scenario, npart)
+    entries = _entries_for(data, scenario, npart, device=device)
     if not entries:
-        return None
+        return None  # nothing on this device for this scenario -> no _cpu/_gpu file
 
     sc = SCENARIOS.get(scenario)
     untuned = sc.untuned_codes if sc else {}
@@ -259,7 +264,11 @@ def plot_scenario(data: dict, scenario: str, npart=None, out_dir: Path = PLOTS_D
         fmh = fm_heights[i]
         if fmh > 0:
             ax.bar(xi, fmh, color=color, width=0.8, alpha=0.28, linewidth=0, zorder=1)
-            if fmh > h * 1.02:  # annotate the fast-math top only when it clears the IEEE bar
+            # Annotate the fast-math top only when it clears the IEEE bar's own value label (a
+            # 1-2 line 6.5pt block sitting directly above that bar) -- otherwise the two labels
+            # overlap for the common case of a small speedup. The overlay bar still shows it.
+            label_block = ymax * (0.02 + 0.055 * (2 if entry.get("cores") else 1))
+            if fmh > h + label_block:
                 ax.text(xi, fmh + ymax * 0.01, f"{fmh:.1e}", ha="center", va="bottom",
                         fontsize=5.5, color=color, alpha=0.9)
             any_fm = True
@@ -297,7 +306,8 @@ def plot_scenario(data: dict, scenario: str, npart=None, out_dir: Path = PLOTS_D
     precs = sorted({_ptag.get(CONFIGS[c].precision, CONFIGS[c].precision)
                     for c, e, _, _, _ in entries if e.get("status") == "supported" and c in CONFIGS})
     plabel = "/".join(precs) if precs else ""
-    ax.set_title(f"{title}  (n = {npart:,} particles, {plabel}){ref}", fontsize=9)
+    dev_label = {"cpu": " · CPU", "gpu": " · GPU"}.get(device, "")
+    ax.set_title(f"{title}{dev_label}  (n = {npart:,} particles, {plabel}){ref}", fontsize=9)
     ax.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
     # footers: code versions (always) + asterisk note (untuned) + fast-math-overlay note
     notes = []
@@ -321,10 +331,11 @@ def plot_scenario(data: dict, scenario: str, npart=None, out_dir: Path = PLOTS_D
         fig.text(0.01, 0.012 + 0.045 * (j + 1), note, fontsize=6.5, color="dimgray", style="italic")
 
     out_dir.mkdir(parents=True, exist_ok=True)
-    out_path = out_dir / f"{scenario}.svg"
+    stem = f"{scenario}_{device}" if device else scenario  # combined = no suffix; _cpu / _gpu split
+    out_path = out_dir / f"{stem}.svg"
     fig.savefig(out_path)
-    fig.savefig(out_dir / f"{scenario}.pdf")
-    fig.savefig(out_dir / f"{scenario}.png", dpi=150)
+    fig.savefig(out_dir / f"{stem}.pdf")
+    fig.savefig(out_dir / f"{stem}.png", dpi=150)
     plt.close(fig)
     return out_path
 
@@ -419,10 +430,12 @@ def plot_scenario_gpu(data: dict, scenario: str, npart=None,
 def plot_all(data: dict, out_dir: Path = PLOTS_DIR) -> list[Path]:
     made = []
     for scenario in SCENARIOS:
-        p = plot_scenario(data, scenario, out_dir=out_dir)
-        if p:
-            made.append(p)
-            print(f"wrote {p}")
+        # combined (both devices) + device-split _cpu / _gpu versions of the same chart
+        for device in (None, "cpu", "gpu"):
+            p = plot_scenario(data, scenario, out_dir=out_dir, device=device)
+            if p:
+                made.append(p)
+                print(f"wrote {p}")
     return made
 
 
@@ -450,14 +463,18 @@ def main(argv=None) -> int:
     if not data.get("results"):
         print(f"No results found for machine '{args.machine}'.")
         return 1
-    plot_one = plot_scenario_gpu if args.gpu else plot_scenario
-    plot_many = plot_all_gpu if args.gpu else plot_all
     if args.scenario:
-        p = plot_one(data, args.scenario)
-        if p:
-            print(f"wrote {p}")
+        if args.gpu:
+            p = plot_scenario_gpu(data, args.scenario)
+            if p:
+                print(f"wrote {p}")
+        else:  # combined + _cpu + _gpu, matching plot_all
+            for device in (None, "cpu", "gpu"):
+                p = plot_scenario(data, args.scenario, device=device)
+                if p:
+                    print(f"wrote {p}")
     else:
-        plot_many(data)
+        (plot_all_gpu if args.gpu else plot_all)(data)
     return 0
 
 
