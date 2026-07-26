@@ -1,0 +1,7 @@
+! Elegant FODO -- EXACT scenario. KQUAD (symplectic integrator of the exact quadrupole Hamiltonian,
+! N_KICKS high enough to converge to the exact map) + EDRIFT (exact, non-paraxial drift) -- the same
+! intended model as the ImpactX reference (ExactQuad + ExactDrift). K1>0 focuses horizontally.
+QF: KQUAD, L={{ params.quad_length }}, K1={{ params.k1 }}, N_SLICES=40
+D:  EDRIFT, L={{ params.drift_length }}
+QD: KQUAD, L={{ params.quad_length }}, K1={{ -params.k1 }}, N_SLICES=40
+BL: LINE=(QF, D, QD, D)

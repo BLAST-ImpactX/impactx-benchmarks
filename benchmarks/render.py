@@ -24,7 +24,9 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 def template_ext(code: str) -> str:
     lang = CODES[code].language
-    return {"julia": "jl", "fortran": "bmad"}.get(lang, "py")
+    # For file-driven codes the "primary" per-scenario template is the lattice: bmad -> .bmad,
+    # elegant -> .lte (each pairs with a shared command/namelist template rendered in render_run_script).
+    return {"julia": "jl", "fortran": "bmad", "elegant": "lte"}.get(lang, "py")
 
 
 def _env(template_dir: Path) -> Environment:
@@ -56,6 +58,17 @@ def render_run_script(code: str, scenario: str, context: dict, out_dir: Path) ->
         in_path = out_dir / f"{code}__{scenario}.in"
         in_path.write_text(env.get_template("beam.in.jinja").render(**nml_ctx))
         return in_path  # the driver reads the namelist
+
+    if CODES[code].language == "elegant":
+        # 1) lattice from <scenario>.lte.jinja
+        lat_path = out_dir / f"{code}__{scenario}.lte"
+        lat_path.write_text(env.get_template(f"{scenario}.lte.jinja").render(**context))
+        # 2) command file from the shared run.ele.jinja (references the lattice by basename --
+        #    the driver runs elegant with out_dir as the working directory); spin per scenario.
+        ele_ctx = {**context, "lat_filename": lat_path.name, "spin": scenario == "htu_spin"}
+        ele_path = out_dir / f"{code}__{scenario}.ele"
+        ele_path.write_text(env.get_template("run.ele.jinja").render(**ele_ctx))
+        return ele_path  # the driver runs `elegant <this>.ele`
 
     template = env.get_template(f"{scenario}.{ext}.jinja")
     out_path = out_dir / f"{code}__{scenario}.{ext}"

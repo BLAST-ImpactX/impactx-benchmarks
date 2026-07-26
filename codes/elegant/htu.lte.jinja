@@ -1,0 +1,34 @@
+! Elegant BELLA HTU beamline. Runs the INTENDED chromatic-paraxial model -- matrix QUAD tracked to
+! default_order=3 + matrix DRIF -- matching the ImpactX reference (ChrQuad + ChrDrift). The weak
+! chicane bends use CSBEND (exact symplectic bend; CSBEND never does CSR -- that is the separate
+! CSRCSBEND element) with synchrotron radiation off, matching ImpactX ExactSbend. Screens and
+! zero-current kickers are markers.
+!
+! NOTE (validated 2026-07-25): on this dispersive line Elegant's sigma_x runs ~4% high vs ImpactX
+! while sigma_y matches to <0.1%. This is NOT a lattice/model error -- it is Elegant's COORDINATE
+! CONVENTION. Elegant tracks the geometric slope (x, x'); ImpactX and every code that agrees with it
+! (bmad, pyAT, Xsuite, Cheetah, PyORBIT) use canonical momentum (x, px), and px/p0 = (1+delta)*x'.
+! The two coincide on-momentum (betatron optics match to 0.45%) and at linear dispersion (0.12%), but
+! the (1+delta) factor makes the CHROMATIC betatron magnification diverge at htu's 2.5% energy spread.
+! Confirmed by: (a) monoenergetic beams match (-0.45%); (b) the difference grows with sigma_p; (c) it
+! is identical across CSBEND/SBEN/CCBEND and matrix-QUAD/KQUAD/EDRIFT/DRIF -- i.e. independent of the
+! element models. Not fixable via any Elegant option. Flagged via htu.untuned_codes (footnote).
+! Built from the shared htu_lattice "spec" (same k1/angle/length as every other code).
+{% for el in htu_spec %}
+{% if el.kind == "drift" %}
+E{{ loop.index }}: DRIF, L={{ el.L }}
+{% elif el.kind == "quad" %}
+E{{ loop.index }}: QUAD, L={{ el.L }}, K1={{ el.k1 }}
+{% elif el.kind == "bend" and el.angle|abs > 1e-12 %}
+E{{ loop.index }}: CSBEND, L={{ el.L }}, ANGLE={{ el.angle }}, SYNCH_RAD=0, ISR=0
+{% elif el.kind == "bend" %}
+E{{ loop.index }}: DRIF, L={{ el.L }}
+{% else %}
+E{{ loop.index }}: MARK
+{% endif %}
+{% endfor %}
+! beamline (one element per line with '&' continuation to stay under any line-length limit)
+BL: LINE=( &
+{% for el in htu_spec %}
+  E{{ loop.index }}{{ ", &" if not loop.last else " )" }}
+{% endfor %}

@@ -1,0 +1,24 @@
+! Elegant BELLA HTU beamline with SPIN tracking (Thomas-BMT). Spin is only propagated by Elegant's
+! SPIN_TRACKING-flagged elements -- the symplectic KQUAD / EDRIFT / CSBEND, NOT the matrix QUAD/DRIF
+! used in the (spinless) htu scenario. So this lattice uses the exact symplectic elements throughout.
+! Elegant's magnetic Thomas-BMT spin is new/experimental in 2026.x (partly AI-assisted, author-noted
+! sign caveat) -> shown asterisked via htu_spin.untuned_codes, pending independent validation.
+! Built from the shared htu_lattice "spec" (same k1/angle/length as every other code).
+{% for el in htu_spec %}
+{% if el.kind == "drift" %}
+E{{ loop.index }}: EDRIFT, L={{ el.L }}
+{% elif el.kind == "quad" %}
+E{{ loop.index }}: KQUAD, L={{ el.L }}, K1={{ el.k1 }}, N_SLICES=20
+{% elif el.kind == "bend" and el.angle|abs > 1e-12 %}
+E{{ loop.index }}: CSBEND, L={{ el.L }}, ANGLE={{ el.angle }}, SYNCH_RAD=0, ISR=0
+{% elif el.kind == "bend" %}
+E{{ loop.index }}: EDRIFT, L={{ el.L }}
+{% else %}
+E{{ loop.index }}: MARK
+{% endif %}
+{% endfor %}
+! beamline (one element per line with '&' continuation to stay under any line-length limit)
+BL: LINE=( &
+{% for el in htu_spec %}
+  E{{ loop.index }}{{ ", &" if not loop.last else " )" }}
+{% endfor %}

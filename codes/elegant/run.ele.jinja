@@ -1,0 +1,37 @@
+! Auto-generated Elegant command file: {{ code }} / {{ scenario }}
+! Beam + reference matched to the ImpactX reference (untruncated Gaussian; same twiss).
+! p_central_mev = pc in MeV = sqrt((T+m)^2 - m^2). The lattice (beamline "BL") is in {{ lat_filename }}.
+&run_setup
+    lattice = "{{ lat_filename }}",
+    use_beamline = "BL",
+    p_central_mev = {{ ((params.kin_energy_MeV + params.mass_MeV) ** 2 - params.mass_MeV ** 2) ** 0.5 }},
+    default_order = 3,
+    final = "%s.fin",
+{% if spin %}
+    output = "%s.out",
+    spin_tracking = 1,
+{% endif %}
+&end
+
+&run_control n_passes = 1 &end
+
+! Uncorrelated 6-D Gaussian: transverse from (emit, beta, alpha); longitudinal from sigma_s/sigma_dp
+! directly (alpha_z = 0, matching ImpactX beta_t = sigma_t/sigma_p, emitt_t = sigma_t*sigma_p).
+! distribution_cutoff huge => untruncated Gaussian (ImpactX distribution.Gaussian is not truncated).
+&bunched_beam
+    n_particles_per_bunch = {{ npart }},
+    emit_x = {{ params.emit_x }}, beta_x = {{ params.beta_x }}, alpha_x = {{ params.alpha_x }},
+    emit_y = {{ params.emit_y }}, beta_y = {{ params.beta_y }}, alpha_y = {{ params.alpha_y }},
+    sigma_dp = {{ params.sigma_p }},
+    sigma_s = {{ params.sigma_t }},
+    ! mean fractional momentum offset (htu: mu_p=1%); coord 5 is delta=(p-p0)/p0, matching
+    ! ImpactX meanPt=-mu_p (both = higher momentum). 0 for scenarios without mu_p (e.g. FODO).
+    centroid[5] = {{ params.get('mu_p', 0.0) }},
+    distribution_type[0] = 3*"gaussian",
+    distribution_cutoff[0] = 3*100,
+{% if spin %}
+    spin[0] = 0, 0, 1,
+{% endif %}
+&end
+
+&track &end

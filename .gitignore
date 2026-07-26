@@ -6,6 +6,7 @@
 
 # Bmad: compiled Fortran driver + cmake build trees (rebuilt by codes/bmad/build.sh)
 codes/bmad/bmad_driver
+codes/elegant/bin/
 codes/bmad/production/
 codes/bmad/driver/production/
 

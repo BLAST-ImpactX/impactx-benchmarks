@@ -39,6 +39,7 @@ CODE_COLORS = {
     "pyorbit": "tab:purple",
     "xsuite": "tab:orange",
     "scibmad": "tab:brown",
+    "elegant": "tab:cyan",
 }
 
 DASHED_PHYSICS = {"model_mismatch", "incorrect", "unconverged"}

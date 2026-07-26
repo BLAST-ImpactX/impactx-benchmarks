@@ -330,6 +330,35 @@ build-bmad = { cmd = "BENCH_FASTMATH=0 bash codes/bmad/build.sh", description = 
 build-bmad-fm = { cmd = "BENCH_FASTMATH=1 bash codes/bmad/build.sh", description = "Source-build Bmad fast-math (into bmad-fm)" }
 
 # --------------------------------------------------------------------------- #
+# Elegant (source build: GNU Make; SDDS toolkit sibling; MPI Pelegant; partial CUDA; DP only).
+# The Makefiles link auto-discovered libs (gsl, fftw, ...) by ABSOLUTE PATH found via LIB_DIRS, so
+# pointing LIB_DIRS at $CONDA_PREFIX/lib is enough for those; only LAPACK links with -l (handled in
+# build.sh). No fast-math axis (released DP code); GPU shares the `cuda` feature (see envs below).
+# --------------------------------------------------------------------------- #
+[feature.elegant.dependencies]
+python = ">=3.11"          # driver.py + the `sdds` SDDS reader
+pip = "*"
+c-compiler = "*"
+cxx-compiler = "*"
+fortran-compiler = "*"     # SDDS has Fortran (fftpack) bits
+make = "*"
+git = "*"
+mpich = "*"                # mpicc/mpicxx for Pelegant + mpirun at runtime
+gsl = "*"                  # libgsl/libgslcblas (+ headers) -- elegant's bunched_beam.c uses GSL
+liblapack = "*"            # liblapack.so
+libblas = "*"              # libblas.so
+liblapacke = "*"           # lapacke.h (LAPACK_INCLUDE)
+fftw = "*"                 # optional libfftw3 (elegant FFT paths)
+zlib = "*"
+liblzma-devel = "*"        # lzma.h -- SDDS.h includes <lzma.h> unconditionally (+ liblzma.so)
+sdds = "*"                 # conda-forge pure-Python SDDS reader (observable extraction)
+numpy = "*"
+
+[feature.elegant.tasks]
+build-elegant = { cmd = "ELEGANT_DEVICE=cpu bash codes/elegant/build.sh", description = "Source-build Elegant + Pelegant (CPU)" }
+build-elegant-gpu = { cmd = "ELEGANT_DEVICE=cuda bash codes/elegant/build.sh", description = "Source-build Elegant + gpu-elegant/gpu-Pelegant (CUDA)" }
+
+# --------------------------------------------------------------------------- #
 # Environments: each code is isolated (no driver deps leak in).
 # --------------------------------------------------------------------------- #
 [environments]
@@ -359,4 +388,8 @@ impactx-cuda-dp-fm = { features = ["impactx", "cuda"], no-default-feature = true
 impactx-cuda-sp-fm = { features = ["impactx", "cuda"], no-default-feature = true }
 cheetah-gpu = { features = ["cheetah-gpu"], no-default-feature = true }
 xsuite-gpu = { features = ["xsuite-gpu"], no-default-feature = true }
+# Elegant: DP-only, no fast-math axis. CPU env + a GPU env that adds the shared `cuda` feature
+# (nvcc) for the gpu-elegant/gpu-Pelegant build (default arch sm_86 = local A2000 / A100 sm_80).
+elegant = { features = ["elegant"], no-default-feature = true }
+elegant-gpu = { features = ["elegant", "cuda"], no-default-feature = true }
 scibmad-gpu = { features = ["scibmad-gpu"], no-default-feature = true }

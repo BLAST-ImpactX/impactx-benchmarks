@@ -105,6 +105,14 @@ def _launch_cmd(cfg: Config, script: Path, ranks: int, threads: int, cpus: list)
     code = CODES[cfg.code]
     base = ["pixi", "run", "--environment", cfg.pixi_env]
     cpu_csv = ",".join(str(c) for c in cpus)
+    # Elegant is file-driven and its MPI lives INSIDE Pelegant, so we launch our driver ONCE
+    # (never wrapped by the generic mpirun/taskset below) and let it build the mpirun/taskset/gpu
+    # command for elegant/Pelegant/gpu-elegant itself.
+    if code.launcher == "elegant":
+        driver = REPO_ROOT / "codes" / "elegant" / "driver.py"
+        return base + ["python", str(driver), str(script),
+                       "--ranks", str(ranks), "--threads", str(threads),
+                       "--cpus", cpu_csv, "--device", cfg.device]
     if code.launcher == "julia":
         # GPU uses the scibmad-gpu project (adds CUDA.jl); CPU uses the threaded scibmad project
         project = "codes/scibmad-gpu" if cfg.device == "cuda" else "codes/scibmad"

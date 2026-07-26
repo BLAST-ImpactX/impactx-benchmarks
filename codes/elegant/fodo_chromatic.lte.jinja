@@ -1,0 +1,7 @@
+! Elegant FODO -- CHROMATIC scenario. Matrix QUAD + matrix DRIF tracked to default_order=3, i.e. the
+! chromatic-paraxial map (focusing ~ k1/(1+delta)) -- the same intended model as the ImpactX reference
+! (ChrQuad + ChrDrift), so Elegant is the tuned model here (no asterisk). K1>0 focuses horizontally.
+QF: QUAD, L={{ params.quad_length }}, K1={{ params.k1 }}
+D:  DRIF, L={{ params.drift_length }}
+QD: QUAD, L={{ params.quad_length }}, K1={{ -params.k1 }}
+BL: LINE=(QF, D, QD, D)

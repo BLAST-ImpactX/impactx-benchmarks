@@ -178,6 +178,23 @@ CODES: dict[str, Code] = {
         mpi_capable=False,
         thread_capable=True,
     ),
+    "elegant": Code(
+        name="elegant",
+        repo="https://github.com/rtsoliday/elegant",
+        pixi_env="elegant",
+        install="source",
+        parallelism="mpi",
+        # input-file driven (.ele/.lte); a thin driver runs elegant/Pelegant/gpu-elegant,
+        # times the track, and reads observables from the SDDS `final` file.
+        launcher="elegant",
+        # DP-only tracking; magnetic Thomas-BMT spin (new/experimental in 2026.x). NO PIC space
+        # charge (only 1-D LSC + analytic ring SC), so it lacks the space_charge* tags entirely.
+        capabilities=frozenset({TRACKING, SPIN}),
+        precisions=frozenset({DOUBLE}),
+        language="elegant",
+        mpi_capable=True,     # Pelegant; MPI-only (no OpenMP for tracking) -> vary rank count
+        thread_capable=False,
+    ),
 }
 
 
@@ -293,7 +310,9 @@ SCENARIOS: dict[str, Scenario] = {
             "cheetah": "no chromatic quad/drift; runs the exact drift_kick_drift map",
             "scibmad": "drift is exact-only; runs an exact (non-paraxial) drift",
             "bmad": "only exact bmad_standard tracking; no chromatic-paraxial model",
+            "elegant": "tracks geometric slope (x,x') not canonical (x,px); ~4% chromatic diff at 2.5% spread",
         },
+        untuned_note="*  Elegant tracks slope coords (x,x'); its chromatic betatron differs ~4% here (see codes/elegant/htu.lte.jinja)",
     ),
     "htu_spin": Scenario(
         name="htu_spin",
@@ -311,6 +330,12 @@ SCENARIOS: dict[str, Scenario] = {
         reference="impactx",
         # Cheetah/pyAT/PyORBIT have no spin tracking -> unsupported via the SPIN capability.
         # Xsuite/SciBmad are SPIN-capable; their htu_spin templates are pending (not_in_harness).
+        # Elegant HAS spin, but its magnetic Thomas-BMT is new in 2026.x (partly AI-assisted, with an
+        # author-noted sign caveat) -> shown but asterisked pending independent validation.
+        untuned_codes={
+            "elegant": "experimental magnetic Thomas-BMT spin (new in 2026.x; sign-convention caveat)",
+        },
+        untuned_note="*  Elegant spin tracking is new/experimental (magnetic-field-only Thomas-BMT)",
     ),
     # Two separate space-charge benchmarks: 3D for the codes that do full 3D PIC, and
     # 2.5D for those that do 2.5D. A code without the matching model is simply
@@ -405,6 +430,8 @@ def _supports_fastmath(cfg: Config) -> bool:
         return False  # no fast-math knob (Julia 1.12 removed --math-mode; no @fastmath upstream)
     if cfg.code == "cheetah" and cfg.options.get("compile") != "inductor":
         return False  # eager Torch has no fast-math; only the compiled variant does
+    if cfg.code == "elegant":
+        return False  # released DP code, flags managed by its own Makefile; no fast-math variant
     return True
 
 
@@ -451,6 +478,8 @@ _BASE_CONFIGS = [
     _cfg("scibmad-cpu-dp", "scibmad", DOUBLE, options={}),
     # -- Bmad: native Fortran driver (libbmad, no Tao); exact-native + spin -----
     _cfg("bmad-cpu-dp", "bmad", DOUBLE, options={}),
+    # -- Elegant: MPI (Pelegant), input-file driven; DP-only, no fast-math, no PIC space charge --
+    _cfg("elegant-cpu-dp", "elegant", DOUBLE, options={}),
     # -- Single-precision (FP32) variants: only ImpactX/Cheetah/SciBmad. ImpactX SP is a SEPARATE
     #    compiled build (impactx-sp env); Cheetah/SciBmad SP is a runtime dtype switch.
     _cfg("impactx-cpu-simd-sp", "impactx", SINGLE,
@@ -476,6 +505,9 @@ _BASE_CONFIGS = [
     _cfg("xsuite-cuda-dp", "xsuite", DOUBLE, device="cuda", options={}, env_override="xsuite-gpu"),
     _cfg("scibmad-cuda-dp", "scibmad", DOUBLE, device="cuda", options={}, env_override="scibmad-gpu"),
     _cfg("scibmad-cuda-sp", "scibmad", SINGLE, device="cuda", options={}, env_override="scibmad-gpu"),
+    # Elegant CUDA: gpu-elegant/gpu-Pelegant (DP only). Partial GPU -> only scenarios with a
+    # GPU-capable template run on device=cuda; others report not_in_harness there but still run on CPU.
+    _cfg("elegant-cuda-dp", "elegant", DOUBLE, device="cuda", options={}, env_override="elegant-gpu"),
 ]
 
 CONFIGS: dict[str, Config] = {c.name: c for c in _BASE_CONFIGS}

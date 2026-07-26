@@ -173,6 +173,7 @@ _CODE_PACKAGES = {
     "pyorbit": ["fftw", "mpich", "mpi4py", "numpy"],
     "xsuite": ["xsuite", "xtrack", "xfields", "numpy"],
     "scibmad": ["julia"],
+    "elegant": ["mpich", "gsl", "liblapack", "fftw"],  # elegant itself is a source build (see _CODE_SRC_DIRS)
 }
 
 
@@ -233,6 +234,7 @@ _CODE_SRC_DIRS = {
     "pyorbit": [os.environ.get("PYORBIT_SRC", ""), "/home/axel/src/PyORBIT3", ".builds/src/PyORBIT3"],
     "scibmad": [os.environ.get("SCIBMAD_PATH", ""), "/home/axel/src/SciBmad.jl", ".builds/src/SciBmad.jl"],
     "bmad": [os.environ.get("BMAD_SRC", ""), "/home/axel/src/bmad-ecosystem", ".builds/src/bmad-ecosystem"],
+    "elegant": [os.environ.get("ELEGANT_SRC", ""), "/home/axel/src/elegant", ".builds/src/elegant"],
 }
 _CODE_MAIN_PKG = {
     "impactx": "impactx",
