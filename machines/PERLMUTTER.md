@@ -5,9 +5,11 @@ PrgEnv modules). The matrix is **{CPU, GPU} × {SP, DP}** per code, **fast-math 
 `validate` step gates physics, so relaxed FP is caught rather than silently wrong).
 
 **Layout:** CPU uses **one socket** of a 2× AMD EPYC 7763 node (64 physical cores, best
-MPI/OpenMP split, no hyperthread oversubscription). GPU uses **one A100-80GB** on an exclusive
-node, with a larger particle sweep. Builds target Zen3 (`-march=znver3`) and Perlmutter's
-glibc 2.38 (see `pixi.toml [system-requirements]`).
+MPI/OpenMP split, no hyperthread oversubscription). GPU uses **one A100-80GB** (`sm_80`) on an
+exclusive node, with a larger particle sweep. Builds target Zen3 (`-march=znver3`), Perlmutter's
+glibc 2.38, and conda **CUDA 13.2** — the exact-fit match to Perlmutter's default `cudatoolkit`
+(Aug 2026); a 13.2-built binary is guaranteed to run on its 13.2 driver (see `pixi.toml
+[system-requirements]` / `[feature.cuda]`).
 
 ## 1. Clone
 
@@ -27,9 +29,10 @@ bash machines/perlmutter_setup.sh     # builds all CPU + GPU envs (znver3, fast-
 
 ## 3. Submit the run jobs
 
-Edit the `#SBATCH -A` account line in each `.sbatch` first (CPU project; GPU project ends in
-`_g`). Submit CPU first, then GPU **dependent on it** so the GPU-FP32 comparison sees the CPU
-fallbacks (both jobs write the same `results/perlmutter.yaml`):
+The `#SBATCH -A` account is already set to `m5125` in both `.sbatch` files (the `_g` GPU-project
+suffix is optional on Perlmutter now, so the bare project works for both jobs). Submit CPU first,
+then GPU **dependent on it** so the GPU-FP32 comparison sees the CPU fallbacks (both jobs write the
+same `results/perlmutter.yaml`):
 
 ```bash
 cpu=$(sbatch --parsable machines/perlmutter_cpu.sbatch)
@@ -61,8 +64,11 @@ pixi run -e default python -m benchmarks.publish --push
 ## Notes
 
 - **Fast-math coverage:** ON for ImpactX (CPU+GPU), Cheetah-compiled, pyAT, PyORBIT, Bmad, and
-  Xsuite (CPU + GPU). **SciBmad** and **Cheetah-eager** have no fast-math knob and run IEEE
-  (asterisked). See the fast-math table in the repo plan / `codes/*/build.sh`.
+  Xsuite (CPU + GPU). **SciBmad**, **Cheetah-eager**, **Elegant** (released DP code) and **HELIX**
+  (PyTorch `torch.fft`) have no fast-math knob and run IEEE. See `codes/*/build.sh`.
+- **Codes:** 9 total — impactx, cheetah, pyat, pyorbit, xsuite, scibmad, bmad, elegant, helix.
+  HELIX (PyTorch PIC) runs the 3D `spacecharge` scenario only, CPU+GPU × FP32/FP64 (same IGF model
+  as ImpactX). Elegant covers the tracking scenarios (DP only; CPU MPI + GPU).
 - **Rebuild off-fast-math** (future IEEE axis): re-run `perlmutter_setup.sh` with `BENCH_FASTMATH=0`.
 - The harness pins layouts itself (taskset / per-rank), so the jobs call `pixi run bench` directly
   (its own `mpirun`), not `srun`.

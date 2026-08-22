@@ -23,10 +23,10 @@ export BUILD_NPROC="${BUILD_NPROC:-16}"   # cap parallel compiles on the shared 
 echo "== pixi install (materialize all environments) =="
 pixi install
 
-echo "== build from-source codes for CPU (impactx OMP+SIMD, pyat, pyorbit, bmad, scibmad, ...) =="
+echo "== build from-source codes for CPU (impactx OMP+SIMD, pyat, pyorbit, bmad, scibmad, elegant, helix) =="
 pixi run -e default python -m benchmarks.build --device cpu
 
-echo "== build from-source codes for GPU (impactx CUDA sm_80 dp/sp, scibmad-gpu; pip envs materialized) =="
+echo "== build from-source codes for GPU (impactx & elegant CUDA sm_80, scibmad-gpu; cheetah/xsuite/helix conda+pip cuda-13.2 envs) =="
 pixi run -e default python -m benchmarks.build --device cuda
 
 echo

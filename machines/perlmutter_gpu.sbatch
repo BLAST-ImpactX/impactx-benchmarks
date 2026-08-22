@@ -4,8 +4,9 @@
 #   cpu=$(sbatch --parsable machines/perlmutter_cpu.sbatch)
 #   sbatch --dependency=afterok:$cpu machines/perlmutter_gpu.sbatch
 #
-# EDIT the account below to your GPU allocation (a GPU project -- MUST end in "_g").
-#SBATCH -A CHANGE_ME_g
+# NERSC allocation. The "_g" GPU-project suffix is optional/skippable on Perlmutter now, so the
+# bare project name works for both the CPU and GPU jobs.
+#SBATCH -A m5125
 #SBATCH -C gpu&hbm80g
 #SBATCH -q regular
 #SBATCH -N 1

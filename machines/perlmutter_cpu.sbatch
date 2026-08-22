@@ -3,8 +3,8 @@
 # Submit from the repo root AFTER machines/perlmutter_setup.sh has built the envs on a login node.
 #   sbatch machines/perlmutter_cpu.sbatch
 #
-# EDIT the account below to your CPU allocation (a CPU project -- no trailing "_g").
-#SBATCH -A CHANGE_ME
+# NERSC allocation (the "_g" GPU-project suffix is optional/skippable on Perlmutter now).
+#SBATCH -A m5125
 #SBATCH -C cpu
 #SBATCH -q regular
 #SBATCH -N 1
