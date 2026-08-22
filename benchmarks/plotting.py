@@ -40,6 +40,7 @@ CODE_COLORS = {
     "xsuite": "tab:orange",
     "scibmad": "tab:brown",
     "elegant": "tab:cyan",
+    "helix": "tab:pink",
 }
 
 DASHED_PHYSICS = {"model_mismatch", "incorrect", "unconverged"}

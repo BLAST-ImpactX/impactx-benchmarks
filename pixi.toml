@@ -104,7 +104,9 @@ platforms = ["linux-64"]
 cuda-toolkit = "*"     # nvcc + CUDA libs for the ImpactX CUDA build
 cuda-nvtx-dev = "*"    # NVTX dev headers (nvtx3/nvToolsExt.h) -- AMReX_GpuDevice.cpp needs them;
                        # cuda-toolkit ships only the nvtx runtime lib, not the headers
-cuda-version = "12.*"  # pin to match the host driver / Perlmutter at build time
+cuda-version = "13.2.*" # exact fit to Perlmutter's default cudatoolkit 13.2 (Aug 2026); a 13.2
+                        # toolkit build is guaranteed to run on its 13.2 driver (not 13.3, which
+                        # could need a newer driver). Local driver 610 also runs 13.2.
 
 # NOTE: CUDA_ARCH is intentionally NOT pinned here -- codes/impactx/build.sh auto-detects the
 # GPU's compute capability (local A2000=86, Perlmutter A100=80) so the same env is portable.
@@ -227,9 +229,10 @@ platforms = ["linux-64"]
 
 # Tell the solver the target has a CUDA driver, so conda-forge picks the CUDA pytorch build
 # (the `cuda*_mkl_*` variants depend on the __cuda virtual package) instead of the cpu_mkl one.
-# pixi does NOT probe the driver by default. "12" = needs CUDA >=12 driver (host driver 610 >> that).
+# pixi does NOT probe the driver by default. "13" = needs CUDA >=13 driver (host driver 610 >> that,
+# Perlmutter's 13.2 driver satisfies it), so the solver picks the cuda13* pytorch build.
 [feature.cheetah-gpu.system-requirements]
-cuda = "12"
+cuda = "13"
 
 [feature.cheetah-gpu.dependencies]
 # conda-forge ships CUDA pytorch only for py3.12/3.13 (no py3.14 cuda build yet), so pin 3.13.
@@ -238,7 +241,7 @@ numpy = "*"
 scipy = "*"
 # CUDA-enabled PyTorch (the cuda build is selected via the __cuda system-requirement above)
 pytorch = { version = "*", channel = "conda-forge" }
-cuda-version = "12.*"
+cuda-version = "13.2.*"  # exact fit to Perlmutter's cudatoolkit 13.2 (cuda130 pytorch build)
 # torch.compile(inductor) on GPU codegens a `cuda_utils.c` launcher via Triton, which needs the
 # CUDA driver header (cuda.h, from cuda-driver-dev), the runtime headers (cuda-cudart-dev), ptxas
 # (cuda-nvcc), and a host C compiler. Without these the eager path works but compiled fails.
@@ -264,7 +267,7 @@ python = ">=3.11"
 numpy = "*"
 scipy = "*"
 cupy = "*"             # xobjects ContextCupy backend (GPU FFT native; no scipy/pyfftw shim needed)
-cuda-version = "12.*"
+cuda-version = "13.2.*"  # exact fit to Perlmutter's cudatoolkit 13.2
 
 [feature.xsuite-gpu.pypi-dependencies]
 xsuite = "==0.53.4"
@@ -281,6 +284,49 @@ JULIA_SSL_CA_ROOTS_PATH = ""
 
 [feature.scibmad-gpu.tasks]
 build-scibmad-gpu = { cmd = "julia --project=codes/scibmad-gpu codes/scibmad-gpu/build.jl", description = "Instantiate the SciBmad GPU Julia project (+ CUDA.jl)" }
+
+# --------------------------------------------------------------------------- #
+# HELIX (linac_gen): PyTorch PIC space charge -- torch.fft integrated Green function (IGF), the same
+# model as ImpactX. Space-charge scenario only; CPU + GPU, FP32 + FP64 (dtype/device are runtime).
+# Source-only (not on PyPI) -> installed via build-helix (HELIX_SRC hint, else git-clone fallback).
+# --------------------------------------------------------------------------- #
+[feature.helix]
+platforms = ["linux-64"]
+
+[feature.helix.dependencies]
+python = "3.13.*"      # match the cuda pytorch build's python (helix-gpu); keep CPU/GPU envs aligned
+numpy = "*"
+scipy = "*"
+h5py = "*"             # linac_gen runtime deps (provided by conda so build.sh can pip --no-deps)
+cma = "*"
+pytorch = { version = "*", channel = "conda-forge" }   # CPU build (no __cuda system-requirement)
+pip = "*"
+git = "*"
+
+[feature.helix.tasks]
+build-helix = { cmd = "bash codes/helix/build.sh", description = "Install HELIX (linac_gen) into the CPU env" }
+
+[feature.helix-gpu]
+platforms = ["linux-64"]
+
+# "13" -> needs a CUDA >=13 driver so the solver picks the cuda13* pytorch build (host driver 610
+# and Perlmutter's 13.2 driver both satisfy it). Mirrors feature.cheetah-gpu.
+[feature.helix-gpu.system-requirements]
+cuda = "13"
+
+[feature.helix-gpu.dependencies]
+python = "3.13.*"      # conda-forge ships cuda pytorch for py3.12/3.13 (no py3.14 cuda build yet)
+numpy = "*"
+scipy = "*"
+h5py = "*"
+cma = "*"
+pytorch = { version = "*", channel = "conda-forge" }   # cuda13* build selected via __cuda above
+cuda-version = "13.2.*"  # exact fit to Perlmutter's cudatoolkit 13.2 (cuda130 pytorch build)
+pip = "*"
+git = "*"
+
+[feature.helix-gpu.tasks]
+build-helix-gpu = { cmd = "bash codes/helix/build.sh", description = "Install HELIX (linac_gen) into the GPU env" }
 
 # --------------------------------------------------------------------------- #
 # Bmad (Fortran; native source build of bmad-ecosystem; driven by a small Fortran
@@ -393,3 +439,6 @@ xsuite-gpu = { features = ["xsuite-gpu"], no-default-feature = true }
 elegant = { features = ["elegant"], no-default-feature = true }
 elegant-gpu = { features = ["elegant", "cuda"], no-default-feature = true }
 scibmad-gpu = { features = ["scibmad-gpu"], no-default-feature = true }
+# HELIX (linac_gen): PyTorch PIC space charge; CPU env + CUDA env (own cuda13* pytorch build).
+helix = { features = ["helix"], no-default-feature = true }
+helix-gpu = { features = ["helix-gpu"], no-default-feature = true }

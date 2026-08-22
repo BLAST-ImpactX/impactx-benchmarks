@@ -24,6 +24,7 @@ BUILD_TASKS = {
     "scibmad": "build-scibmad",
     "bmad": "build-bmad",
     "elegant": "build-elegant",
+    "helix": "build-helix",
 }
 
 # extra CPU (env, build-task) pairs a code needs beyond its main env, e.g. a separate
@@ -50,6 +51,7 @@ GPU_ENVS = {
     "xsuite": [("xsuite-gpu", None)],
     "scibmad": [("scibmad-gpu", "build-scibmad-gpu")],
     "elegant": [("elegant-gpu", "build-elegant-gpu")],
+    "helix": [("helix-gpu", "build-helix-gpu")],
 }
 
 

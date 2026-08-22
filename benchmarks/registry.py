@@ -195,6 +195,20 @@ CODES: dict[str, Code] = {
         mpi_capable=True,     # Pelegant; MPI-only (no OpenMP for tracking) -> vary rank count
         thread_capable=False,
     ),
+    "helix": Code(
+        name="helix",
+        repo="https://github.com/Accel-Toolkit/HELIX",
+        pixi_env="helix",
+        install="source",     # `linac_gen` is source-only (not on PyPI); build-helix pip-installs it
+        parallelism="torch",
+        launcher="python",
+        # HELIX's PyTorch PIC space-charge kick is the SAME model as ImpactX (integrated Green
+        # function, open BC via Hockney FFT, CIC) and runs CPU/GPU at FP32/FP64. Its transfer-matrix
+        # TRACKER is only linear + CPU/FP64, with no spin -> we expose the space-charge tag ONLY, so
+        # the harness runs HELIX on the (3D) spacecharge scenario and nothing else.
+        capabilities=frozenset({SPACE_CHARGE, SPACE_CHARGE_3D}),
+        precisions=frozenset({SINGLE, DOUBLE}),
+    ),
 }
 
 
@@ -432,6 +446,8 @@ def _supports_fastmath(cfg: Config) -> bool:
         return False  # eager Torch has no fast-math; only the compiled variant does
     if cfg.code == "elegant":
         return False  # released DP code, flags managed by its own Makefile; no fast-math variant
+    if cfg.code == "helix":
+        return False  # PyTorch SC solve (torch.fft); no fast-math overlay knob we vary
     return True
 
 
@@ -480,6 +496,8 @@ _BASE_CONFIGS = [
     _cfg("bmad-cpu-dp", "bmad", DOUBLE, options={}),
     # -- Elegant: MPI (Pelegant), input-file driven; DP-only, no fast-math, no PIC space charge --
     _cfg("elegant-cpu-dp", "elegant", DOUBLE, options={}),
+    # -- HELIX (linac_gen): PyTorch PIC space charge (IGF = the ImpactX model). 3D spacecharge only.
+    _cfg("helix-cpu-dp", "helix", DOUBLE, options={}),
     # -- Single-precision (FP32) variants: only ImpactX/Cheetah/SciBmad. ImpactX SP is a SEPARATE
     #    compiled build (impactx-sp env); Cheetah/SciBmad SP is a runtime dtype switch.
     _cfg("impactx-cpu-simd-sp", "impactx", SINGLE,
@@ -487,6 +505,7 @@ _BASE_CONFIGS = [
     _cfg("cheetah-cpu-sp", "cheetah", SINGLE, options={"compile": "none"}),
     _cfg("cheetah-cpu-compiled-sp", "cheetah", SINGLE, options={"compile": "inductor"}),
     _cfg("scibmad-cpu-sp", "scibmad", SINGLE, options={}),
+    _cfg("helix-cpu-sp", "helix", SINGLE, options={}),
     # -- GPU (CUDA) variants, device="cuda" -> own pixi GPU env. 1 GPU by default (DP+SP). Only
     #    ImpactX/Cheetah/SciBmad/Xsuite have a CUDA path; pyAT/PyORBIT/Bmad stay CPU-only. ImpactX
     #    needs a separate compiled CUDA build per precision; Cheetah/Xsuite/SciBmad switch at runtime.
@@ -508,6 +527,9 @@ _BASE_CONFIGS = [
     # Elegant CUDA: gpu-elegant/gpu-Pelegant (DP only). Partial GPU -> only scenarios with a
     # GPU-capable template run on device=cuda; others report not_in_harness there but still run on CPU.
     _cfg("elegant-cuda-dp", "elegant", DOUBLE, device="cuda", options={}, env_override="elegant-gpu"),
+    # HELIX CUDA: same PyTorch SC kick; one cuda13* env for both precisions (runtime dtype switch).
+    _cfg("helix-cuda-dp", "helix", DOUBLE, device="cuda", options={}, env_override="helix-gpu"),
+    _cfg("helix-cuda-sp", "helix", SINGLE, device="cuda", options={}, env_override="helix-gpu"),
 ]
 
 CONFIGS: dict[str, Config] = {c.name: c for c in _BASE_CONFIGS}
