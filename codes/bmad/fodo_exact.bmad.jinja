@@ -1,17 +1,24 @@
 ! Auto-generated Bmad lattice: FODO (EXACT scenario). The quads use tracking_method = symp_lie_ptc,
 ! i.e. PTC with EXACT_MODEL=T (Bmad's default) -> the exact non-paraxial CANONICAL quad Hamiltonian.
-! On the quad-dominated hot beam it lands at +0.74% of the ImpactX ExactQuad reference (a genuine,
-! converged difference between two exact implementations; well within tolerance -> correct).
+! On the quad-dominated hot beam it lands at +0.74% of the ImpactX ExactQuad reference (within
+! tolerance -> correct): a genuine, converged model detail (fringe/edge or step), NOT a method artifact.
 !
-! Why NOT the alternatives (both measured on this exact scenario):
-!  - bmad_standard: chromatic-LINEAR/paraxial quad -> paraxial pole (~ -1.4%), model_mismatch.
-!  - symp_lie_bmad: ALSO paraxial for the quad (drift-like p_perp^2/2(1+dp) kinetic term). Measured
-!    -1.55% (== paraxial pole), UNCHANGED at num_steps=16/order=4 -> converged-paraxial, incorrect.
-!    It is ~19x faster than PTC, but it is the WRONG model here, so we pay PTC's cost for correctness.
-!  - symp_lie_ptc: the genuine non-paraxial model. Converged already at PTC's auto step count
-!    (+0.74% identical at integrator_order=6/num_steps=12), so no explicit knobs are set.
-! The bmad_standard drift is ALREADY exact non-paraxial (track_a_drift: sqrt(1-px^2-py^2)); only
-! the quads change tracking_method here.
+! We EVALUATED all four Bmad quad tracking methods on this exact scenario (source-verified + measured):
+!  - symp_lie_ptc  : EXACT non-paraxial, and -- source-verified -- DIRECT real-ray symplectic tracking,
+!      NOT a truncated (G)TPSA/Taylor map. PTC tracks the real real(dp) ray through its integration
+!      nodes (forest `probe`, not the TPSA `probe_8`); bmad_com%taylor_order never enters the orbit
+!      path (that order only governs map/matrix construction). EXACT_MODEL=T -> exact sqrt drift.
+!      Measured +0.74%. This is our choice: exact, direct, canonical.  (~1.2e4 part/s here)
+!  - runge_kutta   : EXACT non-paraxial too -- direct adaptive-RK ODE integration of the full Lorentz
+!      force (sqrt velocity), no map, no paraxial approx. Measured +0.74% -- IDENTICAL to symp_lie_ptc,
+!      which is the cross-check that proves the offset is not a PTC/TPSA truncation. ~3x faster than PTC;
+!      converges via bmad_com%rel_tol_adaptive_tracking. A valid alternative exact reference.
+!  - symp_lie_bmad : PARAXIAL (source: drift_x uses p_perp^2/(2(1+pz)), not the exact sqrt). Measured
+!      -1.55% == the paraxial pole (with Cheetah/Elegant), UNCHANGED at num_steps=16 -> converged, not
+!      under-resolved. ~19x faster than PTC but the WRONG model here -> would be model_mismatch.
+!  - bmad_standard : chromatic-LINEAR/paraxial quad -> paraxial pole (~ -1.4%), model_mismatch.
+! The bmad_standard drift is ALREADY exact non-paraxial (track_a_drift: sqrt(1-px^2-py^2)); only the
+! quads change tracking_method here.
 parameter[geometry] = open
 parameter[particle] = electron
 beginning[e_tot] = {{ (params.kin_energy_MeV + params.mass_MeV) * 1e6 }}
