@@ -57,13 +57,6 @@ def _binary(device: str, ranks: int) -> Path:
     return BIN / ("Pelegant" if ranks > 1 else "elegant")
 
 
-def _std(vals: list) -> float:
-    """Centered population standard deviation (matches ImpactX's rbc 'sigma_s*' convention)."""
-    n = len(vals)
-    m = sum(vals) / n
-    return (sum((v - m) ** 2 for v in vals) / n) ** 0.5
-
-
 def _observables(fin: Path, scenario: str) -> dict:
     """Map Elegant output onto the harness observable keys.
 
@@ -71,14 +64,17 @@ def _observables(fin: Path, scenario: str) -> dict:
     size, m); ex/ey -> emit_x/emit_y (geometric projected emittance incl. dispersion, matching
     ImpactX's projected emittance, NOT the ecx/ecy dispersion-corrected pair).
 
-    Spin (htu_spin): the ``final`` file carries only spin CENTROIDS, so the RMS spin spread
-    sigma_sx/sigma_sy is computed from the per-particle spin columns (spx/spy) of the phase-space
-    ``output`` (%s.out). Beam starts fully +z-aligned; the chicane depolarizes it.
+    Spin (htu_spin): the RMS spin spread sigma_sx/sigma_sy is read from Elegant's in-situ spin
+    sigma matrix (columns Sspxx/Sspyy of the aggregate ``sigma`` file, %s.sig) -- last row = end of
+    beamline. Elegant accumulates that matrix CENTERED ((sp-<sp>)^2, compute_centroids.c), so
+    sqrt(Sspxx) equals a centered per-particle std exactly, WITHOUT the O(npart) phase-space dump
+    that previously dominated the run at production sizes. Beam starts +z-aligned; the chicane
+    depolarizes it.
     """
     if scenario == "htu_spin":
-        out = fin.with_suffix(".out")
-        cols = read_columns(str(out), ["spx", "spy"])
-        return {"sigma_sx": _std(cols["spx"]), "sigma_sy": _std(cols["spy"])}
+        sig = fin.with_suffix(".sig")
+        cols = read_columns(str(sig), ["Sspxx", "Sspyy"])
+        return {"sigma_sx": cols["Sspxx"][-1] ** 0.5, "sigma_sy": cols["Sspyy"][-1] ** 0.5}
     p = read_parameters(str(fin))
     return {
         "sigma_x": p["Sx"], "sigma_y": p["Sy"],

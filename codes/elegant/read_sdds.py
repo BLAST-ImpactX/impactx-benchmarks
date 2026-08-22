@@ -88,7 +88,9 @@ def read_columns(path: str, want=None) -> dict:
     """Return ``{column_name: [values]}`` for the first page's columns (row-major binary).
 
     ``want`` optionally restricts to a set of column names (all are still decoded to advance the
-    stream). Requires all columns numeric (Elegant's phase-space output has no string columns).
+    stream). All-numeric files (the per-particle phase-space dump) take a fast fixed-width path;
+    files with a string column (e.g. ``ElementName`` in the aggregate ``sigma`` file) take a
+    general per-value path -- slower, but those files are one row per element, so tiny.
     """
     raw, _, off, endian, params, columns = _open(path)
     (nrows,) = struct.unpack_from(endian + "i", raw, off)
@@ -97,17 +99,24 @@ def read_columns(path: str, want=None) -> dict:
         if is_fixed:
             continue
         _v, off = _read_value(raw, off, typ, endian)
-    if any(t == "string" for _, t, _ in columns):
-        raise ValueError(f"{path}: string columns not supported by the fast row reader")
-    fmt = endian + "".join(_NUM[t][0] for _, t, _ in columns)
     names = [n for n, _, _ in columns]
     keep = set(names) if want is None else set(want)
     out = {n: [] for n in names if n in keep}
-    block = raw[off: off + struct.calcsize(fmt) * nrows]
-    for row in struct.iter_unpack(fmt, block):
-        for n, v in zip(names, row):
-            if n in keep:
-                out[n].append(v)
+    if any(t == "string" for _, t, _ in columns):
+        # General path: a string column makes the row width variable, so decode value by value.
+        for _row in range(nrows):
+            for name, typ, _fx in columns:
+                val, off = _read_value(raw, off, typ, endian)
+                if name in keep:
+                    out[name].append(val)
+    else:
+        # Fast fixed-width path for all-numeric columns (the large per-particle dumps).
+        fmt = endian + "".join(_NUM[t][0] for _, t, _ in columns)
+        block = raw[off: off + struct.calcsize(fmt) * nrows]
+        for row in struct.iter_unpack(fmt, block):
+            for n, v in zip(names, row):
+                if n in keep:
+                    out[n].append(v)
     return out
 
 

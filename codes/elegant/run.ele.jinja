@@ -8,7 +8,11 @@
     default_order = 3,
     final = "%s.fin",
 {% if spin %}
-    output = "%s.out",
+    ! In-situ spin sigma matrix (Sspxx/Sspyy) written per element to the aggregate sigma file --
+    ! NO per-particle phase-space dump (that %s.out is O(npart) I/O and dominates at production N).
+    ! Elegant accumulates the spin sigma CENTERED (compute_centroids.c: (sp-<sp>)^2), so
+    ! sqrt(Sspxx) is exactly the RMS spin spread we validate against.
+    sigma = "%s.sig",
     spin_tracking = 1,
 {% endif %}
 &end

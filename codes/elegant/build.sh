@@ -13,7 +13,8 @@
 # DIRS list), so a single invocation builds SDDS + physics + src (elegant, Pelegant) + the GPU
 # variants. Pelegant is built when MPI_CC/MPI_CCC are set; gpu-elegant/gpu-Pelegant when HAVE_CUDA=1.
 #
-# Env knobs:  ELEGANT_DEVICE=cpu|cuda (default cpu), ELEGANT_CUDA_ARCH (default sm_86),
+# Env knobs:  ELEGANT_DEVICE=cpu|cuda (default cpu), ELEGANT_CUDA_ARCH (default: auto-detect via
+#             nvidia-smi, sm_80/A100 fallback when no GPU is visible, e.g. a Perlmutter login node),
 #             BUILD_NPROC (default 4). Elegant is DP-only and has no fast-math axis.
 set -eu -o pipefail
 
@@ -48,12 +49,33 @@ MK=(
   "LAPACK_LIB=$CONDA_PREFIX/lib/liblapack.so $CONDA_PREFIX/lib/libblas.so"
   "MPI_CC=$CONDA_PREFIX/bin/mpicc" "MPI_CCC=$CONDA_PREFIX/bin/mpicxx"
 )
+# Auto-detect the GPU's compute capability as "sm_XX" so the same script is correct on a local card
+# AND on Perlmutter (A100 = sm_80), matching codes/impactx/build.sh. Falls back to sm_80 (A100) when
+# no GPU is visible -- e.g. building on a Perlmutter LOGIN node. An explicit ELEGANT_CUDA_ARCH wins.
+detect_cuda_arch() {
+    local cc
+    cc="$(nvidia-smi --query-gpu=compute_cap --format=csv,noheader 2>/dev/null | head -1 | tr -d '.[:space:]')"
+    [ -n "$cc" ] && echo "sm_${cc}" || echo "sm_80"
+}
 if [ "$DEVICE" = "cuda" ]; then
     NVCC_BIN="${NVCC:-$CONDA_PREFIX/bin/nvcc}"
-    MK+=( "HAVE_CUDA=1" "NVCC=$NVCC_BIN" "CUDA_ARCH=${ELEGANT_CUDA_ARCH:-sm_86}" )
-    echo "Elegant CUDA build: NVCC=$NVCC_BIN arch=${ELEGANT_CUDA_ARCH:-sm_86}"
+    CUDA_ARCH="${ELEGANT_CUDA_ARCH:-$(detect_cuda_arch)}"
+    MK+=( "HAVE_CUDA=1" "NVCC=$NVCC_BIN" "CUDA_ARCH=$CUDA_ARCH" )
+    echo "Elegant CUDA build: NVCC=$NVCC_BIN arch=$CUDA_ARCH"
 else
     MK+=( "CUDA_AUTO=0" )   # force CPU-only even if a system nvcc is on PATH
+fi
+
+# Stale-object guard: elegant's in-tree `make` does not notice a CUDA-toolkit change, so re-building
+# after a CUDA version switch relinks the old CUDA-<N> objects into a binary that needs a
+# libcudart.so.<N> this env no longer ships (a silent runtime break). Clean the tree when the build
+# key (device + cudart soname) differs from the last build. A fresh clone has no stamp -> no cost.
+CUDART_SO="$(ls "$CONDA_PREFIX"/lib/libcudart.so.* 2>/dev/null | grep -oE 'so\.[0-9]+$' | head -1)"
+BUILD_KEY="$DEVICE:${CUDART_SO:-none}"
+STAMP="$ELE/.bench_build_key"
+if [ -f "$STAMP" ] && [ "$(cat "$STAMP" 2>/dev/null)" != "$BUILD_KEY" ]; then
+    echo "elegant build key changed ($(cat "$STAMP") -> $BUILD_KEY); cleaning tree for a fresh compile"
+    make -C "$ELE" clean "${MK[@]}" >/dev/null 2>&1 || true
 fi
 
 make -C "$ELE" -j"$N" all "${MK[@]}"
@@ -77,13 +99,21 @@ else
     stage "$BIN_CPU/Pelegant" Pelegant
 fi
 
-# Smoke-test: the staged serial binary must at least print its version banner.
+# Smoke-test the STAGED binary. Beyond "does it exist", verify it actually LOADS: a stale-object
+# relink can pull in a libcudart from a different CUDA toolkit than the env ships, which ldd reports
+# as "not found" and would otherwise only surface at bench time. Fail the build loudly instead.
 SMOKE="$DEST/elegant"; [ "$DEVICE" = "cuda" ] && SMOKE="$DEST/gpu-elegant"
-if [ -x "$SMOKE" ]; then
-    echo "=== version check: $(basename "$SMOKE") ==="
-    "$SMOKE" -v 2>&1 | head -3 || true
-else
+if [ ! -x "$SMOKE" ]; then
     echo "ERROR: expected binary $SMOKE was not produced" >&2
     exit 1
 fi
+if ldd "$SMOKE" 2>/dev/null | grep -q "not found"; then
+    echo "ERROR: $SMOKE is missing shared libraries -- likely stale CUDA objects linking a libcudart" >&2
+    echo "       from a different toolkit than this env provides. Missing libraries:" >&2
+    ldd "$SMOKE" 2>/dev/null | grep "not found" >&2
+    exit 1
+fi
+echo "=== version check: $(basename "$SMOKE") ==="
+"$SMOKE" -v 2>&1 | head -3 || true
+echo "$BUILD_KEY" > "$STAMP"   # record the toolkit this tree is now built against
 echo "elegant build OK (device=$DEVICE)"
