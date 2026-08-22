@@ -1,13 +1,15 @@
 #!/usr/bin/env julia
 # Auto-generated benchmark run script: SciBmad.jl / fodo_exact.
-# MatrixKick = matrix-kick-matrix, a 2nd-order SYMPLECTIC integrator of the EXACT quad
-# Hamiltonian (the kick applies the exact non-paraxial Ps=sqrt((1+dz)^2-Px^2-Py^2)
-# correction), plus the exact_drift -> native exact (non-paraxial) FODO model.
-# Quad MatrixKick is chromatic-paraxial, but SciBmad's drift is exact-only (no paraxial
-# drift), so the drift runs the costlier EXACT map -> marked with an asterisk (untuned).
-# Exact thick CHROMATIC quad: MatrixKick = analytic sin/cos map with k1/(1+delta)
-# (the same model as ImpactX ChrQuad / Cheetah drift_kick_drift / pyAT QuadLinearPass /
-# Xsuite mat-kick-mat), plus the exact non-paraxial drift.
+# MatrixKick = a symplectic kick-MATRIX-kick splitting (Yoshida order 4), the genuine EXACT
+# NON-PARAXIAL quad map. Verified from BeamTracking v0.7.0 source (src/kernels/quadrupole_kick.jl,
+# https://github.com/bmad-sim/BeamTracking.jl/blob/v0.7.0/src/kernels/quadrupole_kick.jl):
+# the "matrix" piece is a linear chromatic sin/cos map with kappa=sqrt(k1/(1+delta)) (paraxial by
+# itself), BUT the surrounding "kick" pieces apply a position kick using the EXACT longitudinal
+# momentum Ps=sqrt((1+delta)^2-px^2-py^2) -- i.e. s*px*(px^2+py^2)/(P*Ps*(P+Ps)), cubic+ in the
+# transverse angles. So the NET map is non-paraxial (amplitude-dependent focusing / spherical
+# aberration; does not exactly preserve emittance), converging to the exact quad Hamiltonian.
+# Empirically it clusters with ImpactX ExactQuad (-0.11% on this scenario), NOT with the paraxial
+# pole. The Drift is SciBmad's exact non-paraxial map -> a fully exact (non-paraxial) FODO model.
 using SciBmad
 using Random, Statistics
 {% if device == "cuda" %}
@@ -43,7 +45,7 @@ v0[:, 5] .= sigma_t .* randn(NPART); v0[:, 6] .= sigma_p .* randn(NPART)
 v0 = CuArray(v0)  # move the (CPU-seeded) beam to the GPU
 {% endif %}
 sp = Species("electron")
-# MatrixKick = exact thick chromatic quad (matrix-kick-matrix, k1/(1+delta))
+# MatrixKick = exact NON-PARAXIAL quad (kick-matrix-kick w/ exact-Ps drift correction; Yoshida o4)
 qf = Quadrupole(Kn1=k1, L=quad_length, tracking_method=MatrixKick())
 qd = Quadrupole(Kn1=-k1, L=quad_length, tracking_method=MatrixKick())
 d = Drift(L=drift_length)

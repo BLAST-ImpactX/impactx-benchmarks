@@ -357,7 +357,7 @@ def quadrupole( name, L, k1=None, current=None, design=None, bore_radius=None, B
         return xt.Quadrupole(length=L, k1=k1, model="mat-kick-mat")  # exact thick chromatic
     elif code == "pyorbit" and pyorbit_available:
         k1 = Bgradient / get_rigidity(reference_energy_eV)
-        q = QuadTEAPOT(name); q.setLength(L); q.setParam("kq", k1); q.setnParts(8); return q
+        q = QuadTEAPOT(name); q.setLength(L); q.setParam("kq", k1); q.setnParts(16); return q  # 16: minimal converged for htu quads (8 was marginal vs 3% tol)
     elif code == "spec":
         return {"kind": "quad", "name": name, "L": L, "k1": Bgradient / get_rigidity(reference_energy_eV)}
     else:
@@ -490,7 +490,7 @@ def dipole( name, L, angle=None, r56=None, bend=None, code=None, reference_energ
     elif code == "pyorbit" and pyorbit_available:
         if abs(angle) < 1e-12:  # zero-angle bend (e.g. spectrometer off) == drift
             d = DriftTEAPOT(name); d.setLength(L); return d
-        b = BendTEAPOT(name); b.setLength(L); b.setParam("theta", angle); b.setnParts(8); return b
+        b = BendTEAPOT(name); b.setLength(L); b.setParam("theta", angle); b.setnParts(2); return b  # bends are step-insensitive here (8->2, free saving)
     elif code == "spec":
         return {"kind": "bend", "name": name, "L": L, "angle": angle}
     else:

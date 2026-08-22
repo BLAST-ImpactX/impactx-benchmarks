@@ -54,7 +54,8 @@ def render_run_script(code: str, scenario: str, context: dict, out_dir: Path) ->
         lat_path.write_text(env.get_template(f"{scenario}.bmad.jinja").render(**context))
         # 2) beam_init namelist (shared template), pointing at the lattice; spin per scenario
         nml_ctx = {**context, "lat_filename": str(lat_path),
-                   "spin": "T" if scenario == "htu_spin" else "F"}
+                   "spin": "T" if scenario == "htu_spin" else "F",
+                   "space_charge": "T" if scenario == "spacecharge" else "F"}
         in_path = out_dir / f"{code}__{scenario}.in"
         in_path.write_text(env.get_template("beam.in.jinja").render(**nml_ctx))
         return in_path  # the driver reads the namelist

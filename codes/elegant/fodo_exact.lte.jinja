@@ -1,7 +1,10 @@
-! Elegant FODO -- EXACT scenario. KQUAD (symplectic integrator of the exact quadrupole Hamiltonian,
-! N_KICKS high enough to converge to the exact map) + EDRIFT (exact, non-paraxial drift) -- the same
-! intended model as the ImpactX reference (ExactQuad + ExactDrift). K1>0 focuses horizontally.
-QF: KQUAD, L={{ params.quad_length }}, K1={{ params.k1 }}, N_SLICES=40
+! Elegant FODO -- EXACT scenario. KQUAD is an exact symplectic integrator of the quad Hamiltonian
+! (N_SLICES=4 converges the long 0.5 m quad on the hot beam) + EDRIFT (exact drift). NOTE: KQUAD
+! integrates in TRACE space (slopes x') with an achromatic drift -> flagged model_mismatch here.
+! HOWEVER Elegant tracks TRACE-SPACE SLOPES (x, x') with an ACHROMATIC drift, not canonical momenta,
+! so on the hot 100 mrad beam it is ~2.2% off ImpactX in sigma_x and shows no chromatic emittance
+! growth -> flagged model_mismatch in the registry (a different model, NOT under-integration).
+QF: KQUAD, L={{ params.quad_length }}, K1={{ params.k1 }}, N_SLICES=4
 D:  EDRIFT, L={{ params.drift_length }}
-QD: KQUAD, L={{ params.quad_length }}, K1={{ -params.k1 }}, N_SLICES=40
+QD: KQUAD, L={{ params.quad_length }}, K1={{ -params.k1 }}, N_SLICES=4
 BL: LINE=(QF, D, QD, D)

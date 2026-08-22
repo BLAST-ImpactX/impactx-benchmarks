@@ -1,5 +1,17 @@
-! Auto-generated Bmad lattice: FODO (exact bmad_standard tracking).
-! bmad_standard is the exact thick chromatic map (Cheetah drift_kick_drift & SciBmad port it).
+! Auto-generated Bmad lattice: FODO (EXACT scenario). The quads use tracking_method = symp_lie_ptc,
+! i.e. PTC with EXACT_MODEL=T (Bmad's default) -> the exact non-paraxial CANONICAL quad Hamiltonian.
+! On the quad-dominated hot beam it lands at +0.74% of the ImpactX ExactQuad reference (a genuine,
+! converged difference between two exact implementations; well within tolerance -> correct).
+!
+! Why NOT the alternatives (both measured on this exact scenario):
+!  - bmad_standard: chromatic-LINEAR/paraxial quad -> paraxial pole (~ -1.4%), model_mismatch.
+!  - symp_lie_bmad: ALSO paraxial for the quad (drift-like p_perp^2/2(1+dp) kinetic term). Measured
+!    -1.55% (== paraxial pole), UNCHANGED at num_steps=16/order=4 -> converged-paraxial, incorrect.
+!    It is ~19x faster than PTC, but it is the WRONG model here, so we pay PTC's cost for correctness.
+!  - symp_lie_ptc: the genuine non-paraxial model. Converged already at PTC's auto step count
+!    (+0.74% identical at integrator_order=6/num_steps=12), so no explicit knobs are set.
+! The bmad_standard drift is ALREADY exact non-paraxial (track_a_drift: sqrt(1-px^2-py^2)); only
+! the quads change tracking_method here.
 parameter[geometry] = open
 parameter[particle] = electron
 beginning[e_tot] = {{ (params.kin_energy_MeV + params.mass_MeV) * 1e6 }}
@@ -8,9 +20,9 @@ beginning[alpha_a] = {{ params.alpha_x }}
 beginning[beta_b] = {{ params.beta_y }}
 beginning[alpha_b] = {{ params.alpha_y }}
 
-qf: quadrupole, L = {{ params.quad_length }}, k1 = {{ params.k1 }}
+qf: quadrupole, L = {{ params.quad_length }}, k1 = {{ params.k1 }}, tracking_method = symp_lie_ptc
 dr: drift, L = {{ params.drift_length }}
-qd: quadrupole, L = {{ params.quad_length }}, k1 = {{ -params.k1 }}
+qd: quadrupole, L = {{ params.quad_length }}, k1 = {{ -params.k1 }}, tracking_method = symp_lie_ptc
 
 fodo: line = (qf, dr, qd, dr)
 use, fodo

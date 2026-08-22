@@ -18,7 +18,7 @@ from scenarios._obs import gaussian_twiss_plane
 
 p = {{ params }}
 npart = {{ npart }}
-NSTEP = 8  # TEAPOT integration steps per quad (convergence to exact thick chromatic map)
+NSTEP = 2  # TEAPOT integration steps per quad -- minimal converged (self-converges by 2; was 8)
 
 comm = mpi_comm.MPI_COMM_WORLD
 rank = MPI_Comm_rank(comm)

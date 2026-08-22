@@ -170,9 +170,10 @@ CODES: dict[str, Code] = {
         parallelism="omp",
         # driven by our standalone Fortran driver linked to libbmad (NO Tao/pytao)
         launcher="bmad",
-        # bmad_standard tracking is the EXACT map (Cheetah's drift_kick_drift & SciBmad are
-        # ports of it) -> exact-native; full Thomas-BMT spin tracking. (Space charge later.)
-        capabilities=frozenset({TRACKING, SPIN}),
+        # bmad_standard tracking (exact drift; quads use symp_lie_ptc for the exact non-paraxial
+        # quad); full Thomas-BMT spin tracking; and 3D space charge via OpenSpaceCharge (Ryne IGF --
+        # the same open-BC IGF/FFT + CIC model as ImpactX, applied by the driver as one kick).
+        capabilities=frozenset({TRACKING, SPIN, SPACE_CHARGE, SPACE_CHARGE_3D}),
         precisions=frozenset({DOUBLE}),
         language="fortran",
         mpi_capable=False,
@@ -251,6 +252,11 @@ class Scenario:
     untuned_codes: dict = field(default_factory=dict)
     #: plot footnote explaining the asterisk (falls back to the costlier-model default)
     untuned_note: Optional[str] = None
+    #: codes that DO run and produce a real result here but with a DIFFERENT physics model than the
+    #: scenario intends (e.g. a paraxial quad where the scenario needs the exact non-paraxial one),
+    #: so their numbers legitimately disagree with the reference -> classified model_mismatch (dashed),
+    #: NOT "incorrect". Per-scenario because a config is shared across scenarios. reason kept for label.
+    model_mismatch_codes: dict = field(default_factory=dict)
     #: extension of the run template (python "py" or Julia "jl")
     template_for_language: dict = field(
         default_factory=lambda: {"python": "py", "julia": "jl"}
@@ -296,15 +302,36 @@ SCENARIOS: dict[str, Scenario] = {
         display_name="exact FODO",
         required_capabilities=frozenset({TRACKING}),
         nparts=_NPARTS_SMALL,
-        observables=_OBS_TRACKING,
+        # Validate on the RMS sizes only: on the hot 100 mrad beam the emittance growth is driven by
+        # the nonlinear tails, so emit_x/emit_y have ~1% (200k) sampling scatter -- above the 0.5%
+        # tolerance at low N -- while sigma_x/sigma_y are robust (~0.2%). On the QUAD-DOMINATED cell
+        # (Lq=0.5, Ld=0.1; see scenarios/fodo_exact/params.py) the exact non-paraxial QUAD map moves
+        # sigma_x ~1.5% vs a paraxial quad -- well above tolerance. Templates still emit emit_x/y.
+        observables=("sigma_x", "sigma_y"),
         tolerances={"default": 5e-3},
-        reference="impactx",  # ImpactX ExactQuad+ExactDrift defines truth
+        reference="impactx",  # ImpactX ExactQuad+ExactDrift defines truth (the non-paraxial pole)
         # Consistent exact (non-paraxial, nonlinear) model: ExactQuad + ExactDrift.
         # PyORBIT has no exact nonlinear quad and no exact drift (TEAPOT is chromatic-
         # paraxial only), so it cannot express this model. (SciBmad CAN: MatrixKick is a
-        # symplectic integrator of the exact quad Hamiltonian + exact_drift.)
+        # symplectic integrator of the exact non-paraxial quad Hamiltonian -- kick-matrix-kick with
+        # an exact-Ps drift correction, source-verified in BeamTracking v0.7.0 -- + exact_drift.)
         unsupported_codes={
             "pyorbit": "no exact quad/drift (TEAPOT is chromatic-paraxial only)",
+        },
+        # The exact (non-paraxial) cluster -- impactx/pyat/xsuite/scibmad (all ~0 to -0.6%) and bmad
+        # symp_lie_ptc (+0.74%) -- agrees to ~1.3% span. Cheetah (paraxial chromatic-linear quad) and
+        # Elegant (KQUAD) land at the paraxial pole, ~1.7% / ~2.2% below the exact reference on the
+        # quad-dominated hot beam: a genuine model difference (dashed), not a bug. Source-verified.
+        model_mismatch_codes={
+            "cheetah": "paraxial chromatic-linear quad; no non-paraxial quad model",
+            # Bmad is NOT listed: its fodo_exact quads use tracking_method=symp_lie_ptc (PTC
+            # EXACT_MODEL=T = exact non-paraxial canonical quad), matching ImpactX -> a fair
+            # participant, validated numerically like the other exact codes.
+            # Elegant's KQUAD IS an exact symplectic integrator, but it tracks trace-space slopes
+            # (x, x') with an ACHROMATIC drift -- not canonical momenta -- so at the hot 100 mrad beam
+            # it is 2.2% off in sigma_x (slope-vs-canonical) and has no chromatic emittance growth
+            # (source-verified; sigma_p->0 makes it agree). A different model, not under-integration.
+            "elegant": "trace-space slopes + achromatic drift; no canonical/chromatic x-px coupling",
         },
     ),
     "htu": Scenario(

@@ -1,0 +1,16 @@
+! Auto-generated Bmad lattice: spacecharge (3D space charge). A single drift; the 3D OpenSpaceCharge
+! kick (Ryne integrated Green function -- the SAME open-boundary IGF/FFT + CIC model as ImpactX/HELIX)
+! is applied ONCE by the driver over the full drift length (asymmetric kick->drift, one field solve).
+! Round Gaussian electron beam; the beam moments come from beam_init (emit / sig_z / sig_pz / charge).
+parameter[geometry] = open
+parameter[particle] = electron
+beginning[e_tot] = {{ (params.kin_energy_MeV + params.mass_MeV) * 1e6 }}
+beginning[beta_a] = {{ params.beta_x }}
+beginning[alpha_a] = {{ params.alpha_x }}
+beginning[beta_b] = {{ params.beta_y }}
+beginning[alpha_b] = {{ params.alpha_y }}
+
+dr: drift, L = {{ params.drift_length }}
+
+sc_line: line = (dr)
+use, sc_line

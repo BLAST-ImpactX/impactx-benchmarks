@@ -27,9 +27,10 @@ energy_eV = (p["kin_energy_MeV"] + p["mass_MeV"]) * 1e6
 #  - ExactDriftPass: full non-paraxial exact drift, matching the others.
 ring = at.Lattice(
     [
-        at.Quadrupole("QF", p["quad_length"], p["k1"], PassMethod="ExactMultipolePass"),
+        # NumIntSteps=4: converged on the hot beam through the long 0.5 m quad (default is 10).
+        at.Quadrupole("QF", p["quad_length"], p["k1"], PassMethod="ExactMultipolePass", NumIntSteps=4),
         at.Drift("D1", p["drift_length"], PassMethod="ExactDriftPass"),
-        at.Quadrupole("QD", p["quad_length"], -p["k1"], PassMethod="ExactMultipolePass"),
+        at.Quadrupole("QD", p["quad_length"], -p["k1"], PassMethod="ExactMultipolePass", NumIntSteps=4),
         at.Drift("D2", p["drift_length"], PassMethod="ExactDriftPass"),
     ],
     energy=energy_eV,

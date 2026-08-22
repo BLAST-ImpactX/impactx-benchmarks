@@ -126,6 +126,11 @@ def classify_measurement(data: dict, cfg: Config, sc: Scenario, entry: dict) -> 
     mm = model_status(cfg, sc)
     if mm is not None:
         return "model_mismatch", f"{mm} vs intended {sc.intended_model}"
+    # per-scenario explicit model mismatch: a code that DOES run here but with a different physics
+    # model than the scenario intends (e.g. a paraxial quad in fodo_exact) -- its disagreement with
+    # the reference is expected, so label it model_mismatch (dashed), not "incorrect".
+    if cfg.code in sc.model_mismatch_codes:
+        return "model_mismatch", sc.model_mismatch_codes[cfg.code]
 
     obs = entry.get("observables")
     if not obs:

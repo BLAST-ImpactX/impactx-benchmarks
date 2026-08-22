@@ -14,4 +14,10 @@
 {% if spin == 'T' %}
   beam_init%spin = 0.0, 0.0, 1.0
 {% endif %}
+{% if space_charge|default('F') == 'T' %}
+  beam_init%bunch_charge = {{ params.bunch_charge_C }}
+  space_charge = T
+  sc_ds = {{ params.drift_length }}
+  sc_mesh = {{ params.n_cell }}, {{ params.n_cell }}, {{ params.n_cell }}
+{% endif %}
 /

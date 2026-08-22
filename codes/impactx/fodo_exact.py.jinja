@@ -46,9 +46,12 @@ sim.add_particles(1.0e-12, make_distr(), npart)
 
 # FODO: ExactQuad (exact nonlinear quad) + ExactDrift (exact non-paraxial)
 sim.lattice.extend([
-    elements.ExactQuad(name="qf", ds=p["quad_length"], k=p["k1"], unit=0, nslice=1),
+    # int_order=2, mapsteps=8: converged for the hot 100 mrad beam through the long 0.5 m quad
+    # (integration residual vs mapsteps=16/32 is below the ~0.2% sampling floor at 100k). This is
+    # ALSO the non-paraxial reference: ExactQuad = full exact Hamiltonian Ps=sqrt((1+dp)^2-px^2-py^2).
+    elements.ExactQuad(name="qf", ds=p["quad_length"], k=p["k1"], unit=0, int_order=2, mapsteps=8, nslice=1),
     elements.ExactDrift(name="d1", ds=p["drift_length"], nslice=1),
-    elements.ExactQuad(name="qd", ds=p["quad_length"], k=-p["k1"], unit=0, nslice=1),
+    elements.ExactQuad(name="qd", ds=p["quad_length"], k=-p["k1"], unit=0, int_order=2, mapsteps=8, nslice=1),
     elements.ExactDrift(name="d2", ds=p["drift_length"], nslice=1),
 ])
 

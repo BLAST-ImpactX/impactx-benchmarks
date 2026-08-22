@@ -37,7 +37,16 @@ if [ ! -d "$SRC/.git" ]; then
 fi
 git -C "$SRC" fetch --depth 1 origin "$REF"
 git -C "$SRC" checkout -q FETCH_HEAD
+HEAD_NOW="$(git -C "$SRC" rev-parse HEAD)"
 echo "ImpactX ref=$REF -> $(git -C "$SRC" rev-parse --short HEAD)"
+# Ref-change guard: a pin bump (e.g. 26.06 -> 26.08) can require a NEWER fetched AMReX, but a stale
+# build/ reuses the OLD AMReX -> missing-header failures (e.g. AMReX_GpuParallelReduce.H). The
+# flag-based guard below only catches CXXFLAGS changes, not a source-ref change -- so wipe build/ here
+# whenever the checked-out commit differs from the last SUCCESSFUL build (stamp written at the end).
+REFSTAMP="$SRC/.bench_built_ref"
+if [ ! -f "$REFSTAMP" ] || [ "$(cat "$REFSTAMP" 2>/dev/null)" != "$HEAD_NOW" ]; then
+    [ -d "$SRC/build" ] && { echo "  source ref changed -> wiping ${SRC}/build for a fresh AMReX fetch"; rm -rf "${SRC}/build"; }
+fi
 
 export CMAKE_BUILD_PARALLEL_LEVEL="${BUILD_NPROC:-6}"
 # ccache speeds up repeat CI builds; CCACHE_BASEDIR normalizes the per-tree absolute paths so
@@ -111,3 +120,4 @@ env IMPACTX_COMPUTE="$COMPUTE" \
     python -m pip install -v --force-reinstall --no-deps "$SRC"
 
 python -c "import impactx; print('impactx', impactx.__version__)"
+echo "$HEAD_NOW" > "$SRC/.bench_built_ref"   # record the built commit for the ref-change guard above

@@ -37,9 +37,11 @@ particles = xt.Particles(
 #  - Drift model="exact": full non-paraxial exact drift.
 line = xt.Line(
     elements=[
-        xt.Quadrupole(length=p["quad_length"], k1=p["k1"], model="drift-kick-drift-exact"),
+        # num_multipole_kicks=4: converged on the hot beam through the long 0.5 m quad (the exact-drift substeps absorb
+        # most of the nonlinearity, so even 1 nearly converges; default auto=1).
+        xt.Quadrupole(length=p["quad_length"], k1=p["k1"], model="drift-kick-drift-exact", num_multipole_kicks=4),
         xt.Drift(length=p["drift_length"], model="exact"),
-        xt.Quadrupole(length=p["quad_length"], k1=-p["k1"], model="drift-kick-drift-exact"),
+        xt.Quadrupole(length=p["quad_length"], k1=-p["k1"], model="drift-kick-drift-exact", num_multipole_kicks=4),
         xt.Drift(length=p["drift_length"], model="exact"),
     ]
 )
