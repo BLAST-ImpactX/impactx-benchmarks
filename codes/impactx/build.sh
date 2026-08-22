@@ -15,9 +15,10 @@
 # with IMPACTX_DEVICE.
 set -eu -o pipefail
 
-# TEMPORARY: pin to PR #1521 (perf-quad-branch-free, ed88d69) for the perf-quad optimization.
-# Revert to "development" once the PR merges. DP and SP MUST use the same ref (same physics+perf).
-REF="${IMPACTX_REF:-pull/1521/head}"
+# Pin to the ImpactX 26.08 release tag. It already contains the (Chr)Quad perf optimization
+# (PR #1521, merged 2026-06-25) that we previously pinned the PR head for. DP and SP MUST use the
+# same ref (same physics + perf). Override with IMPACTX_REF (branch/tag/commit/pull-N-head all work).
+REF="${IMPACTX_REF:-26.08}"
 DEVICE="${IMPACTX_DEVICE:-cpu}"                 # cpu | cuda (later)
 PRECISION="${IMPACTX_PRECISION:-DOUBLE}"
 case "$PRECISION" in SINGLE) ptag=sp ;; *) ptag=dp ;; esac
@@ -59,7 +60,13 @@ detect_cuda_arch() {
 if [ "$DEVICE" = "cuda" ]; then
     CUDA_ARCH="${CUDA_ARCH:-$(detect_cuda_arch)}"
     echo "ImpactX CUDA arch (AMReX_CUDA_ARCH) = $CUDA_ARCH"
-    EXTRA_CMAKE=( "IMPACTX_CMAKE_ImpactX_SIMD=OFF" "IMPACTX_CMAKE_AMReX_CUDA_ARCH=${CUDA_ARCH}" )
+    # Pin CMAKE_CUDA_ARCHITECTURES up front, NOT only AMReX_CUDA_ARCH: CMake's initial "check for
+    # working CUDA compiler" runs at enable_language(CUDA) -- BEFORE AMReX applies AMReX_CUDA_ARCH --
+    # and otherwise probes the full default arch list including compute_50, which nvcc>=13 REJECTS
+    # ("nvcc fatal: Unsupported gpu architecture 'compute_50'"; CUDA 13 dropped Maxwell/Pascal). That
+    # breaks the whole configure on a CUDA-13 toolkit (local AND Perlmutter). Pinning it fixes the check.
+    EXTRA_CMAKE=( "IMPACTX_CMAKE_ImpactX_SIMD=OFF" "IMPACTX_CMAKE_AMReX_CUDA_ARCH=${CUDA_ARCH}"
+                  "IMPACTX_CMAKE_CMAKE_CUDA_ARCHITECTURES=${CUDA_ARCH}" )
 else
     EXTRA_CMAKE=( "IMPACTX_CMAKE_ImpactX_SIMD=ON" )
 fi
