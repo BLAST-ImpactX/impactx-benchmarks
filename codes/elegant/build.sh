@@ -70,7 +70,9 @@ fi
 # after a CUDA version switch relinks the old CUDA-<N> objects into a binary that needs a
 # libcudart.so.<N> this env no longer ships (a silent runtime break). Clean the tree when the build
 # key (device + cudart soname) differs from the last build. A fresh clone has no stamp -> no cost.
-CUDART_SO="$(ls "$CONDA_PREFIX"/lib/libcudart.so.* 2>/dev/null | grep -oE 'so\.[0-9]+$' | head -1)"
+# `|| true`: on a CPU env there is NO libcudart, so the grep finds nothing and exits 1 -- under
+# `set -eu -o pipefail` (line 19) that non-zero pipeline would otherwise abort the whole build here.
+CUDART_SO="$(ls "$CONDA_PREFIX"/lib/libcudart.so.* 2>/dev/null | grep -oE 'so\.[0-9]+$' | head -1 || true)"
 BUILD_KEY="$DEVICE:${CUDART_SO:-none}"
 STAMP="$ELE/.bench_build_key"
 if [ -f "$STAMP" ] && [ "$(cat "$STAMP" 2>/dev/null)" != "$BUILD_KEY" ]; then

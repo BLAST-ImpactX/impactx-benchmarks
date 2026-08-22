@@ -8,16 +8,45 @@ set -u -o pipefail
 
 REPO_ROOT="$PWD"
 DRIVER_SRC="$REPO_ROOT/codes/bmad/driver"
-SRC="${BMAD_SRC:-/home/axel/src/bmad-ecosystem}"
-if [ ! -d "$SRC/util" ]; then
-    SRC="$REPO_ROOT/.builds/src/bmad-ecosystem"
+
+# Fast-math isolation: Bmad builds its libs into $SRC/production/lib (a SHARED location). A fast-math
+# build (BENCH_FASTMATH=1) fails to link on a conda-only host anyway (-Bstatic pulls in glibc libmvec
+# from absolute /lib64 paths that are absent), and a failed build in the IEEE tree would DELETE the
+# base libbmad/libsim_utils. So fast-math ALWAYS uses a dedicated clone under .builds/src, never the
+# user's IEEE checkout. (bmad-fm is currently dropped from the matrix -- see registry._supports_fastmath
+# and benchmarks/build.py -- but this guard keeps a stray fast-math invocation from corrupting the base.)
+case "${BENCH_FASTMATH:-1}" in 0|off|OFF|false|no) _BMAD_FM=0 ;; *) _BMAD_FM=1 ;; esac
+
+if [ "$_BMAD_FM" = 1 ]; then
+    SRC="${BMAD_SRC:-$REPO_ROOT/.builds/src/bmad-ecosystem-fm}"
     mkdir -p "$REPO_ROOT/.builds/src"
-    if [ ! -d "$SRC/.git" ]; then
+    if [ ! -d "$SRC/util" ] && [ ! -d "$SRC/.git" ]; then
         git clone --depth 1 "${BMAD_REPO:-https://github.com/bmad-sim/bmad-ecosystem.git}" "$SRC" \
-            || { echo "ERROR: bmad clone failed"; exit 1; }
+            || { echo "ERROR: bmad-fm clone failed"; exit 1; }
+    fi
+else
+    SRC="${BMAD_SRC:-/home/axel/src/bmad-ecosystem}"
+    if [ ! -d "$SRC/util" ]; then
+        SRC="$REPO_ROOT/.builds/src/bmad-ecosystem"
+        mkdir -p "$REPO_ROOT/.builds/src"
+        if [ ! -d "$SRC/.git" ]; then
+            git clone --depth 1 "${BMAD_REPO:-https://github.com/bmad-sim/bmad-ecosystem.git}" "$SRC" \
+                || { echo "ERROR: bmad clone failed"; exit 1; }
+        fi
     fi
 fi
-echo "Bmad source: $SRC"
+echo "Bmad source: $SRC  (fast-math=$_BMAD_FM)"
+
+# Fast-math consistency guard (mirrors ImpactX's flag/ref guard): Bmad's `mk` is incremental and will
+# happily relink stale objects, so if the previous build used a DIFFERENT fast-math setting (or was
+# never stamped, or failed mid-way), the shared production/lib can end up MIXED (e.g. a fast-math
+# libforest with IEEE libsim_utils -- and forest backs PTC / symp_lie_ptc, the exact-quad path). Wipe
+# the per-package build dirs so the flagged rebuild below is internally consistent.
+_FMSTAMP="$SRC/.bench_bmad_fm"
+if [ ! -f "$_FMSTAMP" ] || [ "$(cat "$_FMSTAMP" 2>/dev/null)" != "$_BMAD_FM" ]; then
+    echo "  fast-math setting changed / unstamped -> cleaning forest+sim_utils+bmad build dirs for a consistent rebuild"
+    rm -rf "$SRC/forest/production" "$SRC/sim_utils/production" "$SRC/bmad/production" "$SRC/production/lib"/*.so 2>/dev/null || true
+fi
 
 # Build preferences: user_prefs is sourced AFTER dist_prefs by dist_source_me, so it wins.
 cat > "$SRC/util/user_prefs" <<EOF
@@ -44,7 +73,7 @@ source util/dist_source_me
 # NOTE: verify the ACC build honors FFLAGS/FCFLAGS (Master.cmake) -- if not, these are inert.
 MARCH="${BENCH_ARCH:-native}"
 EXTRA_F="-march=${MARCH} -mtune=${MARCH}"
-case "${BENCH_FASTMATH:-1}" in 0|off|OFF|false) : ;; *) EXTRA_F="${EXTRA_F} -ffast-math -fno-finite-math-only" ;; esac
+[ "$_BMAD_FM" = 1 ] && EXTRA_F="${EXTRA_F} -ffast-math -fno-finite-math-only"  # $_BMAD_FM: single source of truth
 export FFLAGS="${FFLAGS:-} ${EXTRA_F}"
 export FCFLAGS="${FCFLAGS:-} ${EXTRA_F}"
 echo "Bmad FFLAGS=${FFLAGS}"
@@ -68,5 +97,6 @@ BIN="$(find "$REPO_ROOT/codes/bmad" -name bmad_driver -type f -perm -u+x 2>/dev/
 [ -n "$BIN" ] || { echo "ERROR: bmad_driver binary not found after build"; exit 1; }
 cp -f "$BIN" "$REPO_ROOT/codes/bmad/bmad_driver"
 echo "Installed driver: codes/bmad/bmad_driver"
+echo "$_BMAD_FM" > "$_FMSTAMP"   # record the fast-math setting of this successful build (consistency guard)
 "$REPO_ROOT/codes/bmad/bmad_driver" --version 2>/dev/null || true
 echo "bmad build OK"

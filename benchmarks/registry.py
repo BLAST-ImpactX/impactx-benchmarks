@@ -461,7 +461,8 @@ def _cfg(name, code, precision, **kw) -> Config:
 _FM_BUILD_ENV = {
     "impactx": "impactx-fm", "impactx-sp": "impactx-sp-fm",
     "impactx-cuda-dp": "impactx-cuda-dp-fm", "impactx-cuda-sp": "impactx-cuda-sp-fm",
-    "pyat": "pyat-fm", "pyorbit": "pyorbit-fm", "bmad": "bmad-fm",
+    "pyat": "pyat-fm", "pyorbit": "pyorbit-fm",
+    # NOTE: bmad has NO fast-math env -- see _supports_fastmath (libmvec/-Bstatic link failure).
 }
 
 
@@ -475,6 +476,12 @@ def _supports_fastmath(cfg: Config) -> bool:
         return False  # released DP code, flags managed by its own Makefile; no fast-math variant
     if cfg.code == "helix":
         return False  # PyTorch SC solve (torch.fft); no fast-math overlay knob we vary
+    if cfg.code == "bmad":
+        # Bmad's dist build links -Bstatic; under -ffast-math gfortran pulls in glibc's vectorized
+        # math (libmvec) via absolute /lib64 paths that don't exist in the conda env, so libsim_utils
+        # fails to link. Its dist build owns the link flags, so there is no clean overlay knob. (bmad
+        # is also the slowest code -- symp_lie_ptc -- so a fast-math variant is low value.)
+        return False
     return True
 
 

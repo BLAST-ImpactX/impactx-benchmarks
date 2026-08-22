@@ -37,7 +37,10 @@ EXTRA_ENVS = {
                 ("impactx-sp-fm", "build-impactx-sp-fm")],
     "pyat": [("pyat-fm", "build-pyat-fm")],
     "pyorbit": [("pyorbit-fm", "build-pyorbit-fm")],
-    "bmad": [("bmad-fm", "build-bmad-fm")],
+    # NOTE: bmad has NO fast-math overlay: under -ffast-math its -Bstatic dist build fails to link
+    # libmvec (glibc vectorized math) from absolute /lib64 paths absent in the conda env, and it
+    # builds into the SHARED ~/src/bmad-ecosystem tree, so a failed fm build corrupts the IEEE libs.
+    # See registry._supports_fastmath and codes/bmad/build.sh (fast-math is refused there too).
 }
 
 # GPU (CUDA) envs per code -- built ONLY with --device cuda (never on CPU/CI runs). A code
