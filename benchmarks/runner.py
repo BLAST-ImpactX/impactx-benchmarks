@@ -157,7 +157,7 @@ def _run_layout(cfg, sc, npart, ranks, threads, nruns, ncores, cpus):
             f"layout {ranks}r x {threads}t = {ranks * threads} cores exceeds budget "
             f"{ncores} (MPI ranks * OMP threads must be <= ncores)"
         )
-    context = _render_context(cfg, sc, npart, threads)
+    context = _render_context(cfg, sc, npart, threads, ranks)
     with tempfile.TemporaryDirectory(prefix="benchrun_") as tmp:
         script = render_mod.render_run_script(cfg.code, sc.name, context, Path(tmp))
         cmd = _launch_cmd(cfg, script, ranks, threads, cpus)
@@ -192,7 +192,7 @@ def _write_run_manifest(cfg: Config, sc: Scenario, npart: int, ranks: int, threa
         for old in cell.glob("*"):  # drop stale files so a re-run reflects the current template
             if old.is_file():
                 old.unlink()
-        context = _render_context(cfg, sc, npart, threads)
+        context = _render_context(cfg, sc, npart, threads, ranks)
         script = render_mod.render_run_script(cfg.code, sc.name, context, cell)
         # repo-relative script path keeps the reproduction command readable (not machine-absolute)
         cmd = _launch_cmd(cfg, script.relative_to(REPO_ROOT), ranks, threads, cpus)
@@ -256,7 +256,7 @@ def run_one(cfg: Config, sc: Scenario, npart: int, ncores: int, nruns: int, slug
             "push_per_sec": push_per_sec, "observables": observables, "cores": cores}
 
 
-def _render_context(cfg: Config, sc: Scenario, npart: int, threads: int) -> dict:
+def _render_context(cfg: Config, sc: Scenario, npart: int, threads: int, ranks: int = 1) -> dict:
     """Build the Jinja context: scenario params + config knobs + runtime."""
     import importlib
 
@@ -272,6 +272,7 @@ def _render_context(cfg: Config, sc: Scenario, npart: int, threads: int) -> dict
         "scenario": sc.name,
         "npart": npart,
         "threads": threads,   # per-process thread count for this layout
+        "ranks": ranks,       # MPI rank count of this layout (templates key grid decomposition on it)
         "ncores": threads,    # backward-compat alias for templates
         "precision": cfg.precision,
         "dtype": "float64" if cfg.precision == "double" else "float32",

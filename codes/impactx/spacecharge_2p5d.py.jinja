@@ -39,12 +39,20 @@ def load_beam(sim):
 
 
 sim = ImpactX()
+# Grid decomposition keyed on the MPI rank count of this layout ({{ ranks }} rank(s), baked in at
+# render time). ONE rank (every GPU run + 1-rank pure-OpenMP CPU layouts) -> EXACTLY ONE grid, so
+# there is no inter-box particle Redistribute (which otherwise dominates and scales super-linearly).
+# >1 rank -> split so each rank can own a grid. The open-BC FFT solver gathers the full domain, so
+# the result is unchanged. amr.max_grid_size = n_cell (before init_grids) stops AMReX auto-splitting.
+{% if ranks == 1 %}
+import amrex.space3d as _amr
+_amr.ParmParse("amr").add("max_grid_size", n)
+bf = n
+{% else %}
+bf = max(n // 2, 1)
+{% endif %}
 sim.max_level = 0
 sim.n_cell = [n, n, n]
-# Split each axis into 2 blocks (8 grids total) so MPI ranks can each own a grid -- a single
-# n_cell-sized block leaves extra ranks with no grid ("needs at least one grid"). The open-BC
-# FFT solver gathers the full domain, so this decomposition does not change the result.
-bf = max(n // 2, 1)
 sim.blocking_factor_x = [bf]
 sim.blocking_factor_y = [bf]
 sim.blocking_factor_z = [bf]
