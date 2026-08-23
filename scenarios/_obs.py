@@ -28,10 +28,10 @@ def _gpu_sync():
                 torch.cuda.synchronize()
         except Exception:
             pass
-    cupy = sys.modules.get("cupy")
+    cupy = sys.modules.get("cupy")  # Xsuite's ContextCupy imports it for device=cuda
     if cupy is not None:
         try:
-            cupy.cuda.Stream.null.synchronize()
+            cupy.cuda.Device().synchronize()  # whole device (ALL streams), robust vs xtrack's stream choice
         except Exception:
             pass
 
