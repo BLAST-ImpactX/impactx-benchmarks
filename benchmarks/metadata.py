@@ -230,8 +230,9 @@ def code_versions(envs: list[str]) -> dict:
 # we use ``git describe`` of the built checkout (captures the exact commit / PR branch);
 # for pip codes the installed package version.
 _CODE_SRC_DIRS = {
-    # DP (reference) build tree first; fall back to the legacy shared path
-    "impactx": [".builds/src/impactx-cpu-dp", ".builds/src/impactx"],
+    # DP-CPU-IEEE reference tree first (the tag TAG=<device>-<prec><fmtag> naming build.sh uses now);
+    # then legacy paths for older trees.
+    "impactx": [".builds/src/impactx-cpu-dp-ieee", ".builds/src/impactx-cpu-dp", ".builds/src/impactx"],
     "pyorbit": [os.environ.get("PYORBIT_SRC", ""), "/home/axel/src/PyORBIT3", ".builds/src/PyORBIT3"],
     "scibmad": [os.environ.get("SCIBMAD_PATH", ""), "/home/axel/src/SciBmad.jl", ".builds/src/SciBmad.jl"],
     "bmad": [os.environ.get("BMAD_SRC", ""), "/home/axel/src/bmad-ecosystem", ".builds/src/bmad-ecosystem"],
@@ -254,11 +255,22 @@ def _git_describe(path: str) -> str:
     return out.strip() if out else ""
 
 
+def _built_ref(path: str) -> str:
+    """The human ref the build stamped into the checkout (.bench_ref), e.g. "26.08". DRY: this is
+    exactly what build.sh checked out, so build and plot label agree by construction. Preferred over
+    git describe, which falls back to a bare SHA when a shallow tag fetch leaves no local tag."""
+    try:
+        return Path(path, ".bench_ref").read_text().strip()
+    except Exception:
+        return ""
+
+
 def code_version_label(code: str) -> str:
-    """Best single version string for a code: git describe of the source checkout
-    (preferred, captures the exact commit/PR), else the installed package version."""
+    """Best single version string for a code: the build's stamped ref (.bench_ref, DRY) first, else
+    git describe of the source checkout (captures the exact commit/PR), else the installed package
+    version."""
     for d in _CODE_SRC_DIRS.get(code, []):
-        v = _git_describe(d)
+        v = _built_ref(d) or _git_describe(d)
         if v:
             return v
     pkg = _CODE_MAIN_PKG.get(code)

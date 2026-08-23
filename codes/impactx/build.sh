@@ -39,6 +39,11 @@ git -C "$SRC" fetch --depth 1 origin "$REF"
 git -C "$SRC" checkout -q FETCH_HEAD
 HEAD_NOW="$(git -C "$SRC" rev-parse HEAD)"
 echo "ImpactX ref=$REF -> $(git -C "$SRC" rev-parse --short HEAD)"
+# DRY version label: record the exact human ref we built (e.g. "26.08"), so metadata/plots show
+# THAT single source of truth instead of re-deriving it -- a shallow tag fetch never creates the
+# local tag, so `git describe` would otherwise fall back to a bare SHA. (benchmarks/metadata.py
+# reads .bench_ref first.) Works for tags, branches, and PR heads alike.
+echo "$REF" > "$SRC/.bench_ref"
 # Ref-change guard: a pin bump (e.g. 26.06 -> 26.08) can require a NEWER fetched AMReX, but a stale
 # build/ reuses the OLD AMReX -> missing-header failures (e.g. AMReX_GpuParallelReduce.H). The
 # flag-based guard below only catches CXXFLAGS changes, not a source-ref change -- so wipe build/ here
