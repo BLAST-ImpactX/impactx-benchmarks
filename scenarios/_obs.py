@@ -12,14 +12,42 @@ import time
 import numpy as np
 
 
+def _gpu_sync():
+    """Block until all queued GPU work finishes, for any GPU framework already imported by the
+    run script. GPU kernel launches are ASYNCHRONOUS: without this, a wall-clock timer around a
+    track call measures only the Python-side launch (precision-independent, ~instant for a fused
+    torch.compile kernel), not the execution -- inflating throughput ~100-450x and making FP32 and
+    FP64 look identical. We only touch a framework if the run already imported it (sys.modules), so
+    this stays a no-op for CPU runs and for codes that sync themselves (AMReX ImpactX, CUDA.@sync
+    SciBmad -- an extra sync there is harmless)."""
+    import sys
+    torch = sys.modules.get("torch")
+    if torch is not None:
+        try:
+            if torch.cuda.is_available():
+                torch.cuda.synchronize()
+        except Exception:
+            pass
+    cupy = sys.modules.get("cupy")
+    if cupy is not None:
+        try:
+            cupy.cuda.Stream.null.synchronize()
+        except Exception:
+            pass
+
+
 class Timer:
-    """Wall-clock timer in nanoseconds (``with Timer() as t: ...; t.ns``)."""
+    """Wall-clock timer in nanoseconds (``with Timer() as t: ...; t.ns``). Drains the GPU on both
+    entry (flush any pending warm-up work) and exit (wait for the timed kernels) so the interval is
+    the GPU EXECUTION time, not the async launch time. See _gpu_sync."""
 
     def __enter__(self):
+        _gpu_sync()
         self._t0 = time.perf_counter_ns()
         return self
 
     def __exit__(self, *exc):
+        _gpu_sync()
         self.ns = time.perf_counter_ns() - self._t0
         return False
 
