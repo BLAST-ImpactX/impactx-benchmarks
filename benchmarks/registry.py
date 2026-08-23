@@ -346,14 +346,22 @@ SCENARIOS: dict[str, Scenario] = {
         tolerances={"default": 3e-2},
         reference="impactx",
         # Chromatic-paraxial model (quads + drifts). Cheetah lacks a chromatic quad/drift and
-        # SciBmad lacks a chromatic drift, so they run the costlier exact map -> asterisk.
+        # SciBmad lacks a chromatic drift, so they run the costlier exact map -> asterisk (untuned).
         untuned_codes={
             "cheetah": "no chromatic quad/drift; runs the exact drift_kick_drift map",
             "scibmad": "drift is exact-only; runs an exact (non-paraxial) drift",
             "bmad": "only exact bmad_standard tracking; no chromatic-paraxial model",
-            "elegant": "tracks geometric slope (x,x') not canonical (x,px); ~4% chromatic diff at 2.5% spread",
         },
-        untuned_note="*  Elegant tracks slope coords (x,x'); its chromatic betatron differs ~4% here (see codes/elegant/htu.lte.jinja)",
+        untuned_note="*  Cheetah/SciBmad/Bmad have no chromatic-paraxial model here; they run the costlier exact map (agrees within tol)",
+        # Elegant is a genuine MODEL difference, not merely untuned: source-verified (2026-08-23) that it
+        # tracks the geometric SLOPE (x,x'), NOT canonical (x,px). EDRIFT is x+=x'*L with NO delta
+        # (csbend.c:exactDrift), track.h:84 declares coords (x,xp,y,yp,s,delta), and elegant's own
+        # convertSlopesToMomenta gives px/p0=(1+delta)*x' (multipole.h). So its chromatic betatron
+        # magnification diverges ~4% at htu's 2.5% energy spread -> model_mismatch (dashed), not
+        # "incorrect". Confirmed model-independent (monoenergetic beams match; grows with sigma_p).
+        model_mismatch_codes={
+            "elegant": "tracks geometric slope (x,x') not canonical (x,px); px/p0=(1+delta)x' -> ~4% chromatic betatron diff at 2.5% spread",
+        },
     ),
     "htu_spin": Scenario(
         name="htu_spin",
@@ -371,12 +379,17 @@ SCENARIOS: dict[str, Scenario] = {
         reference="impactx",
         # Cheetah/pyAT/PyORBIT have no spin tracking -> unsupported via the SPIN capability.
         # Xsuite/SciBmad are SPIN-capable; their htu_spin templates are pending (not_in_harness).
-        # Elegant HAS spin, but its magnetic Thomas-BMT is new in 2026.x (partly AI-assisted, with an
-        # author-noted sign caveat) -> shown but asterisked pending independent validation.
-        untuned_codes={
-            "elegant": "experimental magnetic Thomas-BMT spin (new in 2026.x; sign-convention caveat)",
+        # Elegant HAS spin code, but its magnetic Thomas-BMT is EXPERIMENTAL and self-flagged unreliable
+        # (source-verified 2026-08-23): spinUpdate.c is ChatGPT-authored with an unresolved SIGN caveat,
+        # KQUAD and CSBEND-edge use internally-inconsistent precession formulas, and canonical momenta are
+        # passed where the routine expects slopes. On htu it yields ZERO spin spread (sigma_sx=0, 100%
+        # off) -- our setup (spin_tracking=1) and observable (sqrt(Sspxx), centered) are both correct per
+        # source, so there is nothing to fix on our side. It is not a validated capability and not a
+        # trustworthy competing model -> unsupported (excluded), NOT model_mismatch (which would imply a
+        # legitimate model) and NOT incorrect (which would imply a bug in a working model).
+        unsupported_codes={
+            "elegant": "experimental magnetic Thomas-BMT spin (ChatGPT-authored spinUpdate.c, unresolved sign bug, inconsistent per-element formulas) -> zero spin spread; not a validated capability",
         },
-        untuned_note="*  Elegant spin tracking is new/experimental (magnetic-field-only Thomas-BMT)",
     ),
     # Two separate space-charge benchmarks: 3D for the codes that do full 3D PIC, and
     # 2.5D for those that do 2.5D. A code without the matching model is simply
