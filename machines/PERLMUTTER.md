@@ -12,13 +12,23 @@ glibc 2.38, and conda **CUDA 13.2** — the exact-fit match to Perlmutter's defa
 (Aug 2026); a 13.2-built binary is guaranteed to run on its 13.2 driver (see `pixi.toml
 [system-requirements]` / `[feature.cuda]`).
 
-## 1. Clone
+## 1. Clone (into `$PSCRATCH`) + pixi
+
+Work from scratch — pixi materializes many-file envs; `$HOME` inode limits bite, and compute nodes
+can read `$PSCRATCH`. (Use `$CFS/m5125/...` instead if you need it to survive the scratch purge.)
 
 ```bash
+cd "$PSCRATCH"
 git clone https://github.com/BLAST-ImpactX/impactx-benchmarks.git
 cd impactx-benchmarks
 ```
-(pixi must be on PATH — `module load pixi` or a user install.)
+
+pixi on PATH — NERSC has no pixi module, so user-install once (skips if already present):
+
+```bash
+command -v pixi >/dev/null || { curl -fsSL https://pixi.sh/install.sh | bash && source ~/.bashrc; }
+pixi --version
+```
 
 ## 2. Build the environments — on a LOGIN node (once)
 
@@ -26,6 +36,17 @@ Compute nodes have no internet, so all conda/pip/git downloads + compiles happen
 
 ```bash
 bash machines/perlmutter_setup.sh     # builds all CPU + GPU envs (znver3, fast-math ON, sm_80)
+```
+
+This is the long step (from-source Bmad/SciBmad/PyORBIT/ImpactX/Elegant/HELIX). When it finishes,
+smoke-test the GPU build on a short interactive node **before** committing the multi-hour jobs — a
+broken env should not be discovered 12 h into a `regular` allocation:
+
+```bash
+salloc -A m5125 -C gpu -q interactive -N 1 -G 1 -t 00:20:00
+BENCH_MACHINE_SLUG=smoke pixi run -e default bench --codes impactx --scenarios fodo_exact \
+    --device cuda --precision single --nparts 100000,1000000 --runs 1 --skip-build
+rm -f results/smoke.yaml; exit          # discard the smoke result, drop the alloc
 ```
 
 ## 3. Submit the run jobs
@@ -38,19 +59,30 @@ same `results/perlmutter.yaml`):
 ```bash
 cpu=$(sbatch --parsable machines/perlmutter_cpu.sbatch)
 sbatch --dependency=afterok:$cpu machines/perlmutter_gpu.sbatch
+squeue --me                              # watch state; logs stream to bench-{cpu,gpu}.o<jobid>
 ```
 
 Each job runs `bench` (with `--skip-build`), then `validate` + `plot`; the GPU job also emits the
-GPU-FP32 comparison (`plots/gpu/`).
+GPU-FP32 comparison (`plots/gpu/`). **Heads-up:** the GPU job sweeps to 10⁹ particles at `runs=5`
+and requests `-t 12:00:00` — confirm that fits the current `regular` GPU QOS max walltime
+(`sacctmgr show qos regular format=Name,MaxWall`); if it's tight, trim the sweep in
+`perlmutter_gpu.sbatch` (drop the `1000000000` point) rather than risk a timeout.
 
 ## 4. Publish the results — back on a LOGIN node
 
-`publish` pushes to the `benchmarks` branch (needs internet + git credentials), so run it on a
-login node after both jobs finish:
+`publish` pushes results + plots to the `benchmarks` branch (needs internet + push credentials), so
+run it on a login node after both jobs finish. Set up an HTTPS token once (NERSC login nodes reach
+github.com over HTTPS; a GitHub Personal Access Token with `repo` scope is the reliable path):
 
 ```bash
-pixi run -e default python -m benchmarks.publish --push
+git config --global credential.helper store    # caches the token after the first push
+pixi run publish --push                          # first push prompts: username + PAT (not password)
 ```
+
+`--remote` is auto-detected (a fresh clone's `origin`). Re-run `publish` (no `--push`) first for a
+dry run if you want to preview what will be committed. The results land as
+`results/perlmutter.yaml` + `plots/` (incl. `plots/gpu/`) on the `benchmarks` branch, plus a
+timestamped `history/<utc>_perlmutter/` archive.
 
 ## Knobs (already set by the scripts)
 
