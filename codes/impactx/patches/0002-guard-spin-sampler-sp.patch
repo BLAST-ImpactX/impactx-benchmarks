@@ -1,0 +1,45 @@
+# Harness patch on top of the pinned ImpactX 26.08 release.
+#
+# Guard the spin (von Mises-Fisher) sampler for SINGLE PRECISION. SpinvMF draws
+# x2 = amrex::Random() and forms t = 1 + log1p(x2*expm1(-2*kappa))/kappa. In FP32 the GPU path
+# (1.0f - curand_uniform()) can round UP to exactly 1.0f (curand < ~2^-25); for a fully polarized
+# mean vector kappa->inf so expm1(-2*kappa)==-1, and x2==1 gives log1p(-1)=-inf -> t=NaN -> a NaN
+# spin that poisons the whole-beam spin moments (htu_spin sigma_s* = NaN at large N, FP32/GPU).
+# Clamp x2 into [0,1); no-op in double precision. Companion to 0001 (same amrex::Random() FP32 edge).
+#
+# Upstream: BLAST-ImpactX/impactx#1627 (spin part), AMReX-Codes/amrex#5638 (root cause).
+# Applied by codes/impactx/build.sh after the 26.08 checkout. Remove once #1627 lands and the pin bumps.
+
+diff --git a/src/particles/distribution/SpinvMF.H b/src/particles/distribution/SpinvMF.H
+index a4f57a5db..2285c2236 100644
+--- a/src/particles/distribution/SpinvMF.H
++++ b/src/particles/distribution/SpinvMF.H
+@@ -12,11 +12,13 @@
+ 
+ #include <ablastr/constant.H>
+ 
++#include <AMReX_Algorithm.H>
+ #include <AMReX_Math.H>
+ #include <AMReX_Random.H>
+ #include <AMReX_REAL.H>
+ 
+ #include <cmath>
++#include <limits>
+ 
+ 
+ namespace impactx::distribution
+@@ -91,6 +93,14 @@ namespace impactx::distribution
+             // Sample two iid random variables:
+             amrex::ParticleReal x1 = amrex::Random(engine);
+             amrex::ParticleReal x2 = amrex::Random(engine);
++            // amrex::Random() is documented as [0,1) but in single precision its GPU path
++            // (1.0f - curand_uniform()) can round UP to exactly 1.0f (when curand < ~2^-25). For a
++            // strongly concentrated / fully polarized mean vector, expm1(-2*kappa) == -1 in single
++            // precision, so x2 == 1 makes log1p(x2*expm1(-2*kappa)) == log1p(-1) == -inf -> t == NaN
++            // -> u == sqrt(1 - NaN) == NaN, a NaN spin that poisons the whole-beam moments. Clamp x2
++            // back into [0,1); a no-op in double precision and for every non-pathological draw.
++            // Same amrex::Random() single-precision edge as the Box-Muller guards above (AMReX #5638).
++            x2 = amrex::min(x2, amrex::ParticleReal(1) - std::numeric_limits<amrex::ParticleReal>::epsilon());
+ 
+             // Basic transformation of the random variables:
+             amrex::ParticleReal c = std::cos(2_prt*pi*x1);
