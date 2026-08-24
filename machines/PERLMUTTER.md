@@ -6,7 +6,8 @@ PrgEnv modules). The matrix is **{CPU, GPU} × {SP, DP}** per code, **fast-math 
 
 **Layout:** CPU uses **one socket** of a 2× AMD EPYC 7763 node (64 physical cores, best
 MPI/OpenMP split, no hyperthread oversubscription). GPU uses **one A100-80GB** (`sm_80`) on an
-exclusive node, with a larger particle sweep. Builds target Zen3 (`-march=znver3`), Perlmutter's
+exclusive node, with the particle sweep **extended to 10⁹** to exploit the 80GB (the default tops at
+16M, sized for an 8GB card — see *GPU particle sweep* below). Builds target Zen3 (`-march=znver3`), Perlmutter's
 glibc 2.38, and conda **CUDA 13.2** — the exact-fit match to Perlmutter's default `cudatoolkit`
 (Aug 2026); a 13.2-built binary is guaranteed to run on its 13.2 driver (see `pixi.toml
 [system-requirements]` / `[feature.cuda]`).
@@ -59,7 +60,19 @@ pixi run -e default python -m benchmarks.publish --push
 | `BENCH_FASTMATH=1` | setup.sh (build) | fast-math ON (default; set `0` for an IEEE build) |
 | `BENCH_NCORES=64`, `BENCH_SOCKET=0` | cpu.sbatch (run) | pin to one 64-core EPYC socket |
 | `BENCH_CUDA_DEVICES=0` | gpu.sbatch (run) | single A100 |
+| `BENCH_NPARTS_GPU=…,1000000000` | gpu.sbatch (run) | 80GB particle sweep, passed as `--nparts` (overrides the 16M default) |
 | `BENCH_MACHINE_SLUG=perlmutter` | both | one merged results file + plots |
+
+### GPU particle sweep (80GB)
+
+The default GPU sweep (`registry._NPARTS_GPU`) tops at **16M** — that is the ceiling of an 8GB card
+(where it already OOM'd the PyTorch codes), not of an A100-80GB. `perlmutter_gpu.sbatch` therefore
+overrides it via `--nparts` up to **10⁹** to reach the compute-bound plateau. Expect a spread at the
+top: lean AMReX codes (ImpactX) scale furthest, while memory-heavy codes (Cheetah/HELIX, and space
+charge at the very top) OOM **gracefully** — classified `oom`, distinct from `failed`. The 10⁹ point
+with `runs=5` is heavy; **12h may not suffice** — if the job times out, drop the 10⁹ point, split
+`≥256M` into a follow-on job, or lower `--runs` (timing is stable at huge N). Verify `-t` against the
+current NERSC GPU `regular` QOS max walltime before submitting.
 
 ## Notes
 

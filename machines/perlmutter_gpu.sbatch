@@ -12,7 +12,7 @@
 #SBATCH -N 1
 #SBATCH --exclusive
 #SBATCH -G 4
-#SBATCH -t 06:00:00
+#SBATCH -t 12:00:00
 #SBATCH -J bench-gpu
 #SBATCH -o bench-gpu.o%j
 #SBATCH -e bench-gpu.e%j
@@ -20,14 +20,23 @@
 set -eu
 cd "${SLURM_SUBMIT_DIR:-$PWD}"
 
-# Exclusive node (4× A100) but the benchmark uses ONE GPU (CUDA_VISIBLE_DEVICES=0); GPU runs use
-# the larger nparts_gpu sweep. MPICH_GPU_SUPPORT_ENABLED=1 is the Cray-MPICH GPU-aware knob (moot at
-# 1 GPU / no MPI, but correct). Same results file ("perlmutter") as the CPU job -> merged.
+# Exclusive node (4× A100) but the benchmark uses ONE GPU (CUDA_VISIBLE_DEVICES=0).
+# MPICH_GPU_SUPPORT_ENABLED=1 is the Cray-MPICH GPU-aware knob (moot at 1 GPU / no MPI, but correct).
+# Same results file ("perlmutter") as the CPU job -> merged.
 export BENCH_MACHINE_SLUG=perlmutter
 export BENCH_CUDA_DEVICES=0
 export MPICH_GPU_SUPPORT_ENABLED=1
 
-pixi run -e default bench --device cuda --skip-build
+# 80GB sweep. The default nparts_gpu tops at 16M -- sized for an 8GB card, where 16M is already the
+# ceiling (it OOM'd the PyTorch codes). An A100-80GB has ~10x the memory, so extend the sweep with
+# --nparts (which overrides the per-scenario default) up to 1e9 to reach the compute-bound plateau.
+# Expect a spread at the top: lean AMReX codes (ImpactX) scale furthest; memory-heavy codes
+# (Cheetah/HELIX, and space charge at the very top) OOM gracefully (classified 'oom', not failed).
+# NOTE: 1e9 x runs=5 across all GPU configs is heavy -- 12h may not suffice. If it times out, either
+# drop the 1e9 point, split >=256M into a follow-on job, or lower --runs (timing is stable at huge N).
+# Verify -t against the current NERSC GPU 'regular' QOS max walltime before submitting.
+export BENCH_NPARTS_GPU="100000,1000000,4000000,16000000,64000000,256000000,1000000000"
+pixi run -e default bench --device cuda --skip-build --nparts "$BENCH_NPARTS_GPU"
 pixi run -e default validate
 pixi run -e default plot
 pixi run -e default python -m benchmarks.plotting --gpu   # GPU-FP32 cross-code comparison
