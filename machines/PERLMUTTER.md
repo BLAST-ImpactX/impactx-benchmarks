@@ -38,6 +38,20 @@ Compute nodes have no internet, so all conda/pip/git downloads + compiles happen
 bash machines/perlmutter_setup.sh     # builds all CPU + GPU envs (znver3, fast-math ON, sm_80)
 ```
 
+**Long-running — use tmux** so it survives logout (it must stay on a login node; compute nodes
+have no internet). Note the login node first — Perlmutter load-balances `perlmutter.nersc.gov`, so
+you reattach only on the *same* node:
+
+```bash
+hostname                                        # e.g. login09 — remember it
+tmux new -s bench
+bash machines/perlmutter_setup.sh 2>&1 | tee setup.log
+#   detach: Ctrl-b then d ; log off. Reattach later:
+#   ssh perlmutter.nersc.gov && ssh login09 && tmux attach -t bench   (or: tail -f setup.log)
+```
+ccache + already-installed pixi envs make a restart cheap if you need to stop/resume. If NERSC's
+login limiter throttles the 16-core build, re-run with `BUILD_NPROC=8`.
+
 This is the long step (from-source Bmad/SciBmad/PyORBIT/ImpactX/Elegant/HELIX). When it finishes,
 smoke-test the GPU build on a short interactive node **before** committing the multi-hour jobs — a
 broken env should not be discovered 12 h into a `regular` allocation:
