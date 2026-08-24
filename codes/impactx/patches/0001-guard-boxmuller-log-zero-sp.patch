@@ -1,0 +1,242 @@
+# Harness patch on top of the pinned ImpactX 26.08 release.
+#
+# Guard the Box-Muller log(0) in the beam distributions for SINGLE PRECISION.
+# amrex::Random() is documented as [0,1) but in FP32 its GPU path (1.0f - curand_uniform())
+# both (a) equals exactly 0.0f (when curand==1) and (b) rounds up to exactly 1.0f (when
+# curand<~2^-25). Either way std::log(u1) -> log(0) = -inf -> a +/-inf particle collapses
+# ImpactX's dynamically-sized space-charge mesh -> abort in Geometry::computeRoundoffDomain()
+# before tracking. Single-precision-only, N-dependent (near-certain by ~1e6 particles).
+# Clamp u1 to the smallest positive normal at every Box-Muller log(u1) site (no-op in double
+# precision and for every non-pathological draw; FTZ/fast-math-safe).
+#
+# Upstream root cause: AMReX-Codes/amrex#5638 . Upstream fix (this exact change):
+# BLAST-ImpactX/impactx#1627 . Remove this patch once 1627 lands and the pin is bumped past it.
+# Applied by codes/impactx/build.sh with `git apply` after the 26.08 checkout.
+
+diff --git a/src/particles/distribution/Gaussian.H b/src/particles/distribution/Gaussian.H
+index a291bd5..bf6857c 100644
+--- a/src/particles/distribution/Gaussian.H
++++ b/src/particles/distribution/Gaussian.H
+@@ -15,9 +15,11 @@
+ #include <ablastr/constant.H>
+ 
+ #include <AMReX_Random.H>
++#include <AMReX_Algorithm.H>
+ #include <AMReX_REAL.H>
+ 
+ #include <cmath>
++#include <limits>
+ 
+ 
+ namespace impactx::distribution
+@@ -120,6 +122,7 @@ namespace impactx::distribution
+             // Generate three pairs of (optionally truncated) normal random variables using Box-Muller:
+ 
+             u1 = amrex::Random(engine);
++            u1 = amrex::max(u1, std::numeric_limits<amrex::ParticleReal>::min());  // guard log(0): amrex::Random() may be exactly 0 in single precision
+             u2 = amrex::Random(engine);
+             if (m_cutX > 0.0_prt) {
+                 amrex::ParticleReal f = m_cutX*m_cutX/2.0_prt;
+@@ -134,6 +137,7 @@ namespace impactx::distribution
+             px = ln1 * std::sin(2_prt*pi*u2);
+ 
+             u1 = amrex::Random(engine);
++            u1 = amrex::max(u1, std::numeric_limits<amrex::ParticleReal>::min());  // guard log(0): amrex::Random() may be exactly 0 in single precision
+             u2 = amrex::Random(engine);
+             if (m_cutY > 0.0_prt) {
+                 amrex::ParticleReal f = m_cutY*m_cutY/2.0_prt;
+@@ -148,6 +152,7 @@ namespace impactx::distribution
+             py = ln1 * std::sin(2_prt*pi*u2);
+ 
+             u1 = amrex::Random(engine);
++            u1 = amrex::max(u1, std::numeric_limits<amrex::ParticleReal>::min());  // guard log(0): amrex::Random() may be exactly 0 in single precision
+             u2 = amrex::Random(engine);
+             if (m_cutT > 0.0_prt) {
+                 amrex::ParticleReal f = m_cutT*m_cutT/2.0_prt;
+diff --git a/src/particles/distribution/KVdist.H b/src/particles/distribution/KVdist.H
+index 9e33385..2853a9e 100644
+--- a/src/particles/distribution/KVdist.H
++++ b/src/particles/distribution/KVdist.H
+@@ -16,9 +16,11 @@
+ 
+ #include <AMReX_Math.H>
+ #include <AMReX_Random.H>
++#include <AMReX_Algorithm.H>
+ #include <AMReX_REAL.H>
+ 
+ #include <cmath>
++#include <limits>
+ 
+ 
+ namespace impactx::distribution
+@@ -133,6 +135,7 @@ namespace impactx::distribution
+             t = amrex::Random(engine);
+             t = 2.0_prt*(t-0.5_prt);
+             u1 = amrex::Random(engine);
++            u1 = amrex::max(u1, std::numeric_limits<amrex::ParticleReal>::min());  // guard log(0): amrex::Random() may be exactly 0 in single precision
+             u2 = amrex::Random(engine);
+             ln1 = std::sqrt(-2_prt*std::log(u1));
+             pt = ln1 * std::cos(2_prt*pi*u2);
+diff --git a/src/particles/distribution/Kurth4D.H b/src/particles/distribution/Kurth4D.H
+index 343bf00..8b84aa4 100644
+--- a/src/particles/distribution/Kurth4D.H
++++ b/src/particles/distribution/Kurth4D.H
+@@ -16,9 +16,11 @@
+ 
+ #include <AMReX_Math.H>
+ #include <AMReX_Random.H>
++#include <AMReX_Algorithm.H>
+ #include <AMReX_REAL.H>
+ 
+ #include <cmath>
++#include <limits>
+ 
+ 
+ namespace impactx::distribution
+@@ -143,6 +145,7 @@ namespace impactx::distribution
+             t = amrex::Random(engine);
+             t = 2.0_prt*(t-0.5_prt);
+             u1 = amrex::Random(engine);
++            u1 = amrex::max(u1, std::numeric_limits<amrex::ParticleReal>::min());  // guard log(0): amrex::Random() may be exactly 0 in single precision
+             u2 = amrex::Random(engine);
+             ln1 = std::sqrt(-2_prt*std::log(u1));
+             pt = ln1 * std::cos(2_prt*pi*u2);
+diff --git a/src/particles/distribution/Semigaussian.H b/src/particles/distribution/Semigaussian.H
+index 7c82a07..e5ce07d 100644
+--- a/src/particles/distribution/Semigaussian.H
++++ b/src/particles/distribution/Semigaussian.H
+@@ -15,9 +15,11 @@
+ #include <ablastr/constant.H>
+ 
+ #include <AMReX_Random.H>
++#include <AMReX_Algorithm.H>
+ #include <AMReX_REAL.H>
+ 
+ #include <cmath>
++#include <limits>
+ 
+ 
+ namespace impactx::distribution
+@@ -133,12 +135,14 @@ namespace impactx::distribution
+             // Generate three normal random variables (px,py,pt) using Box-Muller:
+ 
+             u1 = amrex::Random(engine);
++            u1 = amrex::max(u1, std::numeric_limits<amrex::ParticleReal>::min());  // guard log(0): amrex::Random() may be exactly 0 in single precision
+             u2 = amrex::Random(engine);
+             ln1 = std::sqrt(-2_prt*std::log(u1));
+             px = ln1 * std::cos(2_prt*pi*u2);
+             py = ln1 * std::sin(2_prt*pi*u2);
+ 
+             u1 = amrex::Random(engine);
++            u1 = amrex::max(u1, std::numeric_limits<amrex::ParticleReal>::min());  // guard log(0): amrex::Random() may be exactly 0 in single precision
+             u2 = amrex::Random(engine);
+             ln1 = std::sqrt(-2_prt*std::log(u1));
+             pt = ln1 * std::cos(2_prt*pi*u2);
+diff --git a/src/particles/distribution/Thermal.H b/src/particles/distribution/Thermal.H
+index 81b61ea..fe07b96 100644
+--- a/src/particles/distribution/Thermal.H
++++ b/src/particles/distribution/Thermal.H
+@@ -18,9 +18,11 @@
+ #include <AMReX_Math.H>
+ #include <AMReX_Print.H>
+ #include <AMReX_Random.H>
++#include <AMReX_Algorithm.H>
+ #include <AMReX_REAL.H>
+ 
+ #include <cmath>
++#include <limits>
+ #include <cstdint>
+ #include <memory>
+ #include <random>
+@@ -375,16 +377,19 @@ namespace distribution
+ 
+             // Generate six standard normal random variables using Box-Muller:
+             u1 = amrex::Random(engine);
++            u1 = amrex::max(u1, std::numeric_limits<amrex::ParticleReal>::min());  // guard log(0): amrex::Random() may be exactly 0 in single precision
+             u2 = amrex::Random(engine);
+             ln1 = std::sqrt(-2_prt*std::log(u1));
+             g1 = ln1 * std::cos(2_prt*pi*u2);
+             g2 = ln1 * std::sin(2_prt*pi*u2);
+             u1 = amrex::Random(engine);
++            u1 = amrex::max(u1, std::numeric_limits<amrex::ParticleReal>::min());  // guard log(0): amrex::Random() may be exactly 0 in single precision
+             u2 = amrex::Random(engine);
+             ln1 = std::sqrt(-2_prt*std::log(u1));
+             g3 = ln1 * std::cos(2_prt*pi*u2);
+             g4 = ln1 * std::sin(2_prt*pi*u2);
+             u1 = amrex::Random(engine);
++            u1 = amrex::max(u1, std::numeric_limits<amrex::ParticleReal>::min());  // guard log(0): amrex::Random() may be exactly 0 in single precision
+             u2 = amrex::Random(engine);
+             ln1 = std::sqrt(-2_prt*std::log(u1));
+             g5 = ln1 * std::cos(2_prt*pi*u2);
+diff --git a/src/particles/distribution/Triangle.H b/src/particles/distribution/Triangle.H
+index 24085b1..5ad9846 100644
+--- a/src/particles/distribution/Triangle.H
++++ b/src/particles/distribution/Triangle.H
+@@ -15,9 +15,11 @@
+ #include <ablastr/constant.H>
+ 
+ #include <AMReX_Random.H>
++#include <AMReX_Algorithm.H>
+ #include <AMReX_REAL.H>
+ 
+ #include <cmath>
++#include <limits>
+ 
+ 
+ namespace impactx::distribution
+@@ -113,16 +115,19 @@ namespace impactx::distribution
+ 
+             // Generate five standard normal random variables using Box-Muller:
+             u1 = amrex::Random(engine);
++            u1 = amrex::max(u1, std::numeric_limits<amrex::ParticleReal>::min());  // guard log(0): amrex::Random() may be exactly 0 in single precision
+             u2 = amrex::Random(engine);
+             ln1 = std::sqrt(-2_prt*std::log(u1));
+             g1 = ln1 * std::cos(2_prt*pi*u2);
+             g2 = ln1 * std::sin(2_prt*pi*u2);
+             u1 = amrex::Random(engine);
++            u1 = amrex::max(u1, std::numeric_limits<amrex::ParticleReal>::min());  // guard log(0): amrex::Random() may be exactly 0 in single precision
+             u2 = amrex::Random(engine);
+             ln1 = std::sqrt(-2_prt*std::log(u1));
+             g3 = ln1 * std::cos(2_prt*pi*u2);
+             g4 = ln1 * std::sin(2_prt*pi*u2);
+             u1 = amrex::Random(engine);
++            u1 = amrex::max(u1, std::numeric_limits<amrex::ParticleReal>::min());  // guard log(0): amrex::Random() may be exactly 0 in single precision
+             u2 = amrex::Random(engine);
+             ln1 = std::sqrt(-2_prt*std::log(u1));
+             g5 = ln1 * std::cos(2_prt*pi*u2);
+diff --git a/src/particles/distribution/Waterbag.H b/src/particles/distribution/Waterbag.H
+index ae06cd7..084cf6e 100644
+--- a/src/particles/distribution/Waterbag.H
++++ b/src/particles/distribution/Waterbag.H
+@@ -15,9 +15,11 @@
+ #include <ablastr/constant.H>
+ 
+ #include <AMReX_Random.H>
++#include <AMReX_Algorithm.H>
+ #include <AMReX_REAL.H>
+ 
+ #include <cmath>
++#include <limits>
+ 
+ 
+ namespace impactx::distribution
+@@ -114,16 +116,19 @@ namespace impactx::distribution
+ 
+             // Generate six standard normal random variables using Box-Muller:
+             u1 = amrex::Random(engine);
++            u1 = amrex::max(u1, std::numeric_limits<amrex::ParticleReal>::min());  // guard log(0): amrex::Random() may be exactly 0 in single precision
+             u2 = amrex::Random(engine);
+             ln1 = std::sqrt(-2_prt*std::log(u1));
+             g1 = ln1*std::cos(2_prt*pi*u2);
+             g2 = ln1*std::sin(2_prt*pi*u2);
+             u1 = amrex::Random(engine);
++            u1 = amrex::max(u1, std::numeric_limits<amrex::ParticleReal>::min());  // guard log(0): amrex::Random() may be exactly 0 in single precision
+             u2 = amrex::Random(engine);
+             ln1 = std::sqrt(-2_prt*std::log(u1));
+             g3 = ln1*std::cos(2_prt*pi*u2);
+             g4 = ln1*std::sin(2_prt*pi*u2);
+             u1 = amrex::Random(engine);
++            u1 = amrex::max(u1, std::numeric_limits<amrex::ParticleReal>::min());  // guard log(0): amrex::Random() may be exactly 0 in single precision
+             u2 = amrex::Random(engine);
+             ln1 = std::sqrt(-2_prt*std::log(u1));
+             g5 = ln1*std::cos(2_prt*pi*u2);

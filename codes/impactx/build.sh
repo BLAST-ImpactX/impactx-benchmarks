@@ -39,6 +39,23 @@ git -C "$SRC" fetch --depth 1 origin "$REF"
 git -C "$SRC" checkout -q FETCH_HEAD
 HEAD_NOW="$(git -C "$SRC" rev-parse HEAD)"
 echo "ImpactX ref=$REF -> $(git -C "$SRC" rev-parse --short HEAD)"
+# Harness-local patches on top of the pinned ref -- bug fixes we need before they land upstream
+# and the pin is bumped. `git checkout FETCH_HEAD` above resets the tree every run, so patches
+# always apply to clean source; the `--reverse --check` guard makes a re-run without a fresh
+# checkout a no-op instead of a double-apply error. See each patch's header for provenance
+# (currently: Box-Muller log(0) guard for single precision -- ImpactX #1627 / AMReX #5638).
+PATCH_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/patches"
+if [ -d "$PATCH_DIR" ]; then
+    for p in "$PATCH_DIR"/*.patch; do
+        [ -e "$p" ] || continue
+        if git -C "$SRC" apply --reverse --check "$p" 2>/dev/null; then
+            echo "  patch already applied: $(basename "$p")"
+        else
+            echo "  applying patch: $(basename "$p")"
+            git -C "$SRC" apply "$p"
+        fi
+    done
+fi
 # DRY version label: record the exact human ref we built (e.g. "26.08"), so metadata/plots show
 # THAT single source of truth instead of re-deriving it -- a shallow tag fetch never creates the
 # local tag, so `git describe` would otherwise fall back to a bare SHA. (benchmarks/metadata.py
