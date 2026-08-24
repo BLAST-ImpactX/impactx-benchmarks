@@ -60,6 +60,13 @@ def _compare(obs: dict, ref: dict, keys, tolerances: dict, npart: int) -> tuple[
         except (TypeError, ValueError):
             continue
         compared += 1
+        # A non-finite observable (NaN/Inf) can never be "within tolerance". NaN comparisons
+        # silently evaluate to False (``nan > tol`` is False), so without this explicit guard a
+        # NaN/Inf would leave ``all_within`` True and slip through as physics=correct.
+        if not math.isfinite(obs_f):
+            all_within = False
+            worst_err, worst_key = float("inf"), key
+            continue
         scale = max(abs(ref_f), 1e-30)
         rel = abs(obs_f - ref_f) / scale
         eff_tol = tolerances.get(key, default_tol) + sampling
@@ -144,7 +151,8 @@ def classify_measurement(data: dict, cfg: Config, sc: Scenario, entry: dict) -> 
     if within:
         return "correct", ""
 
-    reason = f"{worst} off by {err:.2%}"
+    reason = (f"{worst} is non-finite (NaN/Inf)" if not math.isfinite(err)
+              else f"{worst} off by {err:.2%}")
     if cfg.precision == "single" and _dp_sibling_correct(
         data, cfg, results_mod.measurement_key(sc.name, entry["npart"])
     ):
