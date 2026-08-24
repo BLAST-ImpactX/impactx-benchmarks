@@ -1,0 +1,37 @@
+! Auto-generated Elegant command file: elegant / htu_spin
+! Beam + reference matched to the ImpactX reference (untruncated Gaussian; same twiss).
+! p_central_mev = pc in MeV = sqrt((T+m)^2 - m^2). The lattice (beamline "BL") is in elegant__htu_spin.lte.
+&run_setup
+    lattice = "elegant__htu_spin.lte",
+    use_beamline = "BL",
+    p_central_mev = 99.9986943918389,
+    default_order = 3,
+    final = "%s.fin",
+    ! In-situ spin sigma matrix (Sspxx/Sspyy) written per element to the aggregate sigma file --
+    ! NO per-particle phase-space dump (that %s.out is O(npart) I/O and dominates at production N).
+    ! Elegant accumulates the spin sigma CENTERED (compute_centroids.c: (sp-<sp>)^2), so
+    ! sqrt(Sspxx) is exactly the RMS spin spread we validate against.
+    sigma = "%s.sig",
+    spin_tracking = 1,
+&end
+
+&run_control n_passes = 1 &end
+
+! Uncorrelated 6-D Gaussian: transverse from (emit, beta, alpha); longitudinal from sigma_s/sigma_dp
+! directly (alpha_z = 0, matching ImpactX beta_t = sigma_t/sigma_p, emitt_t = sigma_t*sigma_p).
+! distribution_cutoff huge => untruncated Gaussian (ImpactX distribution.Gaussian is not truncated).
+&bunched_beam
+    n_particles_per_bunch = 1000,
+    emit_x = 7.665084336342948e-09, beta_x = 0.002, alpha_x = 0.0,
+    emit_y = 7.665084336342948e-09, beta_y = 0.002, alpha_y = 0.0,
+    sigma_dp = 0.025,
+    sigma_s = 1e-06,
+    ! mean fractional momentum offset (htu: mu_p=1%); coord 5 is delta=(p-p0)/p0, matching
+    ! ImpactX meanPt=-mu_p (both = higher momentum). 0 for scenarios without mu_p (e.g. FODO).
+    centroid[5] = 0.01,
+    distribution_type[0] = 3*"gaussian",
+    distribution_cutoff[0] = 3*100,
+    spin[0] = 0, 0, 1,
+&end
+
+&track &end

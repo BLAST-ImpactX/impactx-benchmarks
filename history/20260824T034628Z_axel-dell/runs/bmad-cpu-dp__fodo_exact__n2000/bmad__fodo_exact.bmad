@@ -1,0 +1,16 @@
+! Auto-generated Bmad lattice: FODO (exact bmad_standard tracking).
+! bmad_standard is the exact thick chromatic map (Cheetah drift_kick_drift & SciBmad port it).
+parameter[geometry] = open
+parameter[particle] = electron
+beginning[e_tot] = 100510998.95069
+beginning[beta_a] = 1.0
+beginning[alpha_a] = 0.0
+beginning[beta_b] = 1.0
+beginning[alpha_b] = 0.0
+
+qf: quadrupole, L = 0.1, k1 = 2.0
+dr: drift, L = 0.5
+qd: quadrupole, L = 0.1, k1 = -2.0
+
+fodo: line = (qf, dr, qd, dr)
+use, fodo

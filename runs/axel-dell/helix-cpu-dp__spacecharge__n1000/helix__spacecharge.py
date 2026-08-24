@@ -1,0 +1,97 @@
+#!/usr/bin/env python3
+# Auto-generated benchmark run script: HELIX (linac_gen) / spacecharge (3D FFT space charge).
+#
+# HELIX's differentiable PyTorch PIC space-charge kick (linac_gen.pic.torch.sc_kick.torch_pic_sc_kick)
+# is the SAME model as the ImpactX reference: the integrated Green function (IGF, Qiang 2006
+# cell-integrated kernel -- byte-for-byte ABLASTR's IntegratedPotential3D), open boundaries via
+# Hockney zero-padding + FFT, CIC deposition, and a longitudinal Lorentz boost to the rest frame.
+# It runs on CPU or CUDA at float32/float64 -- the dtype/device are threaded through the whole solve
+# (Green's function, density, FFT), so an SP run is genuinely single precision end-to-end.
+# Validated vs ImpactX-DP: sigma_x/y/emit agree to ~0.3% (loose SC tolerance).
+#
+# FAIRNESS: exactly ONE space-charge field solve, applied as a single ASYMMETRIC kick->drift over the
+# full drift length -- matching ImpactX's single-kick cadence. We deliberately do NOT use HELIX's
+# stepwise/Strang tracker (track_beam_torch_stepwise + sc_cfg): it would split the drift into
+# ~step_config.sc * L kicks (~300 solves over 6 m), unfair against one solve. (Strang splitting is
+# the right tool for the FUTURE converged-beamline SC benchmarks, not this single-kick test.)
+#
+# HELIX phase space is (N,6) = [x mm, x' mrad, y mm, y' mrad, dphi deg, dW MeV] (SLOPE coords). We
+# build the Gaussian beam directly from the shared SI Twiss and convert observables back to SI.
+import json
+
+import numpy as np
+import torch
+
+from linac_gen.core.config import SpaceChargeConfig
+from linac_gen.core.particle import Particle
+from linac_gen.core.reference import ReferenceParticle
+from linac_gen.pic.torch.sc_kick import torch_pic_sc_kick
+
+from scenarios._obs import Timer, beam_observables, gaussian_twiss_plane
+
+torch.set_num_threads(4)
+dtype = torch.float64
+device = "cpu"
+
+p = {'mass_MeV': 0.51099895069, 'kin_energy_MeV': 250.0, 'bunch_charge_C': 1e-09, 'emit_x': 1e-07, 'emit_y': 1e-07, 'beta_x': 1.0, 'beta_y': 1.0, 'alpha_x': 0.0, 'alpha_y': 0.0, 'sigma_t': 0.001, 'sigma_p': 0.0001, 'drift_length': 6.0, 'n_cell': 64, 'grid_extent_sigma': 3.0}
+npart = 1000
+n = int(p["n_cell"])
+ext = float(p["grid_extent_sigma"])           # grid half-width in beam sigmas (matches Cheetah's box)
+mass_MeV = float(p["mass_MeV"])
+ds_mm = float(p["drift_length"]) * 1.0e3
+
+# Reference particle: electron (HELIX has no built-in ELECTRON; construct one -- optics use |charge|).
+# The RF frequency only sets the dphi<->z scaling, which we invert consistently, so it cancels here.
+ref = ReferenceParticle(
+    species=Particle(mass=mass_MeV, charge=-1, name="electron"),
+    w_kin=float(p["kin_energy_MeV"]), frequency=100.0)
+gamma, beta = ref.gamma, ref.beta
+wavelength_mm = ref.wavelength
+wavelength_m = wavelength_mm * 1.0e-3
+
+# Build the (N,6) beam from the shared SI Twiss (same sampler the other Python codes use).
+rng = np.random.default_rng(0)
+x_m, xp = gaussian_twiss_plane(p["emit_x"], p["beta_x"], p["alpha_x"], npart, rng)   # m, rad
+y_m, yp = gaussian_twiss_plane(p["emit_y"], p["beta_y"], p["alpha_y"], npart, rng)
+z_m = rng.standard_normal(npart) * p["sigma_t"]                        # lab z [m]
+dW = (rng.standard_normal(npart) * p["sigma_p"]) * beta * beta * gamma * mass_MeV   # MeV
+dphi = -z_m * 360.0 / (beta * wavelength_m)                            # deg (z_lab = -dphi*beta*wl/360)
+X = np.stack([x_m * 1e3, xp * 1e3, y_m * 1e3, yp * 1e3, dphi, dW], axis=1)  # mm, mrad, ..., deg, MeV
+Xt = torch.as_tensor(X, dtype=dtype, device=device)
+
+cfg = SpaceChargeConfig(nx=n, ny=n, nz=n, grid_extent=ext,
+                        green_kind="igf", kernel="cic", grid_mode="adaptive")
+macro_charge = float(p["bunch_charge_C"]) / npart                      # C per macroparticle
+
+
+def sc_kick(state):
+    return torch_pic_sc_kick(
+        state, cfg, ds_mm=ds_mm, gamma=gamma, beta=beta, mass_mev=mass_MeV,
+        wavelength_mm=wavelength_mm, macro_charge=macro_charge, charge_state=1.0,
+        dtype=dtype, device=device)
+
+
+def drift(state, L_mm):
+    # A drift is EXACT in slope coords: x[mm] += x'[rad]*L[mm]. Transverse only -- the longitudinal
+    # slip over the drift is ~1/gamma^2 (negligible at gamma~490), so sigma_t is unchanged.
+    out = state.clone()
+    out[:, 0] = state[:, 0] + state[:, 1] * 1e-3 * L_mm
+    out[:, 2] = state[:, 2] + state[:, 3] * 1e-3 * L_mm
+    return out
+
+
+# warm-up (NOT timed): builds the FFT Green's function and JITs the CUDA kernels; Xt is not mutated.
+drift(sc_kick(Xt), ds_mm)
+
+# timed: ONE asymmetric kick -> drift over the full length (matches ImpactX's single-solve cadence)
+with Timer() as t:
+    Xf = drift(sc_kick(Xt), ds_mm)
+
+Xf = Xf.detach().cpu().numpy()
+obs = beam_observables(
+    Xf[:, 0] * 1e-3, Xf[:, 1] * 1e-3, Xf[:, 2] * 1e-3, Xf[:, 3] * 1e-3,     # x,x',y,y' -> m, rad
+    tau=-Xf[:, 4] * (beta * wavelength_m / 360.0),                          # dphi[deg] -> z_lab[m]
+)
+
+print(f"Track: {t.ns}ns")
+print("Validate: " + json.dumps(obs))
