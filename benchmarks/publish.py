@@ -72,14 +72,17 @@ def publish(push: bool, remote: str | None = None) -> int:
     data = results_mod.load(res_path)
     msg = meta_mod.as_commit_message(data.get("metadata", {}), _summary(data))
 
-    plots = sorted((REPO_ROOT / "plots").glob("*")) if (REPO_ROOT / "plots").is_dir() else []
+    # Recurse so nested plot dirs (e.g. plots/gpu/ from `plot --gpu`) are included; files only
+    # (a bare glob("*") would yield the gpu/ directory itself and shutil.copy2 would choke on it).
+    plots = (sorted(p for p in (REPO_ROOT / "plots").rglob("*") if p.is_file())
+             if (REPO_ROOT / "plots").is_dir() else [])
     # per-run manifests for THIS machine (template-resolved inputs + run.sh); reviewable on branch
     runs_dir = REPO_ROOT / "runs" / slug
     run_cells = sorted(p for p in runs_dir.iterdir() if p.is_dir()) if runs_dir.is_dir() else []
     print("Would publish:")
     print(f"  results/{slug}.yaml")
     for p in plots:
-        print(f"  plots/{p.name}")
+        print(f"  plots/{p.relative_to(REPO_ROOT / 'plots')}")
     if run_cells:
         print(f"  runs/{slug}/  ({len(run_cells)} run manifests: resolved input + run.sh)")
     print("\nCommit message:\n" + "\n".join("  " + ln for ln in msg.splitlines()))
@@ -128,8 +131,11 @@ def _publish_files(wt: Path, slug: str, res_path: Path, plots: list[Path], utc: 
     (wt / "results").mkdir(parents=True, exist_ok=True)
     (wt / "plots").mkdir(parents=True, exist_ok=True)
     shutil.copy2(res_path, wt / "results" / f"{slug}.yaml")
+    plots_root = REPO_ROOT / "plots"
     for p in plots:
-        shutil.copy2(p, wt / "plots" / p.name)
+        dst = wt / "plots" / p.relative_to(plots_root)
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(p, dst)
     # per-run manifests (template-resolved inputs + run.sh) -- overwrite the machine's tree
     dst_runs = wt / "runs" / slug
     if dst_runs.exists():
@@ -141,7 +147,9 @@ def _publish_files(wt: Path, slug: str, res_path: Path, plots: list[Path], utc: 
     (archive / "plots").mkdir(parents=True, exist_ok=True)
     shutil.copy2(res_path, archive / f"{slug}.yaml")
     for p in plots:
-        shutil.copy2(p, archive / "plots" / p.name)
+        dst = archive / "plots" / p.relative_to(plots_root)
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(p, dst)
     if runs_dir.is_dir():
         shutil.copytree(runs_dir, archive / "runs")
 
