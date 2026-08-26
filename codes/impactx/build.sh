@@ -18,7 +18,14 @@ set -eu -o pipefail
 # Pin to the ImpactX 26.08 release tag. It already contains the (Chr)Quad perf optimization
 # (PR #1521, merged 2026-06-25) that we previously pinned the PR head for. DP and SP MUST use the
 # same ref (same physics + perf). Override with IMPACTX_REF (branch/tag/commit/pull-N-head all work).
-REF="${IMPACTX_REF:-26.08}"
+# Optional SIMD vectorized transcendentals (sinh/cosh/sin/cos/... via a vector math library).
+# This is a COUPLED 3-repo feature, so it is NOT a 26.08 patch: ImpactX PR #1632's element pushes
+# call the new amrex::Math overloads from AMReX PR #5644 (fetched via #1632's ABLASTR.cmake), which
+# dispatch through vir-simd PR #53's vir/simd_vecmath.h. Enabling it therefore builds the #1632
+# BRANCH and, below (after checkout), installs the vir-simd header + a glibc>=2.35 sysroot so
+# libmvec's sinh/cosh (@GLIBC_2.35) can be emitted+linked. Enable with BENCH_VECMATH=1.
+VECMATH=0; case "${BENCH_VECMATH:-0}" in 1|on|ON|true) VECMATH=1 ;; esac
+if [ "$VECMATH" = 1 ]; then REF="${IMPACTX_REF:-pull/1632/head}"; else REF="${IMPACTX_REF:-26.08}"; fi
 DEVICE="${IMPACTX_DEVICE:-cpu}"                 # cpu | cuda (later)
 PRECISION="${IMPACTX_PRECISION:-DOUBLE}"
 case "$PRECISION" in SINGLE) ptag=sp ;; *) ptag=dp ;; esac
@@ -28,6 +35,7 @@ case "$DEVICE"    in cuda)   COMPUTE=CUDA ;; *) COMPUTE=OMP ;; esac
 # silently reuse its CMake cache (see the stale-cache guard below).
 case "${BENCH_FASTMATH:-1}" in 0|off|OFF|false) FMBOOL=OFF; fmtag="-ieee" ;; *) FMBOOL=ON; fmtag="-fm" ;; esac
 TAG="${DEVICE}-${ptag}${fmtag}"                 # e.g. cpu-dp-ieee, cpu-dp-fm, cuda-sp-fm
+[ "$VECMATH" = 1 ] && TAG="${TAG}-vec"          # separate tree/AMReX so scalar 26.08 stays intact
 SRC=".builds/src/impactx-${TAG}"               # dedicated tree => dedicated build dir + AMReX
 mkdir -p .builds/src
 
@@ -55,6 +63,23 @@ if [ -d "$PATCH_DIR" ]; then
             git -C "$SRC" apply "$p"
         fi
     done
+fi
+# vecmath: install the glibc-2.39 sysroot + vir-simd (PR #53) header so libmvec's vectorized
+# sinh/cosh (@GLIBC_2.35) can be emitted+linked. CONDA_OVERRIDE_GLIBC lets the 2.39 sysroot install
+# on an OLDER-glibc host (Perlmutter is 2.38) -- the built .so references only <=2.38 symbols
+# (sinh/cosh are @2.35, ceiling @2.38), so it still RUNS on 2.38 (verify: nm -D <so> has no @2.39).
+if [ "$VECMATH" = 1 ]; then
+    : "${CONDA_PREFIX:?BENCH_VECMATH needs an active conda/pixi env}"
+    if   command -v micromamba >/dev/null 2>&1; then MMB=micromamba
+    elif command -v mamba      >/dev/null 2>&1; then MMB=mamba
+    elif command -v conda      >/dev/null 2>&1; then MMB=conda
+    else echo "ERROR: BENCH_VECMATH needs micromamba/mamba/conda for the 2.39 sysroot" >&2; exit 1; fi
+    echo "vecmath: installing glibc-2.39 sysroot + vir-simd(#53) into $CONDA_PREFIX (via $MMB)"
+    CONDA_OVERRIDE_GLIBC=2.39 "$MMB" install -y -p "$CONDA_PREFIX" -c conda-forge sysroot_linux-64=2.39
+    VIRSRC=".builds/src/.vir-simd-vecmath"
+    [ -d "$VIRSRC/.git" ] || git clone --depth 1 --branch topic-vecmath https://github.com/ax3l/vir-simd.git "$VIRSRC"
+    cp "$VIRSRC"/vir/*.h "$CONDA_PREFIX/include/vir/"
+    echo "vecmath: sysroot libmvec sinh/cosh vector syms = $(nm -D "$CONDA_PREFIX"/x86_64-conda-linux-gnu/sysroot/lib*/libmvec.so* 2>/dev/null | grep -cE '_ZGV.*(sinh|cosh)')"
 fi
 # DRY version label: record the exact human ref we built (e.g. "26.08"), so metadata/plots show
 # THAT single source of truth instead of re-deriving it -- a shallow tag fetch never creates the
