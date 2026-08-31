@@ -12,13 +12,15 @@ glibc 2.38, and conda **CUDA 13.2** — the exact-fit match to Perlmutter's defa
 (Aug 2026); a 13.2-built binary is guaranteed to run on its 13.2 driver (see `pixi.toml
 [system-requirements]` / `[feature.cuda]`).
 
-## 1. Clone (into `$PSCRATCH`) + pixi
+## 1. Clone (onto scratch, NOT `$HOME`) + pixi
 
-Work from scratch — pixi materializes many-file envs; `$HOME` inode limits bite, and compute nodes
-can read `$PSCRATCH`. (Use `$CFS/m5125/...` instead if you need it to survive the scratch purge.)
+NERSC `$HOME` is only **40 GB** and inode-limited — pixi's many-file envs + package cache blow past
+it. Work from a persistent scratch software area on `$PSCRATCH` (readable from compute nodes; use
+`$CFS/m5125/...` if you need it to survive the scratch purge). Do **not** put the repo or cache in a
+node-local `mktemp -d` / `/tmp` — those don't cross between login and compute nodes.
 
 ```bash
-cd "$PSCRATCH"
+mkdir -p "$PSCRATCH/storage/sw" && cd "$PSCRATCH/storage/sw"    # your persistent scratch sw area
 git clone https://github.com/BLAST-ImpactX/impactx-benchmarks.git
 cd impactx-benchmarks
 ```
@@ -38,12 +40,13 @@ Compute nodes have no internet, so all conda/pip/git downloads + compiles happen
 bash machines/perlmutter_setup.sh     # builds all CPU + GPU envs (znver3, fast-math ON, sm_80)
 ```
 
-> **`$HOME` quota (this bit us once).** NERSC home is small (space + inodes); the default pixi cache
-> `~/.cache/rattler` overflows it mid-install with `Quota exceeded (os error 122)` (e.g. unpacking
-> `libxcrypt`, failing the `helix` env). `perlmutter_setup.sh` and both `.sbatch` files now redirect
-> the cache to **`$PSCRATCH/pixi-cache`** automatically (override with `PIXI_CACHE_DIR`); cloning into
-> `$PSCRATCH` (step 1) keeps the many-file `.pixi/envs` off home too. Both are required — the cache on
-> the *same* FS as the repo also lets pixi hardlink packages into the envs instead of copying.
+> **`$HOME` quota (this bit us once).** NERSC home is only **40 GB** + inode-limited; the default pixi
+> cache `~/.cache/rattler` overflows it mid-install with `Quota exceeded (os error 122)` (unpacking
+> `libxcrypt`, failing the `helix` env). `perlmutter_setup.sh` and both `.sbatch` files default
+> `PIXI_CACHE_DIR` to **`$PSCRATCH/pixi-cache`** — override to your `$PSCRATCH/storage/sw/...` area if
+> you prefer. It must be on a **shared** FS: the cache is written on the login node and read by
+> `pixi run` on the compute nodes, so a node-local `mktemp -d`/`/tmp` won't work. Keeping it on the
+> same FS as the repo also lets pixi hardlink packages into `.pixi/envs` rather than copy them.
 
 **Long-running — use tmux** so it survives logout (it must stay on a login node; compute nodes
 have no internet). Note the login node first — Perlmutter load-balances `perlmutter.nersc.gov`, so
