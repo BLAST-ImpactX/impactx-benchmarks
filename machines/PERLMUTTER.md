@@ -88,9 +88,9 @@ squeue --me                              # watch state; logs stream to bench-{cp
 
 Each job runs `bench` (with `--skip-build`), then `validate` + `plot`; the GPU job also emits the
 GPU-FP32 comparison (`plots/gpu/`). **Heads-up:** the GPU job sweeps to 10⁹ particles at `runs=5`
-and requests `-t 12:00:00` — confirm that fits the current `regular` GPU QOS max walltime
-(`sacctmgr show qos regular format=Name,MaxWall`); if it's tight, trim the sweep in
-`perlmutter_gpu.sbatch` (drop the `1000000000` point) rather than risk a timeout.
+and requests `-t 24:00:00` as timeout insurance. QOS is *not* the constraint — `gpu_regular` allows
+**48 h** (2 days) and the `gpu_ss11` partition 7 days — so bump `-t` toward 48 h freely if 10⁹ is
+slow. To cap runtime instead, trim the sweep in `perlmutter_gpu.sbatch` (drop the `1000000000` point).
 
 ## 4. Publish the results — back on a LOGIN node
 
@@ -126,9 +126,10 @@ The default GPU sweep (`registry._NPARTS_GPU`) tops at **16M** — that is the c
 overrides it via `--nparts` up to **10⁹** to reach the compute-bound plateau. Expect a spread at the
 top: lean AMReX codes (ImpactX) scale furthest, while memory-heavy codes (Cheetah/HELIX, and space
 charge at the very top) OOM **gracefully** — classified `oom`, distinct from `failed`. The 10⁹ point
-with `runs=5` is heavy; **12h may not suffice** — if the job times out, drop the 10⁹ point, split
-`≥256M` into a follow-on job, or lower `--runs` (timing is stable at huge N). Verify `-t` against the
-current NERSC GPU `regular` QOS max walltime before submitting.
+with `runs=5` is heavy and its runtime is uncertain, so the job requests **`-t 24:00:00`**. The
+`gpu_regular` QOS caps at **48 h** (2 days) and the `gpu_ss11` partition at 7 days, so there's plenty
+of headroom to raise `-t` if 10⁹ is slow. To cap runtime instead, drop the 10⁹ point, split `≥256M`
+into a follow-on job, or lower `--runs` (timing is stable at huge N).
 
 ## Notes
 

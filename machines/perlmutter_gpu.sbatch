@@ -12,7 +12,7 @@
 #SBATCH -N 1
 #SBATCH --exclusive
 #SBATCH -G 4
-#SBATCH -t 12:00:00
+#SBATCH -t 24:00:00
 #SBATCH -J bench-gpu
 #SBATCH -o bench-gpu.o%j
 #SBATCH -e bench-gpu.e%j
@@ -33,9 +33,10 @@ export MPICH_GPU_SUPPORT_ENABLED=1
 # --nparts (which overrides the per-scenario default) up to 1e9 to reach the compute-bound plateau.
 # Expect a spread at the top: lean AMReX codes (ImpactX) scale furthest; memory-heavy codes
 # (Cheetah/HELIX, and space charge at the very top) OOM gracefully (classified 'oom', not failed).
-# NOTE: 1e9 x runs=5 across all GPU configs is heavy -- 12h may not suffice. If it times out, either
-# drop the 1e9 point, split >=256M into a follow-on job, or lower --runs (timing is stable at huge N).
-# Verify -t against the current NERSC GPU 'regular' QOS max walltime before submitting.
+# NOTE: 1e9 x runs=5 across all GPU configs is heavy and its runtime is uncertain, so -t is 24h as
+# insurance against a timeout wasting the run. QOS is NOT the constraint: gpu_regular allows 48h
+# (2 days) and the gpu_ss11 partition 7 days -- bump -t up to 48h freely if 1e9 is slow. To cap
+# runtime instead: drop the 1e9 point, split >=256M into a follow-on job, or lower --runs.
 export BENCH_NPARTS_GPU="100000,1000000,4000000,16000000,64000000,256000000,1000000000"
 pixi run -e default bench --device cuda --skip-build --nparts "$BENCH_NPARTS_GPU"
 pixi run -e default validate
