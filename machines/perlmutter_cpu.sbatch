@@ -16,6 +16,7 @@
 #SBATCH --mail-type=END,FAIL
 set -eu
 cd "${SLURM_SUBMIT_DIR:-$PWD}"
+export PIXI_CACHE_DIR="${PIXI_CACHE_DIR:-$PSCRATCH/pixi-cache}"   # same scratch cache as setup.sh (off the $HOME quota)
 
 # One EPYC socket = 64 physical cores. The harness pins every MPI/OpenMP layout to socket 0
 # (BENCH_SOCKET) and auto-tunes the best split within the 64-core budget -- no hyperthread

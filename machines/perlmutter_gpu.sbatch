@@ -19,6 +19,7 @@
 #SBATCH --mail-type=END,FAIL
 set -eu
 cd "${SLURM_SUBMIT_DIR:-$PWD}"
+export PIXI_CACHE_DIR="${PIXI_CACHE_DIR:-$PSCRATCH/pixi-cache}"   # same scratch cache as setup.sh (off the $HOME quota)
 
 # Exclusive node (4× A100) but the benchmark uses ONE GPU (CUDA_VISIBLE_DEVICES=0).
 # MPICH_GPU_SUPPORT_ENABLED=1 is the Cray-MPICH GPU-aware knob (moot at 1 GPU / no MPI, but correct).

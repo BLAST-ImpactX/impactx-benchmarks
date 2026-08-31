@@ -38,6 +38,13 @@ Compute nodes have no internet, so all conda/pip/git downloads + compiles happen
 bash machines/perlmutter_setup.sh     # builds all CPU + GPU envs (znver3, fast-math ON, sm_80)
 ```
 
+> **`$HOME` quota (this bit us once).** NERSC home is small (space + inodes); the default pixi cache
+> `~/.cache/rattler` overflows it mid-install with `Quota exceeded (os error 122)` (e.g. unpacking
+> `libxcrypt`, failing the `helix` env). `perlmutter_setup.sh` and both `.sbatch` files now redirect
+> the cache to **`$PSCRATCH/pixi-cache`** automatically (override with `PIXI_CACHE_DIR`); cloning into
+> `$PSCRATCH` (step 1) keeps the many-file `.pixi/envs` off home too. Both are required — the cache on
+> the *same* FS as the repo also lets pixi hardlink packages into the envs instead of copying.
+
 **Long-running — use tmux** so it survives logout (it must stay on a login node; compute nodes
 have no internet). Note the login node first — Perlmutter load-balances `perlmutter.nersc.gov`, so
 you reattach only on the *same* node:
