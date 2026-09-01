@@ -15,7 +15,7 @@
 #SBATCH --exclusive
 #SBATCH --ntasks-per-node=16
 #SBATCH --cpus-per-task=16
-#SBATCH -t 06:00:00
+#SBATCH -t 24:00:00
 #SBATCH -J bench-cpu
 #SBATCH -o bench-cpu.o%j
 #SBATCH -e bench-cpu.e%j
@@ -33,7 +33,7 @@ export BENCH_MACHINE_SLUG=perlmutter
 export BENCH_NCORES=64
 export BENCH_SOCKET=0
 
-pixi run -e default bench --device cpu --ncores 64 --skip-build
+pixi run -e default bench --device cpu --ncores 64 --skip-build --resume
 pixi run -e default validate
 pixi run -e default plot
 echo "CPU benchmarks done -> results/perlmutter.yaml"

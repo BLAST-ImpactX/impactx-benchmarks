@@ -86,11 +86,13 @@ sbatch --dependency=afterok:$cpu machines/perlmutter_gpu.sbatch
 squeue --me                              # watch state; logs stream to bench-{cpu,gpu}.o<jobid>
 ```
 
-Each job runs `bench` (with `--skip-build`), then `validate` + `plot`; the GPU job also emits the
-GPU-FP32 comparison (`plots/gpu/`). **Heads-up:** the GPU job sweeps to 10⁹ particles at `runs=5`
-and requests `-t 24:00:00` as timeout insurance. QOS is *not* the constraint — `gpu_regular` allows
-**48 h** (2 days) and the `gpu_ss11` partition 7 days — so bump `-t` toward 48 h freely if 10⁹ is
-slow. To cap runtime instead, trim the sweep in `perlmutter_gpu.sbatch` (drop the `1000000000` point).
+Each job runs `bench --resume` (with `--skip-build`), then `validate` + `plot`; the GPU job also
+emits the GPU-FP32 comparison (`plots/gpu/`). Both request **`-t 24:00:00`**. **`--resume` makes a
+wall-clock timeout non-fatal:** each cell is saved as it completes, so if a job hits the wall,
+just **resubmit the same script** — it skips the finished cells in `results/perlmutter.yaml` and
+continues. (The CPU matrix is heavy: the per-cell MPI×OMP layout sweep is ~7 layouts × `runs=5` on
+64 cores, so it needs the full budget.) QOS is *not* the constraint — `gpu_regular`/CPU `regular`
+both allow **48 h** and the partitions 7 days — so bump `-t` toward 48 h freely if a job is slow.
 
 ## 4. Publish the results — back on a LOGIN node
 

@@ -341,6 +341,15 @@ def run_matrix(args) -> Path:
             # GPU runs sweep the larger nparts_gpu (single A100); CPU keeps sc.nparts. --nparts wins.
             sweep = nparts_override or list(sc.sweep(cfg.device))
             for npart in sweep:
+                # Resume: skip cells already recorded (each is saved only after it fully completes,
+                # so a present cell is complete). Lets a wall-clock-timed-out HPC run continue where
+                # it stopped instead of re-measuring from scratch. Opt-in so a manual re-run re-times.
+                if args.resume and data.get("results", {}).get(cfg.name, {}).get(
+                        results_mod.measurement_key(sc.name, npart)) is not None:
+                    prev = data["results"][cfg.name][results_mod.measurement_key(sc.name, npart)]
+                    print(f"   [{cfg.name}] {sc.name} n={npart}: skip (resume; have "
+                          f"{prev.get('status')})", flush=True)
+                    continue
                 if status != "supported":
                     entry = {"status": status, "reason": reason, "physics": None,
                              "model": cfg.sc_model, "track_ns": None,
@@ -379,6 +388,8 @@ def build_argparser() -> argparse.ArgumentParser:
     p.add_argument("--device", default="cpu", choices=["cpu", "cuda"], help="device to benchmark")
     p.add_argument("--precision", default="", help="comma-separated: single,double (default: both)")
     p.add_argument("--skip-build", action="store_true", help="assume environments already built")
+    p.add_argument("--resume", action="store_true",
+                   help="skip cells already present in the results file (continue a timed-out run)")
     p.add_argument("--write-manifests", action="store_true",
                    help="don't run: (re)write runs/<machine>/ manifests for the stored results "
                         "(faithful to each cell's recorded winning layout)")
