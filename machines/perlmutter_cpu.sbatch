@@ -3,12 +3,18 @@
 # Submit from the repo root AFTER machines/perlmutter_setup.sh has built the envs on a login node.
 #   sbatch machines/perlmutter_cpu.sbatch
 #
-# NERSC allocation (the "_g" GPU-project suffix is optional/skippable on Perlmutter now).
+# NERSC allocation: bare project name (the "_g" GPU suffix is optional these days). The fix here is
+# the TASK LAYOUT -- mirror WarpX's Perlmutter template (16 ranks x 16 cpus = the full 256-thread
+# node) so NERSC's submit-policy filter accepts the job; without an explicit layout an --exclusive
+# job is rejected as "Job request does not match any supported policy". The harness still pins its
+# OWN split to socket 0 (BENCH_SOCKET/BENCH_NCORES) via its own mpirun, ignoring these SLURM values.
 #SBATCH -A m5125
 #SBATCH -C cpu
 #SBATCH -q regular
 #SBATCH -N 1
 #SBATCH --exclusive
+#SBATCH --ntasks-per-node=16
+#SBATCH --cpus-per-task=16
 #SBATCH -t 06:00:00
 #SBATCH -J bench-cpu
 #SBATCH -o bench-cpu.o%j

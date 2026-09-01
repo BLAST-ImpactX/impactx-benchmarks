@@ -4,14 +4,19 @@
 #   cpu=$(sbatch --parsable machines/perlmutter_cpu.sbatch)
 #   sbatch --dependency=afterok:$cpu machines/perlmutter_gpu.sbatch
 #
-# NERSC allocation. The "_g" GPU-project suffix is optional/skippable on Perlmutter now, so the
-# bare project name works for both the CPU and GPU jobs.
+# NERSC allocation: bare project name (the "_g" GPU suffix is optional these days). Task/GPU layout
+# mirrors WarpX's Perlmutter GPU template (4 ranks x 4 GPUs = full node) so NERSC's submit-policy
+# filter accepts the job -- an --exclusive job with no explicit layout is rejected as "Job request
+# does not match any supported policy". The harness then uses ONE GPU (BENCH_CUDA_DEVICES=0).
 #SBATCH -A m5125
 #SBATCH -C gpu&hbm80g
 #SBATCH -q regular
 #SBATCH -N 1
 #SBATCH --exclusive
-#SBATCH -G 4
+#SBATCH --ntasks-per-node=4
+#SBATCH --cpus-per-task=32
+#SBATCH --gpus-per-node=4
+#SBATCH --gpu-bind=none
 #SBATCH -t 24:00:00
 #SBATCH -J bench-gpu
 #SBATCH -o bench-gpu.o%j
