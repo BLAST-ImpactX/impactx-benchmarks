@@ -96,10 +96,11 @@ slow. To cap runtime instead, trim the sweep in `perlmutter_gpu.sbatch` (drop th
 
 `publish` pushes results + plots to the `benchmarks` branch (needs internet), so run it on a login
 node after both jobs finish. If you cloned via **SSH** (step 1) and your key is on your GitHub
-profile, this just works — no token:
+profile, this just works — no token. Set `BENCH_MACHINE_SLUG=perlmutter` so it publishes the jobs'
+`results/perlmutter.yaml` (otherwise `publish` defaults to the *login* hostname and finds nothing):
 
 ```bash
-pixi run publish --push
+BENCH_MACHINE_SLUG=perlmutter pixi run publish --push
 ```
 
 (If you cloned via HTTPS instead, either switch the remote —
