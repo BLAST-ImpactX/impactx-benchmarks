@@ -20,8 +20,8 @@ it. Work from a persistent scratch software area on `$PSCRATCH` (readable from c
 node-local `mktemp -d` / `/tmp` — those don't cross between login and compute nodes.
 
 ```bash
-mkdir -p "$PSCRATCH/storage/sw" && cd "$PSCRATCH/storage/sw"    # your persistent scratch sw area
-git clone https://github.com/BLAST-ImpactX/impactx-benchmarks.git
+mkdir -p "$PSCRATCH/storage/sw" && cd "$PSCRATCH/storage/sw"      # your persistent scratch sw area
+git clone git@github.com:BLAST-ImpactX/impactx-benchmarks.git    # SSH -> publish uses your GH key, no PAT
 cd impactx-benchmarks
 ```
 
@@ -94,14 +94,17 @@ slow. To cap runtime instead, trim the sweep in `perlmutter_gpu.sbatch` (drop th
 
 ## 4. Publish the results — back on a LOGIN node
 
-`publish` pushes results + plots to the `benchmarks` branch (needs internet + push credentials), so
-run it on a login node after both jobs finish. Set up an HTTPS token once (NERSC login nodes reach
-github.com over HTTPS; a GitHub Personal Access Token with `repo` scope is the reliable path):
+`publish` pushes results + plots to the `benchmarks` branch (needs internet), so run it on a login
+node after both jobs finish. If you cloned via **SSH** (step 1) and your key is on your GitHub
+profile, this just works — no token:
 
 ```bash
-git config --global credential.helper store    # caches the token after the first push
-pixi run publish --push                          # first push prompts: username + PAT (not password)
+pixi run publish --push
 ```
+
+(If you cloned via HTTPS instead, either switch the remote —
+`git remote set-url origin git@github.com:BLAST-ImpactX/impactx-benchmarks.git` — or use a GitHub
+PAT with `repo` scope: `git config --global credential.helper store` then push once.)
 
 `--remote` is auto-detected (a fresh clone's `origin`). Re-run `publish` (no `--push`) first for a
 dry run if you want to preview what will be committed. The results land as
