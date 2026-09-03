@@ -219,7 +219,19 @@ def _write_run_manifest(cfg: Config, sc: Scenario, npart: int, ranks: int, threa
 
 
 def run_one(cfg: Config, sc: Scenario, npart: int, ncores: int, nruns: int, slug: str) -> dict:
-    """Sweep the code's (ranks, threads) layouts (<= ncores) and keep the fastest."""
+    """Sweep the code's (ranks, threads) layouts (<= ncores) and keep the fastest.
+
+    Auto-tune is *probe-then-time*. Each run is a fresh, startup-dominated process, so timing every
+    candidate layout ``nruns`` times is ~len(layouts)x wasteful. Instead probe each layout ONCE to
+    rank them cheaply, then spend the real ``nruns`` only on the winning layout -- cutting
+    ``len(layouts)*nruns`` launches to ``len(layouts)+nruns`` (e.g. 7x5=35 -> 7+5=12 on a 64-core
+    socket) while the reported number stays exactly "min over nruns fresh timed runs on the chosen
+    layout", identical in method to a single-layout (GPU) cell. A 1-rep probe can, in a rare
+    near-tie, rank a marginally slower layout first; only the layout label is then affected, never
+    the timing, since the winner is always re-timed cleanly. Deterministic failures (OOM, missing
+    module, template error) surface on a layout's probe run, so a failing layout is skipped before
+    it costs a full timing pass.
+    """
     code = CODES[cfg.code]
     # GPU: a single 1-GPU layout (no rank/thread sweep); CPU: the code's (ranks, threads) sweep.
     layouts = [(1, 1)] if cfg.device == "cuda" else code.core_configs(ncores)
@@ -227,16 +239,44 @@ def run_one(cfg: Config, sc: Scenario, npart: int, ncores: int, nruns: int, slug
     best = None  # (track_ns, obs, ranks, threads)
     last_status, last_reason = "failed", "no layout ran"
     last_layout = layouts[0] if layouts else (1, 1)
-    for ranks, threads in layouts:
-        last_layout = (ranks, threads)
-        ns, obs, status, reason = _run_layout(cfg, sc, npart, ranks, threads, nruns, ncores, cpus)
-        if status != "supported" or ns is None:
+
+    if len(layouts) <= 1:
+        # Single layout (e.g. GPU): nothing to rank -- just time it directly.
+        last_layout = layouts[0] if layouts else (1, 1)
+        ns, obs, status, reason = _run_layout(
+            cfg, sc, npart, last_layout[0], last_layout[1], nruns, ncores, cpus)
+        if status == "supported" and ns is not None:
+            best = (ns, obs, last_layout[0], last_layout[1])
+        else:
             last_status, last_reason = status, reason
-            print(f"   [{cfg.name}] {sc.name} n={npart} [{ranks}r x {threads}t]: "
-                  f"{status} ({reason})", flush=True)
-            continue
-        if best is None or ns < best[0]:
-            best = (ns, obs, ranks, threads)
+    else:
+        # PROBE: one rep per layout, purely to rank them. Keep the winner's obs too, so the cell
+        # can still be reported if its timing pass later flakes.
+        probe = None  # (ns, obs, ranks, threads)
+        for ranks, threads in layouts:
+            last_layout = (ranks, threads)
+            ns, obs, status, reason = _run_layout(cfg, sc, npart, ranks, threads, 1, ncores, cpus)
+            if status != "supported" or ns is None:
+                last_status, last_reason = status, reason
+                print(f"   [{cfg.name}] {sc.name} n={npart} [{ranks}r x {threads}t]: "
+                      f"{status} ({reason})", flush=True)
+                continue
+            if probe is None or ns < probe[0]:
+                probe = (ns, obs, ranks, threads)
+        # TIME: spend the real nruns on the winning layout only; its timing is the reported number.
+        if probe is not None:
+            probe_ns, probe_obs, ranks, threads = probe
+            last_layout = (ranks, threads)
+            ns, obs, status, reason = _run_layout(
+                cfg, sc, npart, ranks, threads, nruns, ncores, cpus)
+            if status == "supported" and ns is not None:
+                best = (ns, obs, ranks, threads)
+            else:
+                # Winner probed clean but flaked on its timed re-run (a deterministic failure would
+                # have failed the probe); keep the probe measurement rather than lose the cell.
+                print(f"   [{cfg.name}] {sc.name} n={npart} [{ranks}r x {threads}t]: "
+                      f"timing flaked ({reason}); keeping probe timing", flush=True)
+                best = (probe_ns, probe_obs, ranks, threads)
 
     if best is None:
         # faithful manifest of the last attempt, so the failure is reproducible/reviewable
