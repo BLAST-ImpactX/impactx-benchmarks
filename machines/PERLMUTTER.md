@@ -5,9 +5,11 @@ PrgEnv modules). The matrix is **{CPU, GPU} × {SP, DP}** per code, **fast-math 
 `validate` step gates physics, so relaxed FP is caught rather than silently wrong).
 
 **Layout:** CPU uses **one socket** of a 2× AMD EPYC 7763 node (64 physical cores, best
-MPI/OpenMP split, no hyperthread oversubscription). GPU uses **one A100-80GB** (`sm_80`) on an
-exclusive node, with the particle sweep **extended to 10⁹** to exploit the 80GB (the default tops at
-16M, sized for an 8GB card — see *GPU particle sweep* below). Builds target Zen3 (`-march=znver3`), Perlmutter's
+MPI/OpenMP split, no hyperthread oversubscription). GPU uses **one A100** (`sm_80`) from
+Perlmutter's general `gpu` pool — **40 or 80GB, whichever schedules first**; the exact card is
+recorded in the results metadata (`metadata.gpu`, the GPU analogue of the CPU microarch), so a run
+stays interpretable regardless of which it lands on. The particle sweep is **extended to 10⁹** (the
+default tops at 16M, sized for an 8GB card — see *GPU particle sweep* below). Builds target Zen3 (`-march=znver3`), Perlmutter's
 glibc 2.38, and conda **CUDA 13.2** — the exact-fit match to Perlmutter's default `cudatoolkit`
 (Aug 2026); a 13.2-built binary is guaranteed to run on its 13.2 driver (see `pixi.toml
 [system-requirements]` / `[feature.cuda]`).
@@ -125,17 +127,25 @@ timestamped `history/<utc>_perlmutter/` archive.
 | `BENCH_NPARTS_GPU=…,1000000000` | gpu.sbatch (run) | 80GB particle sweep, passed as `--nparts` (overrides the 16M default) |
 | `BENCH_MACHINE_SLUG=perlmutter` | both | one merged results file + plots |
 
-### GPU particle sweep (80GB)
+### GPU pool, QOS, and the particle sweep
 
-The default GPU sweep (`registry._NPARTS_GPU`) tops at **16M** — that is the ceiling of an 8GB card
-(where it already OOM'd the PyTorch codes), not of an A100-80GB. `perlmutter_gpu.sbatch` therefore
-overrides it via `--nparts` up to **10⁹** to reach the compute-bound plateau. Expect a spread at the
-top: lean AMReX codes (ImpactX) scale furthest, while memory-heavy codes (Cheetah/HELIX, and space
-charge at the very top) OOM **gracefully** — classified `oom`, distinct from `failed`. The 10⁹ point
-with `runs=5` is heavy and its runtime is uncertain, so the job requests **`-t 24:00:00`**. The
-`gpu_regular` QOS caps at **48 h** (2 days) and the `gpu_ss11` partition at 7 days, so there's plenty
-of headroom to raise `-t` if 10⁹ is slow. To cap runtime instead, drop the 10⁹ point, split `≥256M`
-into a follow-on job, or lower `--runs` (timing is stable at huge N).
+**Any-A100 pool + recorded card.** The job requests `-C gpu` (the full A100 pool), **not**
+`-C gpu&hbm80g`: the 80GB-only subset is small, so pinning to it means a long queue. Instead we take
+whatever card (40 or 80GB) schedules first and record it in `metadata.gpu` via `nvidia-smi` (name +
+memory + driver; the name encodes the tier, `A100-SXM4-80GB` vs `-40GB`). On a **40GB** card the top
+of the sweep OOMs earlier than on 80GB — that's fine, it's classified `oom` (not `failed`) and the
+recorded card explains exactly why. To force reproducible 80GB instead, put back `&hbm80g` and expect
+a longer wait. **QOS:** `perlmutter_gpu.sbatch` uses `-q premium` (priority boost, **2× GPU-hour
+charge**) to clear the queue; switch to `-q regular` (1×) to avoid the premium — relaxing the
+constraint above already helps a lot on its own.
+
+**Sweep to 10⁹.** The default GPU sweep (`registry._NPARTS_GPU`) tops at **16M** — the ceiling of an
+8GB card (where it already OOM'd the PyTorch codes). `perlmutter_gpu.sbatch` overrides it via
+`--nparts` up to **10⁹** to reach the compute-bound plateau. Expect a spread at the top: lean AMReX
+codes (ImpactX) scale furthest, while memory-heavy codes (Cheetah/HELIX, and space charge at the very
+top) OOM **gracefully**. The 10⁹ point with `runs=5` is heavy, so the job requests **`-t 24:00:00`**;
+`regular`/`premium` both cap at **48 h**, so raise `-t` freely if 10⁹ is slow. To cap runtime instead,
+drop the 10⁹ point, split `≥256M` into a follow-on job, or lower `--runs` (timing is stable at huge N).
 
 ## Notes
 

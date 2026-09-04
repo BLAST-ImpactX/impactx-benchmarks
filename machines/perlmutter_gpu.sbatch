@@ -9,8 +9,14 @@
 # filter accepts the job -- an --exclusive job with no explicit layout is rejected as "Job request
 # does not match any supported policy". The harness then uses ONE GPU (BENCH_CUDA_DEVICES=0).
 #SBATCH -A m5125
-#SBATCH -C gpu&hbm80g
-#SBATCH -q regular
+# -C gpu (the full A100 pool), NOT gpu&hbm80g: the 80GB-only subset is small -> long queue. We
+# take whatever A100 (40 or 80GB) schedules first and RECORD which card ran via nvidia-smi in the
+# results metadata (metadata.gpu -- the GPU analogue of the CPU microarch), so a 40-vs-80GB run
+# stays interpretable and a 10^9-particle OOM on a 40GB card is legible rather than mysterious.
+#SBATCH -C gpu
+# premium QOS = priority boost to clear the queue faster, at 2x the GPU-hour charge. Drop to
+# `-q regular` (1x) if you'd rather not pay the premium -- relaxing -C above already helps a lot.
+#SBATCH -q premium
 #SBATCH -N 1
 #SBATCH --exclusive
 #SBATCH --ntasks-per-node=4

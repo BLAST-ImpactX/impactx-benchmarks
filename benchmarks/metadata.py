@@ -110,6 +110,35 @@ def cpu_info() -> dict:
     return info
 
 
+def gpu_info() -> list[dict]:
+    """Per-GPU identity via ``nvidia-smi`` -- name, total memory, driver.
+
+    Returns ``[]`` on a host with no NVIDIA GPU (e.g. a Perlmutter CPU node), so it is safe to
+    call on every run and only populates on GPU nodes. Perlmutter's general ``gpu`` pool mixes
+    40GB and 80GB A100s (the ``&hbm80g`` constraint restricts to the small 80GB subset -> long
+    queue), so recording which card actually ran a timing keeps the numbers interpretable -- the
+    GPU analogue of the CPU microarch. The card name already encodes the memory tier
+    ('A100-SXM4-80GB' vs '-40GB'), which is exactly what makes a 10^9-particle OOM legible.
+    """
+    if shutil.which("nvidia-smi") is None:
+        return []
+    # name,memory.total,driver_version are supported on every modern driver (avoid newer
+    # query fields that would fail the whole CSV on an older nvidia-smi).
+    raw = _run(["nvidia-smi",
+                "--query-gpu=name,memory.total,driver_version",
+                "--format=csv,noheader"])
+    gpus: list[dict] = []
+    for line in raw.splitlines():
+        parts = [p.strip() for p in line.split(",")]
+        if parts and parts[0]:
+            gpus.append({
+                "name": parts[0],
+                "memory_total": parts[1] if len(parts) > 1 else "",
+                "driver": parts[2] if len(parts) > 2 else "",
+            })
+    return gpus
+
+
 def _cpu_count() -> int:
     import os
 
@@ -301,6 +330,12 @@ def as_commit_message(meta: dict, summary: str = "") -> str:
             f"simd={cpu.get('simd', '')}" if cpu.get("simd") else "",
         ] if s
     )
+    gpus = meta.get("gpu") or []
+    gpu_line = ""
+    if gpus:
+        g0 = gpus[0]
+        gpu_line = (f"{len(gpus)}x {g0.get('name', '')} ({g0.get('memory_total', '')})"
+                    f"  driver {g0.get('driver', '')}").strip()
     lines = [
         f"bench: {host.get('machine_slug', 'unknown')} @ {host.get('timestamp_utc', '')}",
         "",
@@ -308,6 +343,7 @@ def as_commit_message(meta: dict, summary: str = "") -> str:
         f"os:       {host.get('os', '')} (kernel {host.get('kernel', '')}, {host.get('arch', '')})",
         f"cpu:      {host.get('cpu_model', '')} x{host.get('cpu_count', '')}",
         f"cpu-id:   {cpu_detail}",
+        f"gpu:      {gpu_line}",
         f"mem:      {host.get('mem_total', '')}",
         f"python:   {host.get('python', '')}",
         f"gcc:      {comps.get('gcc', '')}   g++: {comps.get('gxx', '')}",

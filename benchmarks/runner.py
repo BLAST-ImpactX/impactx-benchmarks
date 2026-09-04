@@ -366,8 +366,17 @@ def run_matrix(args) -> Path:
     slug = host["machine_slug"]
     path = results_mod.results_path(slug)
     data = results_mod.load(path)
+    prev_meta = data.get("metadata") or {}
+    # Metadata is MERGED, not replaced: the CPU job, the GPU job and any filtered re-measure all
+    # write the SAME results file in sequence. Keep other codes' package versions (a --codes run
+    # only re-reads its own), and keep a GPU recorded by an earlier cuda job so a later CPU run
+    # (e.g. the pyorbit re-measure) does not erase it.
+    versions = {**(prev_meta.get("versions") or {}), **versions}
+    gpu = meta_mod.gpu_info() or (prev_meta.get("gpu") or [])
     data["machine"] = slug
     data["metadata"] = {"host": host, "versions": versions, "code_version": code_version}
+    if gpu:
+        data["metadata"]["gpu"] = gpu
     results_mod.save(path, data)
 
     for cfg in configs_for(codes):
