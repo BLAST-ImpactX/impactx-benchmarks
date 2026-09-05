@@ -185,6 +185,31 @@ def classify_results(data: dict) -> dict:
     return data
 
 
+def _cell_state(entry: dict) -> str:
+    """One label per cell for the summary: the physics verdict for a completed run, else the
+    run status (``failed``/``oom``/``unsupported_physics``)."""
+    entry = entry or {}
+    if entry.get("status") == "supported":
+        return entry.get("physics") or "unclassified"
+    return entry.get("status", "?")
+
+
+def summarize(data: dict):
+    """Counter of per-cell states across the whole result set (for a publish sanity check)."""
+    import collections
+
+    return collections.Counter(
+        _cell_state(m)
+        for cells in (data.get("results") or {}).values()
+        for m in (cells or {}).values()
+    )
+
+
+# Roughly best -> needs-attention, for a stable summary ordering.
+_STATE_ORDER = ["correct", "unconverged", "model_mismatch", "unsupported_physics",
+                "oom", "incorrect", "failed", "unclassified"]
+
+
 def main() -> None:
     """Re-classify the stored results file for this machine and save in place."""
     from .metadata import machine_slug
@@ -194,6 +219,15 @@ def main() -> None:
     classify_results(data)
     results_mod.save(path, data)
     print(f"Re-validated {path}")
+    counts = summarize(data)
+    total = sum(counts.values())
+    ranked = sorted(counts.items(),
+                    key=lambda kv: (_STATE_ORDER.index(kv[0]) if kv[0] in _STATE_ORDER else 99,
+                                    kv[0]))
+    print(f"  {total} cells: " + "  ".join(f"{s}={n}" for s, n in ranked))
+    attention = counts.get("incorrect", 0) + counts.get("failed", 0)
+    if attention:
+        print(f"  ⚠ {attention} cell(s) need a look (incorrect/failed)")
 
 
 if __name__ == "__main__":

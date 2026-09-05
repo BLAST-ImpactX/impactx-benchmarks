@@ -100,12 +100,23 @@ both allow **48 h** and the partitions 7 days — so bump `-t` toward 48 h freel
 
 `publish` pushes results + plots to the `benchmarks` branch (needs internet), so run it on a login
 node after both jobs finish. If you cloned via **SSH** (step 1) and your key is on your GitHub
-profile, this just works — no token. Set `BENCH_MACHINE_SLUG=perlmutter` so it publishes the jobs'
-`results/perlmutter.yaml` (otherwise `publish` defaults to the *login* hostname and finds nothing):
+profile, this just works — no token.
+
+**Export the slug once** for the whole login session. Everything that reads the results file
+(`validate`, `plot`, `plotting --gpu`, `publish`) resolves it as `results/<machine_slug>.yaml`, and
+on a login node the slug otherwise defaults to the *login hostname* — so without this they operate on
+a non-existent file and find nothing:
 
 ```bash
-BENCH_MACHINE_SLUG=perlmutter pixi run publish --push
+export BENCH_MACHINE_SLUG=perlmutter          # once; validate/plot/publish all inherit it
+
+# If you re-ran a targeted cell on a compute node (e.g. a --codes pyorbit re-measure), refresh the
+# derived artifacts on the login node before publishing:
+pixi run publish --push                         # or: validate -> plot -> plotting --gpu, then publish
 ```
+
+`pixi run validate` ends with a one-line status summary (`N cells: correct=… unconverged=… …` and a
+`⚠` line if anything is `incorrect`/`failed`) — glance at it before publishing.
 
 (If you cloned via HTTPS instead, either switch the remote —
 `git remote set-url origin git@github.com:BLAST-ImpactX/impactx-benchmarks.git` — or use a GitHub
