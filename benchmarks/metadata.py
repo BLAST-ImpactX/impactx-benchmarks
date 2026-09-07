@@ -122,18 +122,29 @@ def gpu_info() -> list[dict]:
     """
     if shutil.which("nvidia-smi") is None:
         return []
-    # name,memory.total,driver_version are supported on every modern driver (avoid newer
-    # query fields that would fail the whole CSV on an older nvidia-smi).
-    raw = _run(["nvidia-smi",
-                "--query-gpu=name,memory.total,driver_version",
-                "--format=csv,noheader"])
+    # nvidia-smi is installed on Perlmutter CPU nodes too, where it EXITS NON-ZERO with
+    # "NVIDIA-SMI has failed because it couldn't communicate with the NVIDIA driver" on stdout.
+    # Must check the return code (not just that the binary exists) or that error text gets stored
+    # as a fake GPU -- and, being non-empty, would defeat the runner's preserve-prior-GPU fallback
+    # and clobber the real card the cuda job recorded. name,memory.total,driver_version are
+    # supported on every modern driver (avoid newer query fields that fail the whole CSV).
+    try:
+        proc = subprocess.run(
+            ["nvidia-smi", "--query-gpu=name,memory.total,driver_version",
+             "--format=csv,noheader"],
+            capture_output=True, text=True, check=False, timeout=60)
+    except (OSError, subprocess.SubprocessError):
+        return []
+    if proc.returncode != 0:
+        return []
     gpus: list[dict] = []
-    for line in raw.splitlines():
+    for line in proc.stdout.splitlines():
         parts = [p.strip() for p in line.split(",")]
-        if parts and parts[0]:
+        # a real row has the 3 queried fields; an error line won't split into >=2 comma fields
+        if len(parts) >= 2 and parts[0] and "nvidia-smi" not in parts[0].lower():
             gpus.append({
                 "name": parts[0],
-                "memory_total": parts[1] if len(parts) > 1 else "",
+                "memory_total": parts[1],
                 "driver": parts[2] if len(parts) > 2 else "",
             })
     return gpus
