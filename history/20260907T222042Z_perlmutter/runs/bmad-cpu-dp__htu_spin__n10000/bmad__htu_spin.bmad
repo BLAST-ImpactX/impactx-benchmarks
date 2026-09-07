@@ -1,0 +1,166 @@
+! Auto-generated Bmad lattice: BELLA HTU beamline + Thomas-BMT spin (spin enabled via the namelist; same lattice as htu).
+! Built from the shared htu_lattice "spec" (same k1/angle/length as the other codes).
+parameter[geometry] = open
+parameter[particle] = electron
+beginning[e_tot] = 100000000.0
+beginning[beta_a] = 0.002
+beginning[alpha_a] = 0.0
+beginning[beta_b] = 0.002
+beginning[alpha_b] = 0.0
+
+e1: drift, L = 0.052
+e2: quadrupole, L = 0.02903, k1 = -620.5784903834164
+e3: drift, L = 0.029035
+e4: quadrupole, L = 0.0289, k1 = 620.5784903834164
+e5: drift, L = 0.0473895
+e6: quadrupole, L = 0.016321, k1 = -553.1243066460885
+e7: drift, L = 0.2158
+e8: marker
+e9: drift, L = 0.42
+e10: marker
+e11: sbend, L = 0.175, angle = -0.020341905108622157
+e12: drift, L = 0.125
+e13: sbend, L = 0.175, angle = 0.020341905108622157
+e14: drift, L = 0.15
+e15: marker
+e16: drift, L = 0.15
+e17: sbend, L = 0.175, angle = 0.020341905108622157
+e18: drift, L = 0.125
+e19: sbend, L = 0.175, angle = -0.020341905108622157
+e20: marker
+e21: drift, L = 0.27
+e22: marker
+e23: drift, L = 0.405
+e24: quadrupole, L = 0.1408, k1 = 6.279005094089149
+e25: drift, L = 0.112735
+e26: quadrupole, L = 0.28141, k1 = -7.732737058559862
+e27: drift, L = 0.112735
+e28: quadrupole, L = 0.1409, k1 = 9.794000540820837
+e29: marker
+e30: drift, L = 0.084325
+e31: marker
+e32: drift, L = 0.28
+e33: drift, L = 0.4826
+e34: marker
+e35: drift, L = 0.4009
+e36: marker
+e37: drift, L = 0.3825
+e38: marker
+e39: drift, L = 0.4191
+e40: marker
+e41: drift, L = 0.2945
+e42: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e43: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e44: drift, L = 0.018
+e45: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e46: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e47: drift, L = 0.018
+e48: marker
+e49: marker
+e50: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e51: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e52: drift, L = 0.018
+e53: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e54: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e55: drift, L = 0.018
+e56: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e57: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e58: drift, L = 0.018
+e59: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e60: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e61: drift, L = 0.018
+e62: marker
+e63: marker
+e64: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e65: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e66: drift, L = 0.018
+e67: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e68: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e69: drift, L = 0.018
+e70: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e71: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e72: drift, L = 0.018
+e73: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e74: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e75: drift, L = 0.018
+e76: marker
+e77: marker
+e78: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e79: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e80: drift, L = 0.018
+e81: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e82: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e83: drift, L = 0.018
+e84: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e85: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e86: drift, L = 0.018
+e87: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e88: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e89: drift, L = 0.018
+e90: marker
+e91: marker
+e92: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e93: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e94: drift, L = 0.018
+e95: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e96: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e97: drift, L = 0.018
+e98: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e99: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e100: drift, L = 0.018
+e101: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e102: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e103: drift, L = 0.018
+e104: marker
+e105: marker
+e106: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e107: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e108: drift, L = 0.018
+e109: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e110: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e111: drift, L = 0.018
+e112: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e113: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e114: drift, L = 0.018
+e115: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e116: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e117: drift, L = 0.018
+e118: marker
+e119: marker
+e120: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e121: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e122: drift, L = 0.018
+e123: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e124: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e125: drift, L = 0.018
+e126: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e127: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e128: drift, L = 0.018
+e129: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e130: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e131: drift, L = 0.018
+e132: marker
+e133: marker
+e134: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e135: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e136: drift, L = 0.018
+e137: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e138: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e139: drift, L = 0.018
+e140: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e141: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e142: drift, L = 0.018
+e143: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e144: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e145: drift, L = 0.018
+e146: marker
+e147: marker
+e148: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e149: quadrupole, L = 0.0504, k1 = 98.93280281474755
+e150: drift, L = 0.018
+e151: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e152: quadrupole, L = 0.0504, k1 = -98.93280281474755
+e153: drift, L = 0.018
+
+htu: line = (e1, e2, e3, e4, e5, e6, e7, e8, e9, e10, e11, e12, e13, e14, e15, e16, e17, e18, e19, e20, e21, e22, e23, e24, e25, e26, e27, e28, e29, e30, e31, e32, e33, e34, e35, e36, e37, e38, e39, e40, e41, e42, e43, e44, e45, e46, e47, e48, e49, e50, e51, e52, e53, e54, e55, e56, e57, e58, e59, e60, e61, e62, e63, e64, e65, e66, e67, e68, e69, e70, e71, e72, e73, e74, e75, e76, e77, e78, e79, e80, e81, e82, e83, e84, e85, e86, e87, e88, e89, e90, e91, e92, e93, e94, e95, e96, e97, e98, e99, e100, e101, e102, e103, e104, e105, e106, e107, e108, e109, e110, e111, e112, e113, e114, e115, e116, e117, e118, e119, e120, e121, e122, e123, e124, e125, e126, e127, e128, e129, e130, e131, e132, e133, e134, e135, e136, e137, e138, e139, e140, e141, e142, e143, e144, e145, e146, e147, e148, e149, e150, e151, e152, e153)
+use, htu
