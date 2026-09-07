@@ -471,24 +471,30 @@ def main(argv=None) -> int:
     parser.add_argument("--scenario", default="", help="single scenario (default: all)")
     parser.add_argument("--gpu", action="store_true",
                         help="GPU FP32 cross-code comparison (next-best+asterisk for no-GPU/no-FP32)")
+    parser.add_argument("--out", default="",
+                        help="output directory (default: plots/). Pass e.g. plots/<machine> to keep "
+                             "per-machine plots separate instead of overwriting the shared plots/ dir")
     args = parser.parse_args(argv)
 
     data = results_mod.load(results_mod.results_path(args.machine))
     if not data.get("results"):
         print(f"No results found for machine '{args.machine}'.")
         return 1
+    base = Path(args.out) if args.out else PLOTS_DIR
     if args.scenario:
         if args.gpu:
-            p = plot_scenario_gpu(data, args.scenario)
+            p = plot_scenario_gpu(data, args.scenario, out_dir=base / "gpu")
             if p:
                 print(f"wrote {p}")
         else:  # combined + _cpu + _gpu, matching plot_all
             for device in (None, "cpu", "gpu"):
-                p = plot_scenario(data, args.scenario, device=device)
+                p = plot_scenario(data, args.scenario, device=device, out_dir=base)
                 if p:
                     print(f"wrote {p}")
+    elif args.gpu:
+        plot_all_gpu(data, out_dir=base / "gpu")
     else:
-        (plot_all_gpu if args.gpu else plot_all)(data)
+        plot_all(data, out_dir=base)
     return 0
 
 
