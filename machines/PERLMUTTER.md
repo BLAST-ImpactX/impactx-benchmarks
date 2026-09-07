@@ -88,13 +88,16 @@ sbatch --dependency=afterok:$cpu machines/perlmutter_gpu.sbatch
 squeue --me                              # watch state; logs stream to bench-{cpu,gpu}.o<jobid>
 ```
 
-Each job runs `bench --resume` (with `--skip-build`), then `validate` + `plot`; the GPU job also
-emits the GPU-FP32 comparison (`plots/gpu/`). Both request **`-t 24:00:00`**. **`--resume` makes a
-wall-clock timeout non-fatal:** each cell is saved as it completes, so if a job hits the wall,
-just **resubmit the same script** — it skips the finished cells in `results/perlmutter.yaml` and
-continues. (The CPU matrix is heavy: the per-cell MPI×OMP layout sweep is ~7 layouts × `runs=5` on
-64 cores, so it needs the full budget.) QOS is *not* the constraint — `gpu_regular`/CPU `regular`
-both allow **48 h** and the partitions 7 days — so bump `-t` toward 48 h freely if a job is slow.
+Each job runs `bench --resume --retry-failed` (with `--skip-build`), then `validate` + `plot`; the
+GPU job also emits the GPU-FP32 comparison (`plots/gpu/`). Both request **`-t 24:00:00`**.
+**`--resume` makes a wall-clock timeout non-fatal:** each cell is saved as it completes, so if a job
+hits the wall, just **resubmit the same script** — it skips the finished cells in
+`results/perlmutter.yaml` and continues. **`--retry-failed`** additionally re-runs cells stored as
+`failed`/`unknown` — so after rebuilding a code env that failed the first time (e.g. an env lost to
+the `$HOME`-quota abort), a plain resubmit re-measures *only* those broken cells and leaves the good
+ones untouched (settled cells — `correct`/`unconverged`/`oom`/`unsupported_physics` — always stay
+skipped). QOS is *not* the constraint — `gpu_regular`/CPU `regular` both allow **48 h** and the
+partitions 7 days — so bump `-t` toward 48 h freely if a job is slow.
 
 ## 4. Publish the results — back on a LOGIN node
 

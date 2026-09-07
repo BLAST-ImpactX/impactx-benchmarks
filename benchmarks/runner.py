@@ -149,6 +149,23 @@ def _last_error_line(stderr: str) -> str:
     return lines[-1][:200] if lines else ""
 
 
+# On --resume, statuses worth re-running with --retry-failed: a cell that never produced a clean
+# result (e.g. after a broken env is rebuilt). Everything else -- correct/unconverged/incorrect/
+# model_mismatch/unsupported_physics/oom/not_in_harness -- is a settled outcome and stays skipped
+# (oom included: it is deterministic on the same device; do a fresh run if the hardware changed).
+_RETRY_STATUSES = frozenset({"failed", "unknown"})
+
+
+def _resume_skip(prev: dict | None, retry_failed: bool) -> bool:
+    """Whether --resume should SKIP an already-recorded cell: skip any present cell, unless
+    ``retry_failed`` and its stored status is one we want to re-run (:data:`_RETRY_STATUSES`)."""
+    if prev is None:
+        return False
+    if retry_failed and (prev or {}).get("status") in _RETRY_STATUSES:
+        return False
+    return True
+
+
 def _run_layout(cfg, sc, npart, ranks, threads, nruns, ncores, cpus):
     """Run one (ranks, threads) layout nruns times. Returns (track_ns|None, obs, status, reason)."""
     # Hard fairness invariant: MPI ranks * OMP threads must never exceed the core budget.
@@ -393,12 +410,18 @@ def run_matrix(args) -> Path:
                 # Resume: skip cells already recorded (each is saved only after it fully completes,
                 # so a present cell is complete). Lets a wall-clock-timed-out HPC run continue where
                 # it stopped instead of re-measuring from scratch. Opt-in so a manual re-run re-times.
-                if args.resume and data.get("results", {}).get(cfg.name, {}).get(
-                        results_mod.measurement_key(sc.name, npart)) is not None:
-                    prev = data["results"][cfg.name][results_mod.measurement_key(sc.name, npart)]
-                    print(f"   [{cfg.name}] {sc.name} n={npart}: skip (resume; have "
-                          f"{prev.get('status')})", flush=True)
-                    continue
+                # With --retry-failed, cells stored as failed/unknown are re-run too (e.g. after a
+                # broken env is rebuilt), while completed/settled cells stay skipped.
+                if args.resume:
+                    prev = data.get("results", {}).get(cfg.name, {}).get(
+                        results_mod.measurement_key(sc.name, npart))
+                    if _resume_skip(prev, args.retry_failed):
+                        print(f"   [{cfg.name}] {sc.name} n={npart}: skip (resume; have "
+                              f"{(prev or {}).get('status')})", flush=True)
+                        continue
+                    if prev is not None:
+                        print(f"   [{cfg.name}] {sc.name} n={npart}: retry (resume --retry-failed; "
+                              f"was {(prev or {}).get('status')})", flush=True)
                 if status != "supported":
                     entry = {"status": status, "reason": reason, "physics": None,
                              "model": cfg.sc_model, "track_ns": None,
@@ -439,6 +462,9 @@ def build_argparser() -> argparse.ArgumentParser:
     p.add_argument("--skip-build", action="store_true", help="assume environments already built")
     p.add_argument("--resume", action="store_true",
                    help="skip cells already present in the results file (continue a timed-out run)")
+    p.add_argument("--retry-failed", action="store_true",
+                   help="with --resume, also re-run cells stored as failed/unknown (e.g. after "
+                        "rebuilding a broken env); completed/settled cells stay skipped")
     p.add_argument("--write-manifests", action="store_true",
                    help="don't run: (re)write runs/<machine>/ manifests for the stored results "
                         "(faithful to each cell's recorded winning layout)")

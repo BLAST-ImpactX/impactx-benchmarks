@@ -33,7 +33,9 @@ export BENCH_MACHINE_SLUG=perlmutter
 export BENCH_NCORES=64
 export BENCH_SOCKET=0
 
-pixi run -e default bench --device cpu --ncores 64 --skip-build --resume
+# --resume continues a timed-out run (skips completed cells); --retry-failed also re-runs cells
+# stored as failed/unknown (e.g. after rebuilding a broken env) while leaving settled cells alone.
+pixi run -e default bench --device cpu --ncores 64 --skip-build --resume --retry-failed
 pixi run -e default validate
 pixi run -e default plot
 echo "CPU benchmarks done -> results/perlmutter.yaml"

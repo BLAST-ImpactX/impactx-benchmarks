@@ -49,7 +49,9 @@ export MPICH_GPU_SUPPORT_ENABLED=1
 # (2 days) and the gpu_ss11 partition 7 days -- bump -t up to 48h freely if 1e9 is slow. To cap
 # runtime instead: drop the 1e9 point, split >=256M into a follow-on job, or lower --runs.
 export BENCH_NPARTS_GPU="100000,1000000,4000000,16000000,64000000,256000000,1000000000"
-pixi run -e default bench --device cuda --skip-build --resume --nparts "$BENCH_NPARTS_GPU"
+# --resume continues a timed-out run; --retry-failed also re-runs failed/unknown cells (e.g. after
+# rebuilding the impactx-cuda / scibmad-gpu / elegant-cuda envs) while leaving settled cells alone.
+pixi run -e default bench --device cuda --skip-build --resume --retry-failed --nparts "$BENCH_NPARTS_GPU"
 pixi run -e default validate
 pixi run -e default plot
 pixi run -e default python -m benchmarks.plotting --gpu   # GPU-FP32 cross-code comparison
