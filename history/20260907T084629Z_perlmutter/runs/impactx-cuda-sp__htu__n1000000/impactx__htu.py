@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+# Auto-generated benchmark run script: ImpactX / htu (BELLA HTU beamline tracking).
+# One untimed warm-up track, then reset beam + reference particle, then time.
+import json
+
+from impactx import ImpactX, distribution, elements, twiss  # noqa: F401
+
+from scenarios._obs import Timer
+from scenarios.htu.htu_lattice import get_lattice
+
+p = {'mass_MeV': 0.510998950691753, 'mass_eV': 510998.9506917531, 'kin_energy_MeV': 99.48900104930824, 'kin_energy_eV': 99489001.04930824, 'total_energy_eV': 100000000.0, 'emit_x': 7.665084336342948e-09, 'emit_y': 7.665084336342948e-09, 'beta_x': 0.002, 'beta_y': 0.002, 'alpha_x': 0.0, 'alpha_y': 0.0, 'sigma_t': 1e-06, 'sigma_p': 0.025, 'mu_p': 0.01, 'bunch_charge_C': 2.5e-11}
+npart = 1000000
+
+
+def make_distr():
+    # twiss() already returns meanPt (default 0); override instead of passing twice
+    tw = twiss(
+        beta_x=p["beta_x"], beta_y=p["beta_y"], beta_t=p["sigma_t"] / p["sigma_p"],
+        emitt_x=p["emit_x"], emitt_y=p["emit_y"], emitt_t=p["sigma_t"] * p["sigma_p"],
+        alpha_x=p["alpha_x"], alpha_y=p["alpha_y"], alpha_t=0.0,
+    )
+    tw["meanPt"] = -p["mu_p"]
+    return distribution.Gaussian(**tw)
+
+
+def set_ref(sim):
+    ref = sim.beam.ref
+    ref.set_charge_qe(-1.0).set_mass_MeV(p["mass_MeV"]).set_kin_energy_MeV(p["kin_energy_MeV"])
+    ref.s = 0.0
+    ref.t = 0.0
+
+
+def load_beam(sim):
+    sim.beam.clear_particles()
+    set_ref(sim)
+    sim.add_particles(p["bunch_charge_C"], make_distr(), npart)
+
+
+sim = ImpactX()
+sim.space_charge = False
+sim.slice_step_diagnostics = False
+sim.diagnostics = False
+sim.verbose = 0
+sim.tiny_profiler = False
+sim.init_grids()
+set_ref(sim)
+sim.add_particles(p["bunch_charge_C"], make_distr(), npart)
+
+sim.lattice.extend(get_lattice("impactx", screens_as_markers=True))
+
+# warm-up track (NOT timed), then reset beam + reference particle
+sim.track_particles()
+load_beam(sim)
+
+with Timer() as t:
+    sim.track_particles()
+
+rbc = sim.beam.reduced_beam_characteristics()
+obs = {
+    "sigma_x": float(rbc["sig_x"]),
+    "sigma_y": float(rbc["sig_y"]),
+    "emit_x": float(rbc["emittance_x"]),
+    "emit_y": float(rbc["emittance_y"]),
+}
+# under MPI only rank 0 prints (reduced_beam_characteristics is already global)
+try:
+    import amrex.space3d as amr
+    _rank = amr.ParallelDescriptor.MyProc()
+except Exception:
+    _rank = 0
+if _rank == 0:
+    print(f"Track: {t.ns}ns")
+    print("Validate: " + json.dumps(obs))
+
+sim.finalize()
