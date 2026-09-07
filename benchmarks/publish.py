@@ -4,7 +4,9 @@ Uses a detached git **worktree** so the working tree on the current branch is ne
 touched. The branch is created as an **orphan** the first time. On the branch:
 
 * ``results/<machine>.yaml``      -- latest results for this machine (overwritten)
-* ``plots/<scenario>.{svg,pdf}``  -- latest plots (overwritten; embedded in README)
+* ``plots/<machine>/<scenario>.{svg,pdf}`` -- latest per-machine plots, rendered at publish time
+                                     from that machine's results (so machines don't overwrite each
+                                     other; the legacy flat plots/ layout is migrated away)
 * ``runs/<machine>/<cell>/``      -- per-cell template-resolved input file(s) + ``run.sh``
                                      (exact launch command + env) so the codes' authors can
                                      review the (LLM-generated) templates. Inputs only -- no run
@@ -72,17 +74,12 @@ def publish(push: bool, remote: str | None = None) -> int:
     data = results_mod.load(res_path)
     msg = meta_mod.as_commit_message(data.get("metadata", {}), _summary(data))
 
-    # Recurse so nested plot dirs (e.g. plots/gpu/ from `plot --gpu`) are included; files only
-    # (a bare glob("*") would yield the gpu/ directory itself and shutil.copy2 would choke on it).
-    plots = (sorted(p for p in (REPO_ROOT / "plots").rglob("*") if p.is_file())
-             if (REPO_ROOT / "plots").is_dir() else [])
     # per-run manifests for THIS machine (template-resolved inputs + run.sh); reviewable on branch
     runs_dir = REPO_ROOT / "runs" / slug
     run_cells = sorted(p for p in runs_dir.iterdir() if p.is_dir()) if runs_dir.is_dir() else []
     print("Would publish:")
     print(f"  results/{slug}.yaml")
-    for p in plots:
-        print(f"  plots/{p.relative_to(REPO_ROOT / 'plots')}")
+    print(f"  plots/{slug}/  (rendered from this machine's results at publish; other machines kept)")
     if run_cells:
         print(f"  runs/{slug}/  ({len(run_cells)} run manifests: resolved input + run.sh)")
     print("\nCommit message:\n" + "\n".join("  " + ln for ln in msg.splitlines()))
@@ -110,7 +107,7 @@ def publish(push: bool, remote: str | None = None) -> int:
                         child.unlink()
 
         try:
-            _publish_files(wt_path, slug, res_path, plots, utc, runs_dir)
+            _publish_files(wt_path, slug, res_path, data, utc, runs_dir)
             _git("add", "-A", cwd=wt_path)
             staged = _git("diff", "--cached", "--quiet", check=False, cwd=wt_path)
             if staged.returncode == 0:
@@ -126,30 +123,41 @@ def publish(push: bool, remote: str | None = None) -> int:
     return 0
 
 
-def _publish_files(wt: Path, slug: str, res_path: Path, plots: list[Path], utc: str,
+def _publish_files(wt: Path, slug: str, res_path: Path, data: dict, utc: str,
                    runs_dir: Path) -> None:
+    from . import plotting as plot_mod
+
     (wt / "results").mkdir(parents=True, exist_ok=True)
-    (wt / "plots").mkdir(parents=True, exist_ok=True)
     shutil.copy2(res_path, wt / "results" / f"{slug}.yaml")
-    plots_root = REPO_ROOT / "plots"
-    for p in plots:
-        dst = wt / "plots" / p.relative_to(plots_root)
-        dst.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(p, dst)
+
+    # Per-machine plots. Render THIS machine's plots into plots/<slug>/ from its own results, so
+    # publishing one machine never clobbers another's charts. Other machines' plots/<other>/ live
+    # on the fetched branch and are left untouched. Migrate away the legacy FLAT layout: drop any
+    # top-level plots/ entry that isn't a known machine dir (old <scenario>.png files + old gpu/).
+    plots_root = wt / "plots"
+    plots_root.mkdir(parents=True, exist_ok=True)
+    known = {p.stem for p in (wt / "results").glob("*.yaml")}
+    for p in plots_root.iterdir():
+        if p.name not in known:
+            shutil.rmtree(p) if p.is_dir() else p.unlink()
+    mplots = plots_root / slug
+    if mplots.exists():
+        shutil.rmtree(mplots)
+    mplots.mkdir(parents=True, exist_ok=True)
+    plot_mod.plot_all(data, out_dir=mplots)
+    plot_mod.plot_all_gpu(data, out_dir=mplots / "gpu")
+
     # per-run manifests (template-resolved inputs + run.sh) -- overwrite the machine's tree
     dst_runs = wt / "runs" / slug
     if dst_runs.exists():
         shutil.rmtree(dst_runs)
     if runs_dir.is_dir():
         shutil.copytree(runs_dir, dst_runs)
-    # per-run archive (results + plots + the run manifests, snapshotted under this UTC stamp)
+    # per-run archive (results + this machine's plots + the run manifests, under this UTC stamp)
     archive = wt / "history" / f"{utc.replace(':', '').replace('-', '')}_{slug}"
-    (archive / "plots").mkdir(parents=True, exist_ok=True)
+    archive.mkdir(parents=True, exist_ok=True)
     shutil.copy2(res_path, archive / f"{slug}.yaml")
-    for p in plots:
-        dst = archive / "plots" / p.relative_to(plots_root)
-        dst.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(p, dst)
+    shutil.copytree(mplots, archive / "plots")
     if runs_dir.is_dir():
         shutil.copytree(runs_dir, archive / "runs")
 
