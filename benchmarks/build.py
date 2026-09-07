@@ -25,6 +25,8 @@ BUILD_TASKS = {
     "bmad": "build-bmad",
     "elegant": "build-elegant",
     "helix": "build-helix",
+    "synergia": "build-synergia",
+    "impactz": "build-impactz",   # source build: CMake + gfortran + MPI (bundled FFTPACK)
 }
 
 # extra CPU (env, build-task) pairs a code needs beyond its main env, e.g. a separate
@@ -55,6 +57,7 @@ GPU_ENVS = {
     "scibmad": [("scibmad-gpu", "build-scibmad-gpu")],
     "elegant": [("elegant-gpu", "build-elegant-gpu")],
     "helix": [("helix-gpu", "build-helix-gpu")],
+    "synergia": [("synergia-cuda", "build-synergia-cuda")],
 }
 
 

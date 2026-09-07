@@ -41,6 +41,8 @@ CODE_COLORS = {
     "scibmad": "tab:brown",
     "elegant": "tab:cyan",
     "helix": "tab:pink",
+    "synergia": "tab:olive",
+    "impactz": "tab:gray",   # ImpactX's predecessor (fairest SC comparison)
 }
 
 DASHED_PHYSICS = {"model_mismatch", "incorrect", "unconverged"}

@@ -405,6 +405,74 @@ build-elegant = { cmd = "ELEGANT_DEVICE=cpu bash codes/elegant/build.sh", descri
 build-elegant-gpu = { cmd = "ELEGANT_DEVICE=cuda bash codes/elegant/build.sh", description = "Source-build Elegant + gpu-elegant/gpu-Pelegant (CUDA)" }
 
 # --------------------------------------------------------------------------- #
+# Synergia3 (devel3) -- source build: CMake + vendored Kokkos (OpenMP backend) + MPI (MPICH) +
+# FFTW/HDF5. libFF EXACT non-paraxial tracking maps (Yoshida-6 thick quad + exact drift) and
+# open-boundary Hockney PIC space charge (3D `Space_charge_3d_open_hockney`, integrated "linear"
+# Green function = the ImpactX-IGF analog; 2.5D `Space_charge_2d_open_hockney`). DOUBLE precision
+# ONLY (bunch is Kokkos::View<double**>); no fast-math build knob (its CMake fast-math append is a
+# no-op bug -> IEEE Release). Deps mirror synergia2's own pixi.toml [feature.cpu] (python 3.12 /
+# numpy 1.26 / pybind11 2.12 / gsl / MPI-enabled fftw+hdf5+h5py), pinned so the built pybind
+# extension is ABI-matched to this env's python. GPU env swaps in the shared `cuda` feature and the
+# Kokkos CUDA backend (SYNERGIA_DEVICE=cuda; see codes/synergia/build.sh).
+# --------------------------------------------------------------------------- #
+[feature.synergia]
+platforms = ["linux-64"]
+
+[feature.synergia.dependencies]
+python = "3.12.*"                    # match synergia2's pin; the pybind ext is built against this python
+pip = "*"
+# Match synergia2's OWN compiler pin (cxx-compiler >=1.7.0,<1.8 -> GCC ~13). The unpinned "*" pulls
+# GCC 15, whose stricter -Wtemplate-body two-phase-lookup is a HARD ERROR on synergia devel3's own
+# template code (src/synergia/bunch/bunch_particles.h: 'comm'/'decompose_1d_local'), breaking the
+# build. GCC 13 (synergia's tested compiler) accepts it. Keep c/cxx pinned together.
+c-compiler = ">=1.7.0,<1.8"
+cxx-compiler = ">=1.7.0,<1.8"
+cmake = ">=3.29.5,<3.30"             # match synergia2's OWN pin: CMake 4.x drops pre-3.5 compat and
+                                     # breaks synergia's vendored/FetchContent subprojects (Kokkos/Eigen/openPMD)
+make = "*"                           # synergia's `cmake --build` uses the default (Unix Makefiles) generator
+gsl = ">=2.7,<3"
+pybind11 = ">=2.12.0,<2.13"
+numpy = ">=1.26.4,<1.27"
+scipy = "*"                          # pulled in by seaborn anyway; harmless to pin explicitly
+seaborn = ">=0.13.2,<0.14"           # synergia imports it at package import time
+mpich = "*"                          # MPI backend (mpirun + mpicc/mpicxx); forces the mpi* builds below to MPICH
+mpi4py = "*"                         # synergia imports mpi4py on `import synergia`
+libfabric-devel = "*"                # MPICH -lfabric link (as in pyorbit/impactx)
+fftw = { version = ">=3.3.10,<3.4", build = "mpi*" }
+hdf5 = { version = ">=1.14.3,<1.15", build = "mpi*" }
+h5py = { version = ">=3.11.0,<3.12", build = "mpi*" }
+git = "*"                            # source-clone fallback + version stamp
+
+[feature.synergia.activation.env]
+CXXFLAGS = "-march=native -mtune=native"
+CFLAGS = "-march=native -mtune=native"
+
+[feature.synergia.tasks]
+# IEEE only (no working fast-math build knob; see registry._supports_fastmath). CPU = Kokkos OpenMP;
+# the -cuda task (run in the synergia-cuda env) switches to the Kokkos CUDA backend + cuFFT.
+build-synergia = { cmd = "BENCH_FASTMATH=0 bash codes/synergia/build.sh", description = "Source-build Synergia3 (Kokkos OpenMP + MPI, DP)" }
+build-synergia-cuda = { cmd = "SYNERGIA_DEVICE=cuda bash codes/synergia/build.sh", description = "Source-build Synergia3 (Kokkos CUDA backend + cuFFT, DP)" }
+# IMPACT-Z (source build: CMake + gfortran + MPI; bundled FFTPACK, no external FFTW).
+# LBNL Fortran/MPI PIC space-charge code, ImpactX's direct predecessor. DP-only, MPI-only
+# (2D domain decomposition; no OpenMP), CPU-only (no GPU path) -> no SP/fast-math/GPU envs.
+# A thin driver.py runs the compiled ImpactZexe-mpi and reads observables from the fort.* files.
+# >>> IMPACT-Z ADDITIVE BLOCK (merge-friendly; independent of other codes) >>>
+# --------------------------------------------------------------------------- #
+[feature.impactz.dependencies]
+python = ">=3.11"          # driver.py + read_fort.py (stdlib-only parsing)
+compilers = "*"            # gfortran (the Fortran build compiler)
+cmake = "*"
+ninja = "*"
+make = "*"
+git = "*"
+mpich = "*"                # MPI Fortran (find_package(MPI)) + mpirun at runtime
+numpy = "*"
+
+[feature.impactz.tasks]
+build-impactz = { cmd = "bash codes/impactz/build.sh", description = "Source-build IMPACT-Z (CMake + MPI, bundled FFTPACK)" }
+# <<< END IMPACT-Z ADDITIVE BLOCK <<<
+
+# --------------------------------------------------------------------------- #
 # Environments: each code is isolated (no driver deps leak in).
 # --------------------------------------------------------------------------- #
 [environments]
@@ -442,3 +510,9 @@ scibmad-gpu = { features = ["scibmad-gpu"], no-default-feature = true }
 # HELIX (linac_gen): PyTorch PIC space charge; CPU env + CUDA env (own cuda13* pytorch build).
 helix = { features = ["helix"], no-default-feature = true }
 helix-gpu = { features = ["helix-gpu"], no-default-feature = true }
+# Synergia3: CPU (Kokkos OpenMP) + CUDA (shared `cuda` feature -> Kokkos CUDA backend). DP-only,
+# no fast-math axis. The build.sh keys the Kokkos backend on SYNERGIA_DEVICE.
+synergia = { features = ["synergia"], no-default-feature = true }
+synergia-cuda = { features = ["synergia", "cuda"], no-default-feature = true }
+# IMPACT-Z: DP-only, MPI-only, CPU-only -> a single CPU env (no SP/fast-math/GPU variants).
+impactz = { features = ["impactz"], no-default-feature = true }

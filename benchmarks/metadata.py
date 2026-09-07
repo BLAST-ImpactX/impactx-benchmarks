@@ -215,6 +215,8 @@ _CODE_PACKAGES = {
     "scibmad": ["julia"],
     "elegant": ["mpich", "gsl", "liblapack", "fftw"],  # elegant itself is a source build (see _CODE_SRC_DIRS)
     "helix": ["pytorch", "numpy", "scipy"],  # linac_gen is a pip --no-deps source install (see _CODE_SRC_DIRS)
+    "synergia": ["fftw", "hdf5", "gsl", "mpich", "mpi4py", "numpy"],  # synergia is a source build (see _CODE_SRC_DIRS)
+    "impactz": ["mpich"],  # IMPACT-Z itself is a source build (see _CODE_SRC_DIRS); bundled FFTPACK (no fftw dep)
 }
 
 
@@ -278,6 +280,8 @@ _CODE_SRC_DIRS = {
     "bmad": [os.environ.get("BMAD_SRC", ""), "/home/axel/src/bmad-ecosystem", ".builds/src/bmad-ecosystem"],
     "elegant": [os.environ.get("ELEGANT_SRC", ""), "/home/axel/src/elegant", ".builds/src/elegant"],
     "helix": [os.environ.get("HELIX_SRC", ""), "/home/axel/src/HELIX", ".builds/src/HELIX"],
+    "synergia": [os.environ.get("SYNERGIA_SRC", ""), "/home/axel/src/synergia2", ".builds/src/synergia2"],
+    "impactz": [os.environ.get("IMPACTZ_SRC", ""), "/home/axel/src/IMPACT-Z", ".builds/src/IMPACT-Z"],
 }
 _CODE_MAIN_PKG = {
     "impactx": "impactx",

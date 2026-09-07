@@ -1,0 +1,79 @@
+{#-
+  IMPACT-Z input deck: BELLA HTU beamline tracking benchmark (no space charge).
+
+  The lattice is emitted from the shared, code-agnostic htu_lattice "spec" (same physics:
+  k1, bend angles, lengths as every other code), mapped to IMPACT-Z elements:
+    * quad  -> type-1 with fileID=-1 (transfmapK_Quadrupole): a THICK CHROMATIC quad
+               (strength K/(1+delta)), K = MAD-X geometric strength (1/m^2). This is the
+               chromatic-paraxial model the htu scenario intends (= ImpactX ChrQuad).
+    * drift -> type-0: IMPACT-Z's EXACT non-paraxial drift (= ImpactX ExactDrift/ChrDrift
+               agree here; on this weakly-divergent line exact vs paraxial drift is < tol).
+    * bend  -> type-4 SECTOR dipole (Sector_Dipole 2nd-order Transport map with dispersion,
+               e1=e2=0, no fringe, k1=0), matching ImpactX ExactSbend. fileID<100 -> plain
+               bend (no CSR/SC). A zero-angle "bend" (spectrometer off) collapses to a drift.
+    * screens / zero-current correctors -> markers: zero-length no-ops, omitted from the deck
+               (they do not affect the tracked trajectory; read_fort reads the final moments).
+
+  Beam: Gaussian (Flagdist=2) from the SAME Twiss/emittance/energy as ImpactX. The mean
+  momentum offset mu_p is applied as the z-plane pzoff. IMPACT-Z's 6th coordinate is
+  Pts(6) = -(gamma - gamma0) = -Delta_gamma (see sample_Dist + BeamBunch: gam = gam0-Pts(6)),
+  and pzoff passes through sample_Dist UNCONVERTED (only sigmas are twiss-converted), so a
+  higher-energy offset mu_p>0 (Delta_gamma = beta^2*gamma*mu_p) maps to a NEGATIVE
+  pzoff = -beta^2*gamma*mu_p -- the same physical "mu_p above reference" as ImpactX meanPt=-mu_p.
+
+  Units bridge identical to the validated spacecharge/fodo decks; read_fort.py -> SI.
+-#}
+{% set c = 299792458.0 %}
+{% set pi = 3.141592653589793 %}
+{% set fref = 1.3e9 %}
+{% set mass_eV = params.mass_MeV * 1.0e6 %}
+{% set kin_eV = params.kin_energy_MeV * 1.0e6 %}
+{% set gamma = 1.0 + params.kin_energy_MeV / params.mass_MeV %}
+{% set betagamma = (gamma * gamma - 1.0) ** 0.5 %}
+{% set beta = betagamma / gamma %}
+{% set xl = c / (2.0 * pi * fref) %}
+{% set emit_nx = params.emit_x * betagamma %}
+{% set emit_ny = params.emit_y * betagamma %}
+{% set sigphi_deg = params.sigma_t / (beta * xl) * 180.0 / pi %}
+{% set sigE_MeV = beta * betagamma * params.sigma_p * params.mass_MeV %}
+{% set betaz = sigphi_deg / sigE_MeV %}
+{% set epsz = sigphi_deg * sigE_MeV %}
+{% set qmc = -1.0 / mass_eV %}
+{% set pzoff = -(betagamma * betagamma / gamma) * params.mu_p %}
+!IMPACT-Z HTU beamline tracking benchmark (auto-generated; chromatic quad + exact drift + sector bends).
+!--- processor grid: npcol(Y) nprow(Z); the driver rewrites this to match --ranks
+1 1
+!--- 6D, npart particles/charge, Flagmap(1=linear-map path: exact drift + transfMapK quad), Flagerr(0), Flagdiag(1)
+6 {{ npart }} 1 0 1
+!--- Nx Ny Nz, Flagbc(1=3D open BC), x/y pipe half-width[m] (unused, SC off), period[m]
+32 32 32 1 1.0 1.0 1.0
+!--- Flagdist(2=3D Gaussian), restart(0), subcycle(0), #charge-states(1)
+2 0 0 1
+!--- # particles per charge state
+{{ npart }}
+!--- current[A] per charge state = 0 (no space charge)
+0.0
+!--- q/m per charge state, normalised = charge/mass[eV] (electron: -1/mass)
+{{ "%.12e"|format(qmc) }}
+!--- X: alpha  beta[m]  eps_norm[m.rad]  xscale pxscale  xoff pxoff
+{{ "%.12e"|format(params.alpha_x) }} {{ "%.12e"|format(params.beta_x) }} {{ "%.12e"|format(emit_nx) }} 1.0 1.0 0.0 0.0
+!--- Y: alpha  beta[m]  eps_norm[m.rad]  yscale pyscale  yoff pyoff
+{{ "%.12e"|format(params.alpha_y) }} {{ "%.12e"|format(params.beta_y) }} {{ "%.12e"|format(emit_ny) }} 1.0 1.0 0.0 0.0
+!--- Z: alpha_z  beta_z[deg/MeV]  eps_z[deg.MeV]  zscale pzscale  zoff  pzoff(= -beta^2*gamma*mu_p)
+0.0 {{ "%.12e"|format(betaz) }} {{ "%.12e"|format(epsz) }} 1.0 1.0 0.0 {{ "%.12e"|format(pzoff) }}
+!--- Bcurrent[A]=0  Bkin_energy[eV]  Bmass[eV]  Bcharge  Bfreq[Hz]  Bphase[deg]
+0.0 {{ "%.12e"|format(kin_eV) }} {{ "%.12e"|format(mass_eV) }} -1.0 {{ "%.12e"|format(fref) }} 0.0
+!====================== ACC. LATTICE ======================
+{% for el in htu_spec %}
+{% if el.kind == "drift" %}
+{{ "%.12e"|format(el.L) }} 1 1 0 1.0 / {{ el.name }}
+{% elif el.kind == "quad" %}
+{{ "%.12e"|format(el.L) }} 1 1 1 {{ "%.12e"|format(el.k1) }} -1.0 1.0 / {{ el.name }}
+{% elif el.kind == "bend" %}
+{% if el.angle|abs > 1e-12 %}
+{{ "%.12e"|format(el.L) }} 1 1 4 {{ "%.12e"|format(el.angle) }} 0.0 0.0 1.0 0.0 0.0 0.0 0.0 0.0 / {{ el.name }}
+{% else %}
+{{ "%.12e"|format(el.L) }} 1 1 0 1.0 / {{ el.name }} (zero-angle bend == drift)
+{% endif %}
+{% endif %}
+{% endfor %}

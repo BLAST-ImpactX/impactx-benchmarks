@@ -210,6 +210,54 @@ CODES: dict[str, Code] = {
         capabilities=frozenset({SPACE_CHARGE, SPACE_CHARGE_3D}),
         precisions=frozenset({SINGLE, DOUBLE}),
     ),
+    "synergia": Code(
+        name="synergia",
+        repo="https://github.com/fnalacceleratormodeling/synergia2",  # devel3
+        pixi_env="synergia",
+        install="source",
+        parallelism="omp",   # Kokkos OpenMP threads (OMP_NUM_THREADS); hybrid with MPI
+        # MPI is mandatory (Commxx wraps MPI_COMM_WORLD), but a 1-rank run is plain `python`;
+        # the runner wraps it in mpirun only for >1 rank, exactly like ImpactX (launcher="python").
+        launcher="python",
+        # devel3 libFF single-particle maps are EXACT non-paraxial: the drift uses
+        # Ps=sqrt((1+dp)^2 - px^2 - py^2) and the thick quad is a Yoshida-6 symplectic
+        # composition of thin quad kicks with those exact drifts -- the SAME exact
+        # (non-paraxial) model as ImpactX ExactQuad+ExactDrift / SciBmad MatrixKick, so it is a
+        # fair participant in fodo_exact (not just the paraxial pole). PIC space charge:
+        # Space_charge_3d_open_hockney (open-BC Hockney FFT, integrated "linear" Green function
+        # = the ImpactX-IGF analog) for 3D and Space_charge_2d_open_hockney for 2.5D. NO spin
+        # tracking (grep of bunch/libFF/simulation finds none) -> htu_spin unsupported via SPIN.
+        capabilities=frozenset(
+            {TRACKING, SPACE_CHARGE, SPACE_CHARGE_3D, SPACE_CHARGE_2P5D}
+        ),
+        # DOUBLE only: the tracked bunch is hard-typed Kokkos::View<double**> (using
+        # Bunch = bunch_t<double>); there is no single-precision build option. GSV=AVX is a
+        # SIMD *width* knob for the double maps, not a scalar-precision switch.
+        precisions=frozenset({DOUBLE}),
+        mpi_capable=True,     # MPI particle decomposition (Commxx) -- hybrid with OpenMP
+        thread_capable=True,  # Kokkos OpenMP backend (thread count from OMP_NUM_THREADS)
+    ),
+    # >>> IMPACT-Z ADDITIVE BLOCK (merge-friendly; independent of other codes) >>>
+    "impactz": Code(
+        name="impactz",
+        repo="https://github.com/impact-lbl/IMPACT-Z",
+        pixi_env="impactz",
+        install="source",
+        parallelism="mpi",
+        # input-file driven (ImpactZ.in); a thin driver runs ImpactZexe-mpi, times the track,
+        # and reads final observables from the fort.24/25/26 statistics files.
+        launcher="impactz",
+        # ImpactX's direct PREDECESSOR: the SAME 3D open-boundary integrated Green function
+        # (IGF/FFT + CIC) space charge -> the fairest SC comparison. Also a general tracking code
+        # (drift/quad/dipole/multipole/solenoid). This build has NO active 2.5D SC solver (only 3D
+        # open-BC or field-off) and NO spin tracking -> it lacks SPACE_CHARGE_2P5D and SPIN.
+        capabilities=frozenset({TRACKING, SPACE_CHARGE, SPACE_CHARGE_3D}),
+        precisions=frozenset({DOUBLE}),   # double precision only (real*8 throughout the source)
+        language="impactz",
+        mpi_capable=True,     # MPI-only (2D domain decomposition; no OpenMP) -> vary rank count
+        thread_capable=False,
+    ),
+    # <<< END IMPACT-Z ADDITIVE BLOCK <<<
 }
 
 
@@ -295,6 +343,7 @@ SCENARIOS: dict[str, Scenario] = {
             "cheetah": "no chromatic quad; runs the exact drift_kick_drift map",
             "scibmad": "only exact models (MatrixKick symplectic quad + exact drift); no chromatic-paraxial",
             "bmad": "only exact bmad_standard tracking; no chromatic-paraxial model",
+            "synergia": "only exact (non-paraxial) libFF maps (Yoshida quad + exact drift); no chromatic-paraxial",
         },
     ),
     "fodo_exact": Scenario(
@@ -324,6 +373,14 @@ SCENARIOS: dict[str, Scenario] = {
         # quad-dominated hot beam: a genuine model difference (dashed), not a bug. Source-verified.
         model_mismatch_codes={
             "cheetah": "paraxial chromatic-linear quad; no non-paraxial quad model",
+            # IMPACT-Z has NO exact non-paraxial quad: both its quad maps are paraxial (the linear
+            # matrix, and transfmapK_Quadrupole = a thick CHROMATIC quad, strength K/(1+delta),
+            # linear in the transverse coords -- the SAME class as Cheetah). We run the chromatic
+            # thick quad (its closest model). On the hot 100 mrad, quad-dominated cell it lands at
+            # the paraxial pole, ~1.9% below the ExactQuad reference in sigma_x (measured) -> a
+            # genuine model difference, not a bug. Its drift IS exact (type-0 non-paraxial). Source-
+            # verified in src/Appl/Quadrupole.f90 (transfmapK_Quadrupole).
+            "impactz": "paraxial chromatic thick quad (transfmapK, K/(1+delta)); no non-paraxial quad model",
             # Bmad is NOT listed: its fodo_exact quads use tracking_method=symp_lie_ptc (PTC
             # EXACT_MODEL=T = exact non-paraxial canonical quad), matching ImpactX -> a fair
             # participant, validated numerically like the other exact codes.
@@ -351,8 +408,12 @@ SCENARIOS: dict[str, Scenario] = {
             "cheetah": "no chromatic quad/drift; runs the exact drift_kick_drift map",
             "scibmad": "drift is exact-only; runs an exact (non-paraxial) drift",
             "bmad": "only exact bmad_standard tracking; no chromatic-paraxial model",
+            # Synergia libFF is exact-only too (Yoshida-6 symplectic quad + exact drift): it runs
+            # the costlier exact map here, agreeing with the ImpactX ChrQuad+ChrDrift reference to
+            # <0.5% (measured). See codes/synergia/htu.py.jinja (built from the shared htu_spec).
+            "synergia": "only exact (non-paraxial) libFF maps (Yoshida quad + exact drift); no chromatic-paraxial",
         },
-        untuned_note="*  Cheetah/SciBmad/Bmad have no chromatic-paraxial model here; they run the costlier exact map (agrees within tol)",
+        untuned_note="*  Cheetah/SciBmad/Bmad/Synergia have no chromatic-paraxial model here; they run the costlier exact map (agrees within tol)",
         # Elegant is a genuine MODEL difference, not merely untuned: source-verified (2026-08-23) that it
         # tracks the geometric SLOPE (x,x'), NOT canonical (x,px). EDRIFT is x+=x'*L with NO delta
         # (csbend.c:exactDrift), track.h:84 declares coords (x,xp,y,yp,s,delta), and elegant's own
@@ -489,6 +550,16 @@ def _supports_fastmath(cfg: Config) -> bool:
         return False  # released DP code, flags managed by its own Makefile; no fast-math variant
     if cfg.code == "helix":
         return False  # PyTorch SC solve (torch.fft); no fast-math overlay knob we vary
+    if cfg.code == "synergia":
+        # Synergia's CMake tries to append "-ffast-math -fno-finite-math-only" but the
+        # string(APPEND ${CMAKE_CXX_FLAGS} ...) call passes the flag VALUE where a variable NAME
+        # is required, so it is a no-op -- the Release build is effectively IEEE (-O3 -DNDEBUG).
+        # There is no working, verified fast-math build knob, so (like SciBmad/Bmad/Elegant) we
+        # keep it IEEE-only. A fast-math variant would need -DEXTRA_CXX_FLAGS=-ffast-math and
+        # separate verification across Kokkos + the libFF SIMD maps.
+        return False
+    if cfg.code == "impactz":
+        return False  # released DP Fortran code; build flags fixed by its CMake, no fast-math axis
     if cfg.code == "bmad":
         # Bmad's dist build links -Bstatic; under -ffast-math gfortran pulls in glibc's vectorized
         # math (libmvec) via absolute /lib64 paths that don't exist in the conda env, so libsim_utils
@@ -545,6 +616,12 @@ _BASE_CONFIGS = [
     _cfg("elegant-cpu-dp", "elegant", DOUBLE, options={}),
     # -- HELIX (linac_gen): PyTorch PIC space charge (IGF = the ImpactX model). 3D spacecharge only.
     _cfg("helix-cpu-dp", "helix", DOUBLE, options={}),
+    # -- Synergia3 (devel3): Kokkos(OpenMP)+MPI; libFF exact non-paraxial tracking + open-BC
+    #    Hockney PIC (3D & 2.5D). DOUBLE only; no fast-math knob (see _supports_fastmath).
+    _cfg("synergia-cpu-dp", "synergia", DOUBLE, options={}),
+    # -- IMPACT-Z: MPI (2D decomp), input-file driven; DP-only, CPU-only. 3D open-BC IGF space
+    #    charge = the same model as ImpactX (its successor) -> sc_model "3d-pic". No SP/GPU variant.
+    _cfg("impactz-cpu-dp", "impactz", DOUBLE, options={}, sc_model="3d-pic"),
     # -- Single-precision (FP32) variants: only ImpactX/Cheetah/SciBmad. ImpactX SP is a SEPARATE
     #    compiled build (impactx-sp env); Cheetah/SciBmad SP is a runtime dtype switch.
     _cfg("impactx-cpu-simd-sp", "impactx", SINGLE,
@@ -577,6 +654,9 @@ _BASE_CONFIGS = [
     # HELIX CUDA: same PyTorch SC kick; one cuda13* env for both precisions (runtime dtype switch).
     _cfg("helix-cuda-dp", "helix", DOUBLE, device="cuda", options={}, env_override="helix-gpu"),
     _cfg("helix-cuda-sp", "helix", SINGLE, device="cuda", options={}, env_override="helix-gpu"),
+    # Synergia3 CUDA: separate Kokkos-CUDA build (cuFFT SC) in its own env. DOUBLE only (no FP32
+    # storage). The Kokkos maps run on-device; same open-BC Hockney SC model as the CPU build.
+    _cfg("synergia-cuda-dp", "synergia", DOUBLE, device="cuda", options={}, env_override="synergia-cuda"),
 ]
 
 CONFIGS: dict[str, Config] = {c.name: c for c in _BASE_CONFIGS}

@@ -26,7 +26,9 @@ def template_ext(code: str) -> str:
     lang = CODES[code].language
     # For file-driven codes the "primary" per-scenario template is the lattice: bmad -> .bmad,
     # elegant -> .lte (each pairs with a shared command/namelist template rendered in render_run_script).
-    return {"julia": "jl", "fortran": "bmad", "elegant": "lte"}.get(lang, "py")
+    # IMPACT-Z is driven by a single self-contained input deck -> .in (the default render path emits
+    # ``impactz__<scenario>.in``; the driver copies it to the hard-wired ``ImpactZ.in`` at run time).
+    return {"julia": "jl", "fortran": "bmad", "elegant": "lte", "impactz": "in"}.get(lang, "py")
 
 
 def _env(template_dir: Path) -> Environment:

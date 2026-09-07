@@ -1,0 +1,67 @@
+{#-
+  IMPACT-Z input deck: 3D space-charge benchmark (charged Gaussian bunch drifting
+  under its own self-field). Matched to the ImpactX reference for a fair comparison:
+
+    * solver:  3D open-boundary integrated Green function (Flagbc=1) -- IMPACT-Z is
+               ImpactX's direct predecessor and uses the SAME open-BC IGF/FFT + CIC
+               model. This is the fairest possible space-charge comparison.
+    * grid:    n_cell^3 (= ImpactX n_cell); domain auto-tracks the beam range each step
+               (update_CompDom), the analog of ImpactX dynamic_size (open BC ->
+               box-size-insensitive; ImpactX pads +10%, IMPACT-Z uses the exact range --
+               agree to <0.1% for a Gaussian).
+    * kick:    ONE space-charge solve over the drift (bnseg=1: half-drift, solve+kick,
+               half-drift). Every SC code in this benchmark does exactly one solve.
+               (Split is symmetric here vs ImpactX's single asymmetric kick -- a minor,
+               documented placement difference, well within the 5% SC tolerance.)
+    * beam:    Gaussian sampled from the SAME Twiss/emittance/energy/charge as ImpactX
+               (IMPACT-Z's sample_Dist converts alpha/beta/eps_norm internally).
+
+  Coordinate/units bridge (IMPACT-Z is a linac code: transverse in units of the length
+  scale xl=c/(2*pi*f_ref); longitudinal in RF phase[deg] & energy[MeV]). f_ref is a free
+  normalisation for this RF-less drift; the physical charge Q=Bcurr/f_ref and all physical
+  sizes are f_ref-independent. read_fort.py converts the fort.* outputs back to SI.
+-#}
+{% set c = 299792458.0 %}
+{% set pi = 3.141592653589793 %}
+{% set fref = 1.3e9 %}
+{% set mass_eV = params.mass_MeV * 1.0e6 %}
+{% set kin_eV = params.kin_energy_MeV * 1.0e6 %}
+{% set gamma = 1.0 + params.kin_energy_MeV / params.mass_MeV %}
+{% set betagamma = (gamma * gamma - 1.0) ** 0.5 %}
+{% set beta = betagamma / gamma %}
+{% set xl = c / (2.0 * pi * fref) %}
+{% set emit_nx = params.emit_x * betagamma %}
+{% set emit_ny = params.emit_y * betagamma %}
+{% set sigphi_deg = params.sigma_t / (beta * xl) * 180.0 / pi %}
+{% set sigE_MeV = beta * betagamma * params.sigma_p * params.mass_MeV %}
+{% set betaz = sigphi_deg / sigE_MeV %}
+{% set epsz = sigphi_deg * sigE_MeV %}
+{% set bcurr = params.bunch_charge_C * fref %}
+{% set qmc = -1.0 / mass_eV %}
+{% set nc = params.n_cell | int %}
+!IMPACT-Z 3D space-charge benchmark (auto-generated; matched to ImpactX).
+!--- processor grid: npcol(Y) nprow(Z); the driver rewrites this to match --ranks
+1 1
+!--- 6D, npart particles/charge, Flagmap(1=linear map), Flagerr(0), Flagdiag(1=standard)
+6 {{ npart }} 1 0 1
+!--- Nx Ny Nz, Flagbc(1=3D open BC / IGF), x/y pipe half-width[m] (unused for open BC), period[m]
+{{ nc }} {{ nc }} {{ nc }} 1 1.0 1.0 1.0
+!--- Flagdist(2=3D Gaussian), restart(0), subcycle(0), #charge-states(1)
+2 0 0 1
+!--- # particles per charge state
+{{ npart }}
+!--- current[A] per charge state = Q * f_ref (so physical bunch charge = Q)
+{{ "%.12e"|format(bcurr) }}
+!--- q/m per charge state, normalised = charge/mass[eV] (electron: -1/mass)
+{{ "%.12e"|format(qmc) }}
+!--- X: alpha  beta[m]  eps_norm[m.rad]  xscale pxscale  xoff pxoff
+{{ "%.12e"|format(params.alpha_x) }} {{ "%.12e"|format(params.beta_x) }} {{ "%.12e"|format(emit_nx) }} 1.0 1.0 0.0 0.0
+!--- Y: alpha  beta[m]  eps_norm[m.rad]  yscale pyscale  yoff pyoff
+{{ "%.12e"|format(params.alpha_y) }} {{ "%.12e"|format(params.beta_y) }} {{ "%.12e"|format(emit_ny) }} 1.0 1.0 0.0 0.0
+!--- Z: alpha_z  beta_z[deg/MeV]  eps_z[deg.MeV]  zscale pzscale  zoff pzoff
+0.0 {{ "%.12e"|format(betaz) }} {{ "%.12e"|format(epsz) }} 1.0 1.0 0.0 0.0
+!--- Bcurrent[A]  Bkin_energy[eV]  Bmass[eV]  Bcharge  Bfreq[Hz]  Bphase[deg]
+{{ "%.12e"|format(bcurr) }} {{ "%.12e"|format(kin_eV) }} {{ "%.12e"|format(mass_eV) }} -1.0 {{ "%.12e"|format(fref) }} 0.0
+!====================== ACC. LATTICE ======================
+!--- drift: length[m]  bnseg(1 => ONE SC solve)  bmpstp(1 => SC every step)  type(0=drift)  radius[m]
+{{ "%.12e"|format(params.drift_length) }} 1 1 0 1.0 /

@@ -113,6 +113,14 @@ def _launch_cmd(cfg: Config, script: Path, ranks: int, threads: int, cpus: list)
         return base + ["python", str(driver), str(script),
                        "--ranks", str(ranks), "--threads", str(threads),
                        "--cpus", cpu_csv, "--device", cfg.device]
+    # IMPACT-Z is file-driven and MPI-only (2D domain decomposition inside the binary), so -- like
+    # elegant -- we launch our driver ONCE (never wrapped by the generic mpirun/taskset below) and
+    # let it write ImpactZ.in with a matching processor grid and build the mpirun/taskset command.
+    if code.launcher == "impactz":
+        driver = REPO_ROOT / "codes" / "impactz" / "driver.py"
+        return base + ["python", str(driver), str(script),
+                       "--ranks", str(ranks), "--threads", str(threads),
+                       "--cpus", cpu_csv, "--device", cfg.device]
     if code.launcher == "julia":
         # GPU uses the scibmad-gpu project (adds CUDA.jl); CPU uses the threaded scibmad project
         project = "codes/scibmad-gpu" if cfg.device == "cuda" else "codes/scibmad"

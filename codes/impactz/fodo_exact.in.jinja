@@ -1,0 +1,66 @@
+{#-
+  IMPACT-Z input deck: EXACT (hot, quad-dominated) FODO tracking benchmark (no space charge).
+
+  HONEST MODEL NOTE -- this is a model_mismatch case, kept for a fair comparison:
+    The scenario's intended model is the EXACT NON-PARAXIAL quad (ImpactX ExactQuad:
+    Ps = sqrt((1+dp)^2 - px^2 - py^2), amplitude-dependent focusing). IMPACT-Z has NO
+    exact non-paraxial quad. Its two quad maps are BOTH paraxial:
+      - the linear-matrix quad (fileID>=0), evaluated at the reference momentum, and
+      - `transfmapK_Quadrupole` (fileID in (-10,-1e-6)), a THICK CHROMATIC quad
+        (strength K/(1+delta), linear in the transverse coordinates).
+    We use the chromatic thick quad (fileID=-1, K = MAD-X 1/m^2), IMPACT-Z's closest
+    available model -- the SAME class as Cheetah's paraxial chromatic-linear quad. On
+    the hot 100 mrad, quad-dominated cell the non-paraxial correction moves sigma_x by
+    ~1.5%, so IMPACT-Z lands at the paraxial pole and legitimately disagrees with the
+    ExactQuad reference -> classified model_mismatch (see registry fodo_exact), NOT a bug.
+    (The drift IS exact: type-0 is IMPACT-Z's exact non-paraxial drift, like every code.)
+
+  Deck structure and units are identical to the chromatic FODO deck (validated); only
+  the beam and cell geometry differ (from scenarios/fodo_exact/params.py). No space charge.
+-#}
+{% set c = 299792458.0 %}
+{% set pi = 3.141592653589793 %}
+{% set fref = 1.3e9 %}
+{% set mass_eV = params.mass_MeV * 1.0e6 %}
+{% set kin_eV = params.kin_energy_MeV * 1.0e6 %}
+{% set gamma = 1.0 + params.kin_energy_MeV / params.mass_MeV %}
+{% set betagamma = (gamma * gamma - 1.0) ** 0.5 %}
+{% set beta = betagamma / gamma %}
+{% set xl = c / (2.0 * pi * fref) %}
+{% set emit_nx = params.emit_x * betagamma %}
+{% set emit_ny = params.emit_y * betagamma %}
+{% set sigphi_deg = params.sigma_t / (beta * xl) * 180.0 / pi %}
+{% set sigE_MeV = beta * betagamma * params.sigma_p * params.mass_MeV %}
+{% set betaz = sigphi_deg / sigE_MeV %}
+{% set epsz = sigphi_deg * sigE_MeV %}
+{% set qmc = -1.0 / mass_eV %}
+{% set kq = params.k1 %}
+!IMPACT-Z exact FODO tracking benchmark (auto-generated; IMPACT-Z paraxial quad -> model_mismatch vs ExactQuad).
+!--- processor grid: npcol(Y) nprow(Z); the driver rewrites this to match --ranks
+1 1
+!--- 6D, npart particles/charge, Flagmap(1=linear-map path: exact drift + transfMapK quad), Flagerr(0), Flagdiag(1)
+6 {{ npart }} 1 0 1
+!--- Nx Ny Nz, Flagbc(1=3D open BC), x/y pipe half-width[m] (unused, SC off), period[m]
+32 32 32 1 1.0 1.0 1.0
+!--- Flagdist(2=3D Gaussian), restart(0), subcycle(0), #charge-states(1)
+2 0 0 1
+!--- # particles per charge state
+{{ npart }}
+!--- current[A] per charge state = 0 (no space charge)
+0.0
+!--- q/m per charge state, normalised = charge/mass[eV] (electron: -1/mass)
+{{ "%.12e"|format(qmc) }}
+!--- X: alpha  beta[m]  eps_norm[m.rad]  xscale pxscale  xoff pxoff
+{{ "%.12e"|format(params.alpha_x) }} {{ "%.12e"|format(params.beta_x) }} {{ "%.12e"|format(emit_nx) }} 1.0 1.0 0.0 0.0
+!--- Y: alpha  beta[m]  eps_norm[m.rad]  yscale pyscale  yoff pyoff
+{{ "%.12e"|format(params.alpha_y) }} {{ "%.12e"|format(params.beta_y) }} {{ "%.12e"|format(emit_ny) }} 1.0 1.0 0.0 0.0
+!--- Z: alpha_z  beta_z[deg/MeV]  eps_z[deg.MeV]  zscale pzscale  zoff pzoff
+0.0 {{ "%.12e"|format(betaz) }} {{ "%.12e"|format(epsz) }} 1.0 1.0 0.0 0.0
+!--- Bcurrent[A]=0  Bkin_energy[eV]  Bmass[eV]  Bcharge  Bfreq[Hz]  Bphase[deg]
+0.0 {{ "%.12e"|format(kin_eV) }} {{ "%.12e"|format(mass_eV) }} -1.0 {{ "%.12e"|format(fref) }} 0.0
+!====================== ACC. LATTICE ======================
+!--- FODO: QF(+k1) drift QD(-k1) drift.  quad line: L nseg mapstp 1 K fileID(-1=transfMapK chromatic) radius
+{{ "%.12e"|format(params.quad_length) }} 1 1 1 {{ "%.12e"|format(kq) }} -1.0 1.0 /
+{{ "%.12e"|format(params.drift_length) }} 1 1 0 1.0 /
+{{ "%.12e"|format(params.quad_length) }} 1 1 1 {{ "%.12e"|format(-kq) }} -1.0 1.0 /
+{{ "%.12e"|format(params.drift_length) }} 1 1 0 1.0 /
