@@ -55,6 +55,11 @@ OOM_MARKERS = (
     "Killed",
     "Cannot allocate memory",
     "bad_alloc",
+    # Julia / CUDA.jl device-OOM (SciBmad-cuda at the top of the GPU sweep): CUDA.jl raises
+    # `OutOfGPUMemoryError: Out of GPU memory ...`, which none of the above match (the "GPU"
+    # infix breaks "out of memory"), so it was misclassified `failed` instead of `oom`.
+    "Out of GPU memory",
+    "OutOfGPUMemoryError",
 )
 
 
