@@ -87,9 +87,14 @@ def _marker_legend(code_physics, sc=None) -> str:
     parts = []
     if "model_mismatch" in kinds:
         mm = (getattr(sc, "model_mismatch_codes", None) or {}) if sc is not None else {}
-        codes = list(dict.fromkeys(c for c, ph in pairs if ph == "model_mismatch"))
+        # entries may carry CONFIG names (per-scenario plot: 'cheetah-cpu-dp') or BASE codes (GPU
+        # plot: 'cheetah'); model_mismatch_codes is keyed by base code, so resolve first -- else
+        # every config name misses and falls back to a vague placeholder.
+        codes = list(dict.fromkeys(
+            (CONFIGS[c].code if c in CONFIGS else c) for c, ph in pairs if ph == "model_mismatch"))
         detail = ";   ".join(
-            f"{c}: {(mm.get(c) or 'different physics model').split(';')[0].strip()}" for c in codes)
+            f"{c}: {mm[c].split(';')[0].strip()}" if mm.get(c)
+            else f"{c}: uncurated model_mismatch (add to model_mismatch_codes)" for c in codes)
         parts.append(f"'approx. model' = a lower-fidelity model vs the reference —  {detail}")
     if "unconverged" in kinds:
         parts.append("'unconv.' = out of tolerance but its FP64 run is correct (convergence artefact)")
