@@ -65,8 +65,12 @@ YHEADROOM = 1.28  # extra y-axis space above the tallest bar for its value label
 def _physics_marker(entry: dict) -> str:
     physics = entry.get("physics")
     if physics == "model_mismatch":
-        model = (entry.get("model") or "").replace("-pic", "").upper()
-        return f"{model} model" if model else "diff. model"
+        # A lower-fidelity / approximate model vs the scenario's reference. The per-code specifics
+        # (paraxial quad, geometric coords, ...) are named in the footnote legend. Deliberately do
+        # NOT use entry["model"] here -- that is the SC model, meaningless (and misleading) for a
+        # tracking scenario -- and NOT "simpler", since e.g. Elegant's geometric-vs-canonical coords
+        # is a different convention, not a simpler model.
+        return "approx. model"
     if physics == "unconverged":
         return "unconv."
     if physics == "incorrect":
@@ -74,19 +78,24 @@ def _physics_marker(entry: dict) -> str:
     return ""
 
 
-def _marker_legend(physics_kinds) -> str:
-    """One-line footnote explaining the physics markers actually drawn above the bars (so a label
-    like 'diff. model' isn't cryptic). Empty if no marked bars are present."""
-    kinds = set(physics_kinds)
-    bits = []
+def _marker_legend(code_physics, sc=None) -> str:
+    """Footnote explaining the physics markers actually drawn above the bars. For 'approx. model'
+    bars it names EACH code's actual lower-fidelity model (from the scenario's
+    ``model_mismatch_codes``) rather than a vague blanket word. Empty if nothing is marked."""
+    pairs = list(code_physics)
+    kinds = {ph for _, ph in pairs}
+    parts = []
     if "model_mismatch" in kinds:
-        bits.append("'… model' / 'diff. model' = ran a DIFFERENT physics model than the reference "
-                    "(e.g. paraxial vs exact)")
+        mm = (getattr(sc, "model_mismatch_codes", None) or {}) if sc is not None else {}
+        codes = list(dict.fromkeys(c for c, ph in pairs if ph == "model_mismatch"))
+        detail = ";   ".join(
+            f"{c}: {(mm.get(c) or 'different physics model').split(';')[0].strip()}" for c in codes)
+        parts.append(f"'approx. model' = a lower-fidelity model vs the reference —  {detail}")
     if "unconverged" in kinds:
-        bits.append("'unconv.' = out of tolerance but its FP64 run is correct (convergence artefact)")
+        parts.append("'unconv.' = out of tolerance but its FP64 run is correct (convergence artefact)")
     if "incorrect" in kinds:
-        bits.append("'physics ✗' = converged but out of tolerance")
-    return ("bar markers:  " + ";   ".join(bits)) if bits else ""
+        parts.append("'physics ✗' = converged but out of tolerance")
+    return "   |   ".join(parts) if parts else ""
 
 
 #: Published plots focus on 100k-particle beams and above. Smaller counts may still be
@@ -360,7 +369,7 @@ def plot_scenario(data: dict, scenario: str, npart=None, out_dir: Path = PLOTS_D
                      else "*  lacks a tuned model for this problem; runs a costlier one")
     if any_fm:
         notes.append("lighter bar = fast-math (relaxed FP), drawn behind its IEEE bar")
-    ml = _marker_legend(e.get("physics") for _, e, _, _, _ in entries)
+    ml = _marker_legend(((c, e.get("physics")) for c, e, _, _, _ in entries), sc)
     if ml:
         notes.append(ml)
     bottom = 0.08 + 0.045 * len(notes)
@@ -452,7 +461,7 @@ def plot_scenario_gpu(data: dict, scenario: str, npart=None,
     ax.set_title(f"{title}  —  {_GPU_HEADLINE[precision]}  (n = {npart:,} particles){ref}", fontsize=9)
     ax.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
 
-    ml = _marker_legend(e.get("physics") for _, e, _, _ in entries)
+    ml = _marker_legend(((c, e.get("physics")) for _, e, c, _ in entries), sc)
     bottom = 0.08 + 0.05 * (bool(by_reason) + bool(ml))
     fig.tight_layout(rect=[0, bottom, 1, 1])
     cv = (data.get("metadata") or {}).get("code_version") or {}
