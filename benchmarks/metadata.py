@@ -309,20 +309,48 @@ def _built_ref(path: str) -> str:
         return ""
 
 
+def _julia_manifest_dep(pkg: str, manifest: str = "codes/scibmad/Manifest.toml") -> tuple[str, str]:
+    """(dev-checkout-path, version) for a Julia dep, parsed from a Manifest.toml block. A path-
+    ``develop``ed package (SciBmad) records its checkout path here -- machine-correct on each host
+    after ``Pkg.resolve`` -- so we can ``git describe`` it; the version is the never-"?" fallback.
+    Empty strings if the file or the ``[[deps.<pkg>]]`` block is absent."""
+    try:
+        txt = (REPO_ROOT / manifest).read_text()
+    except Exception:
+        return "", ""
+    m = re.search(rf'(?ms)^\[\[deps\.{re.escape(pkg)}\]\](.*?)(?=^\[\[|\Z)', txt)
+    if not m:
+        return "", ""
+    blk = m.group(1)
+    p = re.search(r'(?m)^\s*path\s*=\s*"([^"]+)"', blk)
+    v = re.search(r'(?m)^\s*version\s*=\s*"([^"]+)"', blk)
+    return (p.group(1) if p else "", v.group(1) if v else "")
+
+
 def code_version_label(code: str) -> str:
     """Best single version string for a code: the build's stamped ref (.bench_ref, DRY) first, else
     git describe of the source checkout (captures the exact commit/PR), else the installed package
     version."""
-    for d in _CODE_SRC_DIRS.get(code, []):
+    dirs = list(_CODE_SRC_DIRS.get(code, []))
+    jl_ver = ""
+    if code == "scibmad":
+        # SciBmad is a Julia path-`develop` dep (no git-tree-sha1 in the Manifest, since it's a local
+        # checkout), so the hard-coded laptop path misses on other hosts -> "?". Take its checkout
+        # path from the RESOLVED Manifest (correct per host) and git describe it; keep the Manifest
+        # version as the fallback so the label never regresses to "?".
+        jl_path, jl_ver = _julia_manifest_dep("SciBmad")
+        if jl_path:
+            dirs.insert(0, jl_path)
+    for d in dirs:
         v = _built_ref(d) or _git_describe(d)
         if v:
-            return v
+            return f"{jl_ver} ({v})" if jl_ver else v
     pkg = _CODE_MAIN_PKG.get(code)
     if pkg:
         v = pip_package_versions(code, [pkg]).get(pkg, "")
         if v:
             return v
-    return "?"
+    return jl_ver or "?"
 
 
 def code_version_labels(codes: list[str]) -> dict:
