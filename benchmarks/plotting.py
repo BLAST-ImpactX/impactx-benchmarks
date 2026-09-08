@@ -68,14 +68,23 @@ def _physics_marker(entry: dict) -> str:
         # A lower-fidelity / approximate model vs the scenario's reference. The per-code specifics
         # (paraxial quad, geometric coords, ...) are named in the footnote legend. Deliberately do
         # NOT use entry["model"] here -- that is the SC model, meaningless (and misleading) for a
-        # tracking scenario -- and NOT "simpler", since e.g. Elegant's geometric-vs-canonical coords
-        # is a different convention, not a simpler model.
-        return "approx. model"
+        # tracking scenario. The generic tag is deliberately soft; the FOOTNOTE names each code's
+        # actual model precisely (incl. cases like Elegant's geometric-vs-canonical coords that
+        # aren't literally "simpler"). Two lines so it fits over a narrow bar without overlapping.
+        return "simpler\nmodel"
     if physics == "unconverged":
         return "unconv."
     if physics == "incorrect":
         return "physics ✗"
     return ""
+
+
+def _marker_style(physics: str) -> tuple[str, str]:
+    """(color, weight) for a bar's physics marker: soft grey (like the skipped-code placeholders)
+    for the 'simpler model' / 'unconv.' caveats; keep 'physics ✗' (out of tolerance) prominent."""
+    if physics == "incorrect":
+        return "black", "bold"
+    return "dimgray", "normal"
 
 
 def _marker_legend(code_physics, sc=None) -> str:
@@ -95,7 +104,7 @@ def _marker_legend(code_physics, sc=None) -> str:
         detail = ";   ".join(
             f"{c}: {mm[c].split(';')[0].strip()}" if mm.get(c)
             else f"{c}: uncurated model_mismatch (add to model_mismatch_codes)" for c in codes)
-        parts.append(f"'approx. model' = a lower-fidelity model vs the reference —  {detail}")
+        parts.append(f"'simpler model' = a lower-fidelity model vs the reference —  {detail}")
     if "unconverged" in kinds:
         parts.append("'unconv.' = out of tolerance but its FP64 run is correct (convergence artefact)")
     if "incorrect" in kinds:
@@ -349,10 +358,12 @@ def plot_scenario(data: dict, scenario: str, npart=None, out_dir: Path = PLOTS_D
         ax.text(xi, h + ymax * 0.01, vlabel, ha="center", va="bottom", fontsize=6.5)
         marker = _physics_marker(entry)
         if marker:
-            # status marker as a small line in the empty space above the value label, rather
-            # than over the bar where it collides with the hatch/label
-            ax.text(xi, min(h + ymax * 0.22, ymax * 0.92), marker, ha="center", va="bottom",
-                    fontsize=6.5, color="black", fontweight="bold")
+            # status marker in the empty space above the value label -- soft grey + small (like the
+            # skipped-code placeholders) so it doesn't shout or overlap neighbours; lower cap leaves
+            # room for the 2-line "simpler\nmodel" tag.
+            mcolor, mweight = _marker_style(physics)
+            ax.text(xi, min(h + ymax * 0.16, ymax * 0.80), marker, ha="center", va="bottom",
+                    fontsize=5.5, color=mcolor, fontweight=mweight, linespacing=0.9)
 
     ax.set_xticks(xs)
     ax.set_xticklabels(labels, rotation=40, ha="right", fontsize=7)
@@ -454,8 +465,9 @@ def plot_scenario_gpu(data: dict, scenario: str, npart=None,
         ax.text(i, h + ymax * 0.01, f"{h:.1e}{star}{sub}", ha="center", va="bottom", fontsize=6.5)
         marker = _physics_marker(entry)
         if marker:
-            ax.text(i, min(h + ymax * 0.22, ymax * 0.92), marker, ha="center", va="bottom",
-                    fontsize=6.5, fontweight="bold")
+            mcolor, mweight = _marker_style(physics)
+            ax.text(i, min(h + ymax * 0.16, ymax * 0.80), marker, ha="center", va="bottom",
+                    fontsize=5.5, color=mcolor, fontweight=mweight, linespacing=0.9)
 
     ax.set_xticks(range(len(entries)))
     ax.set_xticklabels([c for _, _, c, _ in entries], rotation=40, ha="right", fontsize=8)
