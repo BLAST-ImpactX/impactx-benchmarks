@@ -60,6 +60,10 @@ PLACEHOLDER_LABELS = {
 }
 
 YHEADROOM = 1.28  # extra y-axis space above the tallest bar for its value label
+# The value labels above bars are drawn at a STATIC 6.5pt; one text line is ~fontsize*linespacing
+# points. Used to stack the fast-math value exactly one line above the (1-2 line) black value label
+# via an "offset points" annotation, independent of the dynamic y-axis scale.
+_VALUE_LINE_PT = 6.5 * 1.25
 
 
 def _physics_marker(entry: dict) -> str:
@@ -335,16 +339,17 @@ def plot_scenario(data: dict, scenario: str, npart=None, out_dir: Path = PLOTS_D
             if fm_bad:
                 fmbar.set_linestyle((0, (4, 2)))
                 fmbar.set_hatch("//")
-            # Fast-math THROUGHPUT, in a lighter tint of the code's colour, sitting EXACTLY one
-            # line above the black IEEE value label (same placement regardless of the speedup, so
-            # it reads as an extra stacked line, never on top of the black text). Shown only when
-            # fast-math is a real >=5% win; the common no-op stays unlabelled (faint overlay only).
+            # Fast-math THROUGHPUT, a lighter tint of the code's colour, stacked EXACTLY one line
+            # above the black IEEE value label. The y-axis is dynamic but the font is static, so
+            # the offset MUST be in POINTS, not an ymax fraction: anchor to the black label's data
+            # position (h + 0.01*ymax) and push up by the black block's height = n_lines text lines
+            # (6.5pt at linespacing ~1.2 -> ~7.8pt/line). Shown only for a real >=5% fast-math win.
             r = fmh / h if h else 0.0
             if r >= 1.05 and not fm_bad:
                 n_lines = 2 if entry.get("cores") else 1
-                fm_y = h + ymax * (0.01 + 0.055 * n_lines)  # one line above the black label's top
-                ax.text(xi, fm_y, f"{fmh:.1e}", ha="center", va="bottom",
-                        fontsize=6.0, color=color, alpha=0.6)
+                ax.annotate(f"{fmh:.1e}", xy=(xi, h + ymax * 0.01),
+                            xytext=(0, n_lines * _VALUE_LINE_PT), textcoords="offset points",
+                            ha="center", va="bottom", fontsize=6.5, color=color, alpha=0.6)
             any_fm = True
 
         dashed = physics in DASHED_PHYSICS
