@@ -639,8 +639,9 @@ def plot_scenario_best(data: dict, scenario: str, out_dir: Path = PLOTS_DIR,
     label is throughput (+ a tiny grey ``@N`` = the particle count where it peaked). model_mismatch /
     unconverged bars keep the dashed convention; untuned codes keep the asterisk. ``logy`` (default)
     puts the y-axis on a log scale so the CPU group is readable next to the far-taller GPU bars (the
-    CPU-vs-GPU span is several decades). Written as ``<scenario>_best.svg`` next to the per-scenario
-    plots. All value/marker labels use point offsets so placement is identical on linear or log."""
+    CPU-vs-GPU span is several decades); ``logy=False`` gives the linear-axis companion. Written next
+    to the per-scenario plots as ``<scenario>_best`` (log) or ``<scenario>_best_liny`` (linear); plot_all
+    emits both. All value/marker labels use point offsets so placement is identical on linear or log."""
     sc = SCENARIOS.get(scenario)
     untuned = sc.untuned_codes if sc else {}
 
@@ -767,10 +768,11 @@ def plot_scenario_best(data: dict, scenario: str, out_dir: Path = PLOTS_DIR,
         y += 0.045
 
     out_dir.mkdir(parents=True, exist_ok=True)
-    out_path = out_dir / f"{scenario}_best.svg"
+    stem = f"{scenario}_best" if logy else f"{scenario}_best_liny"  # log (default) vs linear y
+    out_path = out_dir / f"{stem}.svg"
     fig.savefig(out_path)
-    fig.savefig(out_dir / f"{scenario}_best.pdf")
-    fig.savefig(out_dir / f"{scenario}_best.png", dpi=150)
+    fig.savefig(out_dir / f"{stem}.pdf")
+    fig.savefig(out_dir / f"{stem}.png", dpi=150)
     plt.close(fig)
     return out_path
 
@@ -784,11 +786,13 @@ def plot_all(data: dict, out_dir: Path = PLOTS_DIR) -> list[Path]:
             if p:
                 made.append(p)
                 print(f"wrote {p}")
-        # per-code best-CPU|best-GPU summary
-        pb = plot_scenario_best(data, scenario, out_dir=out_dir)
-        if pb:
-            made.append(pb)
-            print(f"wrote {pb}")
+        # per-code best-CPU|best-GPU summary, in both log (<scenario>_best) and linear
+        # (<scenario>_best_liny) y-axis variants
+        for logy in (True, False):
+            pb = plot_scenario_best(data, scenario, out_dir=out_dir, logy=logy)
+            if pb:
+                made.append(pb)
+                print(f"wrote {pb}")
     return made
 
 
