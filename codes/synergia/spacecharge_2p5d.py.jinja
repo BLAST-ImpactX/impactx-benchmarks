@@ -75,18 +75,23 @@ def make_sim(nn):
     return sim
 
 
+# See spacecharge.py.jinja for the rationale: warm up + time the SAME sim (SC workspaces/cuFFT plan
+# cache on its id, else they rebuild inside the timed region), and sync via an on-device reduction
+# rather than an O(N) device->host checkout inside the timer -- both were unfair overheads vs ImpactX.
 lattice = make_lattice()
 propagator = make_propagator(lattice)
 
-# warm-up (NOT timed)
-propagator.propagate(make_sim(min(2000, npart)), quiet, 1)
-
 sim = make_sim(npart)
 bunch = sim.get_bunch()
+propagator.propagate(sim, quiet, 1)  # warm-up (NOT timed): builds plan + workspaces, JITs kernels
+synergia.bunch.populate_6d(
+    synergia.foundation.PCG_random_distribution(12345, rank), bunch, MEANS, COV)  # reset the beam
+
 with Timer() as t:
     propagator.propagate(sim, quiet, 1)
-    bunch.checkout_particles()  # device sync on GPU / cheap host copy on CPU (see spacecharge.py.jinja)
+    synergia.bunch.Core_diagnostics.calculate_mean(bunch)  # on-device reduction = cheap sync, no O(N) copy
 
+bunch.checkout_particles()
 mean = synergia.bunch.Core_diagnostics.calculate_mean(bunch)
 std = synergia.bunch.Core_diagnostics.calculate_std(bunch, mean)
 mom2 = synergia.bunch.Core_diagnostics.calculate_mom2(bunch, mean)

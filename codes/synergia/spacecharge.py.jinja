@@ -91,18 +91,25 @@ def make_sim(nn):
 lattice = make_lattice()
 propagator = make_propagator(lattice)
 
-# warm-up propagate (NOT timed): warms the FFT plan + Kokkos kernels on the n^3 grid
-propagator.propagate(make_sim(min(2000, npart)), quiet, 1)
-
+# Warm up on the SAME simulator object we then time. The SC workspaces + cuFFT plan are cached on the
+# bunch-simulator's id, so warming a *different* sim (the old code did) left them to be (re)built
+# INSIDE the timed region -- an unfair fixed overhead ImpactX does not pay. Warm at the full npart,
+# then re-populate the SAME bunch to the identical initial Gaussian so the timed propagate is a clean
+# single solve (same id -> plan/workspaces stay cached).
 sim = make_sim(npart)
 bunch = sim.get_bunch()
+propagator.propagate(sim, quiet, 1)  # warm-up (NOT timed): builds plan + workspaces, JITs kernels
+synergia.bunch.populate_6d(
+    synergia.foundation.PCG_random_distribution(12345, rank), bunch, MEANS, COV)  # reset the beam
+
 with Timer() as t:
     propagator.propagate(sim, quiet, 1)
-    # No Python Kokkos fence exists; on a CUDA build the map/solve kernels are async, so pull the
-    # particles to host (device->host copy = a device sync) INSIDE the timed region so the number is
-    # execution time, not async-launch time. On the CPU build this is a cheap host mirror copy.
-    bunch.checkout_particles()
+    # Force the async CUDA map/solve kernels to finish WITHOUT an O(N) device->host copy: an on-device
+    # reduction (parallel_reduce + Kokkos fence, 6 doubles out) is the cheap end-to-end sync a fair,
+    # ImpactX-comparable timing needs. The full checkout (host copy, for observables) is AFTER the timer.
+    synergia.bunch.Core_diagnostics.calculate_mean(bunch)
 
+bunch.checkout_particles()
 mean = synergia.bunch.Core_diagnostics.calculate_mean(bunch)
 std = synergia.bunch.Core_diagnostics.calculate_std(bunch, mean)
 mom2 = synergia.bunch.Core_diagnostics.calculate_mom2(bunch, mean)
