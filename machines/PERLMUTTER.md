@@ -49,6 +49,18 @@ bash machines/perlmutter_setup.sh     # builds all CPU + GPU envs (znver3, fast-
 > you prefer. It must be on a **shared** FS: the cache is written on the login node and read by
 > `pixi run` on the compute nodes, so a node-local `mktemp -d`/`/tmp` won't work. Keeping it on the
 > same FS as the repo also lets pixi hardlink packages into `.pixi/envs` rather than copy them.
+>
+> **Manual pixi commands must export it too.** Only `perlmutter_setup.sh` and the `.sbatch` files set
+> `PIXI_CACHE_DIR`. A standalone `pixi run …` / `build-…` (e.g. adding a code later, or a one-off
+> rebuild) does **not** — so export it in your shell first, or pixi falls back to `~/.cache/rattler`
+> and re-blows the `$HOME` quota:
+>
+> ```bash
+> export PIXI_CACHE_DIR="$PSCRATCH/pixi-cache"   # before any manual pixi/build command on Perlmutter
+> ```
+>
+> If it already overflowed, `rm -rf ~/.cache/rattler` to reclaim `$HOME` (it's only a cache; the built
+> `.pixi/envs` on scratch are separate copies), then re-export and retry.
 
 **Long-running — use tmux** so it survives logout (it must stay on a login node; compute nodes
 have no internet). Note the login node first — Perlmutter load-balances `perlmutter.nersc.gov`, so
