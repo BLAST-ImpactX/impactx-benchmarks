@@ -287,7 +287,7 @@ def plot_scenario(data: dict, scenario: str, npart=None, out_dir: Path = PLOTS_D
     # extra headroom when any bar carries a physics marker, so the 2-line 'simpler model' tag sits
     # clearly above the value label rather than overlapping it.
     any_marker = any(_physics_marker(e) for _, e, _, _, _ in entries)
-    ymax = _compute_ylim(heights + fm_heights, 1.42 if any_marker else YHEADROOM)
+    ymax = _compute_ylim(heights + fm_heights, 1.6 if any_marker else YHEADROOM)
 
     # x-positions: bars step by 1 within a code, with an extra gap when the code changes,
     # so each code's DP|SP bars group together with whitespace before the next code.
@@ -366,8 +366,8 @@ def plot_scenario(data: dict, scenario: str, npart=None, out_dir: Path = PLOTS_D
             # skipped-code placeholders) so it doesn't shout or overlap neighbours; lower cap leaves
             # room for the 2-line "simpler\nmodel" tag.
             mcolor, mweight = _marker_style(physics)
-            ax.text(xi, min(h + ymax * 0.20, ymax * 0.88), marker, ha="center", va="bottom",
-                    fontsize=6.0, color=mcolor, fontweight=mweight, linespacing=0.9)
+            ax.text(xi, min(h + ymax * 0.24, ymax * 0.88), marker, ha="center", va="bottom",
+                    fontsize=7, color=mcolor, fontweight=mweight, linespacing=0.9)
 
     ax.set_xticks(xs)
     ax.set_xticklabels(labels, rotation=40, ha="right", fontsize=7)
@@ -436,7 +436,7 @@ def plot_scenario_gpu(data: dict, scenario: str, npart=None,
     heights = [(e.get("push_per_sec") or 0.0) if e.get("status") == "supported" else 0.0
                for _, e, _, _ in entries]
     any_marker = any(_physics_marker(e) for _, e, _, _ in entries)
-    ymax = _compute_ylim(heights, 1.42 if any_marker else YHEADROOM)
+    ymax = _compute_ylim(heights, 1.6 if any_marker else YHEADROOM)
 
     # caveats grouped BY REASON (compact footnote even with all 7 codes): device/precision
     # fallback (this plot) + costlier untuned model (existing). A code may appear in two groups.
@@ -471,8 +471,8 @@ def plot_scenario_gpu(data: dict, scenario: str, npart=None,
         marker = _physics_marker(entry)
         if marker:
             mcolor, mweight = _marker_style(physics)
-            ax.text(i, min(h + ymax * 0.20, ymax * 0.88), marker, ha="center", va="bottom",
-                    fontsize=6.0, color=mcolor, fontweight=mweight, linespacing=0.9)
+            ax.text(i, min(h + ymax * 0.24, ymax * 0.88), marker, ha="center", va="bottom",
+                    fontsize=7, color=mcolor, fontweight=mweight, linespacing=0.9)
 
     ax.set_xticks(range(len(entries)))
     ax.set_xticklabels([c for _, _, c, _ in entries], rotation=40, ha="right", fontsize=8)
