@@ -66,12 +66,27 @@ def _physics_marker(entry: dict) -> str:
     physics = entry.get("physics")
     if physics == "model_mismatch":
         model = (entry.get("model") or "").replace("-pic", "").upper()
-        return model or "model"
+        return f"{model} model" if model else "diff. model"
     if physics == "unconverged":
         return "unconv."
     if physics == "incorrect":
         return "physics ✗"
     return ""
+
+
+def _marker_legend(physics_kinds) -> str:
+    """One-line footnote explaining the physics markers actually drawn above the bars (so a label
+    like 'diff. model' isn't cryptic). Empty if no marked bars are present."""
+    kinds = set(physics_kinds)
+    bits = []
+    if "model_mismatch" in kinds:
+        bits.append("'… model' / 'diff. model' = ran a DIFFERENT physics model than the reference "
+                    "(e.g. paraxial vs exact)")
+    if "unconverged" in kinds:
+        bits.append("'unconv.' = out of tolerance but its FP64 run is correct (convergence artefact)")
+    if "incorrect" in kinds:
+        bits.append("'physics ✗' = converged but out of tolerance")
+    return ("bar markers:  " + ";   ".join(bits)) if bits else ""
 
 
 #: Published plots focus on 100k-particle beams and above. Smaller counts may still be
@@ -345,6 +360,9 @@ def plot_scenario(data: dict, scenario: str, npart=None, out_dir: Path = PLOTS_D
                      else "*  lacks a tuned model for this problem; runs a costlier one")
     if any_fm:
         notes.append("lighter bar = fast-math (relaxed FP), drawn behind its IEEE bar")
+    ml = _marker_legend(e.get("physics") for _, e, _, _, _ in entries)
+    if ml:
+        notes.append(ml)
     bottom = 0.08 + 0.045 * len(notes)
     fig.tight_layout(rect=[0, bottom, 1, 1])
     cv = (data.get("metadata") or {}).get("code_version") or {}
@@ -434,7 +452,8 @@ def plot_scenario_gpu(data: dict, scenario: str, npart=None,
     ax.set_title(f"{title}  —  {_GPU_HEADLINE[precision]}  (n = {npart:,} particles){ref}", fontsize=9)
     ax.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
 
-    bottom = 0.13 if caveats else 0.08
+    ml = _marker_legend(e.get("physics") for _, e, _, _ in entries)
+    bottom = 0.08 + 0.05 * (bool(by_reason) + bool(ml))
     fig.tight_layout(rect=[0, bottom, 1, 1])
     cv = (data.get("metadata") or {}).get("code_version") or {}
     seen, present = set(), []
@@ -444,10 +463,14 @@ def plot_scenario_gpu(data: dict, scenario: str, npart=None,
             present.append(f"{cc} {cv.get(cc, '?')}")
     if present:
         fig.text(0.01, 0.012, "versions:  " + "   ·   ".join(present), fontsize=5.5, color="dimgray")
+    y = 0.012 + 0.05
     if by_reason:
         note = "*  next-best shown:   " + ";   ".join(
             f"{', '.join(codes)} = {reason}" for reason, codes in by_reason.items())
-        fig.text(0.01, 0.012 + 0.045, note, fontsize=5.5, color="dimgray", style="italic")
+        fig.text(0.01, y, note, fontsize=5.5, color="dimgray", style="italic")
+        y += 0.05
+    if ml:
+        fig.text(0.01, y, ml, fontsize=5.5, color="dimgray", style="italic")
 
     out_dir.mkdir(parents=True, exist_ok=True)
     stem = scenario if precision == "single" else f"{scenario}_fp64"
