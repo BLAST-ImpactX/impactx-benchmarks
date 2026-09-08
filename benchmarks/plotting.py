@@ -335,17 +335,16 @@ def plot_scenario(data: dict, scenario: str, npart=None, out_dir: Path = PLOTS_D
             if fm_bad:
                 fmbar.set_linestyle((0, (4, 2)))
                 fmbar.set_hatch("//")
-            # Annotate the fast-math THROUGHPUT (in the code's colour) whenever the speedup is
-            # meaningful (>=3%), placed clearly ABOVE the 2-line IEEE value label so it never sits
-            # on top of it -- for a big speedup that is the fm bar top; for a small-but-real one
-            # (e.g. htu impactx-cuda-sp ~1.10x, which the old "must clear the label" rule hid) it
-            # floats just above the label. Sub-3% (fast-math a no-op, the common case) stays
-            # unlabelled; the faint overlay bar still shows it. 0.15*ymax reliably clears the label.
+            # Fast-math THROUGHPUT, in a lighter tint of the code's colour, sitting EXACTLY one
+            # line above the black IEEE value label (same placement regardless of the speedup, so
+            # it reads as an extra stacked line, never on top of the black text). Shown only when
+            # fast-math is a real >=5% win; the common no-op stays unlabelled (faint overlay only).
             r = fmh / h if h else 0.0
-            if r >= 1.03 and not fm_bad:
-                ylab = max(fmh, h + ymax * 0.15) + ymax * 0.02
-                ax.text(xi, ylab, f"{fmh:.1e}", ha="center", va="bottom",
-                        fontsize=6.0, color=color, alpha=0.95)
+            if r >= 1.05 and not fm_bad:
+                n_lines = 2 if entry.get("cores") else 1
+                fm_y = h + ymax * (0.01 + 0.055 * n_lines)  # one line above the black label's top
+                ax.text(xi, fm_y, f"{fmh:.1e}", ha="center", va="bottom",
+                        fontsize=6.0, color=color, alpha=0.6)
             any_fm = True
 
         dashed = physics in DASHED_PHYSICS
@@ -392,8 +391,8 @@ def plot_scenario(data: dict, scenario: str, npart=None, out_dir: Path = PLOTS_D
         notes.append(sc.untuned_note if sc and sc.untuned_note
                      else "*  lacks a tuned model for this problem; runs a costlier one")
     if any_fm:
-        notes.append("lighter bar behind + value in the code's colour = fast-math (relaxed FP), "
-                     "shown when >=3% faster than the IEEE bar")
+        notes.append("lighter bar behind + lighter value above = fast-math (relaxed FP), "
+                     "shown when >=5% faster than the IEEE bar")
     ml = _marker_legend(((c, e.get("physics")) for c, e, _, _, _ in entries), sc)
     if ml:
         notes.append(ml)
