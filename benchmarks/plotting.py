@@ -39,10 +39,27 @@ CODE_COLORS = {
     "pyorbit": "tab:purple",
     "xsuite": "tab:orange",
     "scibmad": "tab:brown",
+    "bmad": "black",         # was missing -> defaulted to gray, colliding with impactz's tab:gray
     "elegant": "tab:cyan",
     "helix": "tab:pink",
     "synergia": "tab:olive",
     "impactz": "tab:gray",   # ImpactX's predecessor (fairest SC comparison)
+}
+
+# Human-facing names for the x-axis of the per-code "best" summary (draft: as spelled in the
+# request; canonical project casing is Bmad/SciBmad/Xsuite/PyORBIT/HELIX -- one edit here to change).
+CODE_DISPLAY = {
+    "impactx": "ImpactX",
+    "cheetah": "Cheetah",
+    "pyat": "PyAT",
+    "pyorbit": "PyOrbit",
+    "xsuite": "XSuite",
+    "scibmad": "SciBMad",
+    "bmad": "BMad",
+    "elegant": "Elegant",
+    "helix": "Helix",
+    "synergia": "Synergia",
+    "impactz": "IMPACT-Z",
 }
 
 DASHED_PHYSICS = {"model_mismatch", "incorrect", "unconverged"}
@@ -538,6 +555,226 @@ def plot_scenario_gpu(data: dict, scenario: str, npart=None,
     return out_path
 
 
+def _fmt_npart(n) -> str:
+    """Particle count in scientific notation, 2 significant digits: 1.0e6, 1.6e7, 1.0e9."""
+    if not n:
+        return ""
+    return f"{n:.1e}".replace("e+0", "e").replace("e+", "e")
+
+
+def _best_measurement(data: dict, scenario: str, code: str, device: str):
+    """The fastest VALID config for ``(code, device)`` in ``scenario`` at that code's LARGEST measured
+    particle count (>= ``PUBLISHED_MIN_NPART``), over all its configs (any precision, IEEE or
+    fast-math). Returns ``(cfg_name, entry)`` or ``None``.
+
+    Why the *largest* N and not the numerically highest throughput: it keeps the comparison fair. A
+    small-N point can sit entirely in cache (L1/L2/L3) and post an unrepresentative rate, so we pin
+    each code to the top of its own sweep -- CPU codes end up ~1M (streaming from RAM), while GPU
+    codes sit at the large N (>=10M, up to 1e9) where the device is actually saturated and used
+    efficiently. N therefore varies per bar (shown as the per-bar ``N=`` label). Ties at the same N
+    (e.g. a DP vs an SP/fast-math build) are broken by throughput. 'Valid' = ``supported`` with a
+    ``push_per_sec`` and not physics-wrong (excludes ``incorrect``)."""
+    best = None  # (npart, push, cfg_name, entry)
+    for cfg_name, cfg in CONFIGS.items():
+        if cfg.code != code or cfg.device != device:
+            continue
+        for entry in data.get("results", {}).get(cfg_name, {}).values():
+            if entry.get("scenario") != scenario or entry.get("status") != "supported":
+                continue
+            if entry.get("physics") == "incorrect":
+                continue
+            n, pps = entry.get("npart") or 0, entry.get("push_per_sec")
+            if not pps or n < PUBLISHED_MIN_NPART:
+                continue
+            if best is None or (n, pps) > (best[0], best[1]):
+                best = (n, pps, cfg_name, entry)
+    return (best[2], best[3]) if best else None
+
+
+def _machine_label(data: dict) -> str:
+    """Human machine name from the results metadata (``perlmutter`` -> ``Perlmutter``)."""
+    slug = ((data.get("metadata") or {}).get("host") or {}).get("machine_slug") or ""
+    return slug.replace("-", " ").title()
+
+
+def _cpu_core_budget(data: dict) -> int:
+    """The benchmark's CPU core budget = the largest ranks x threads layout actually used across the
+    run (the auto-tune explores up to the budget, so some cell hits it). Robust to the ``cores`` text
+    format (e.g. ``8r x 8t``) by multiplying the integers found. 0 if none recorded."""
+    import math
+    best = 0
+    for cells in (data.get("results") or {}).values():
+        for e in (cells or {}).values():
+            nums = re.findall(r"\d+", str(e.get("cores") or ""))
+            if nums:
+                best = max(best, math.prod(int(x) for x in nums))
+    return best
+
+
+def _hardware_note(data: dict, bars: list) -> str:
+    """The benchmark's hardware constraint for the grey footer: CPU model + core budget, and the GPU
+    model (only if a GPU bar is shown). Mirrors what the run was actually allowed to use."""
+    host = (data.get("metadata") or {}).get("host") or {}
+    parts = []
+    model = host.get("cpu_model") or (host.get("cpu") or {}).get("Model name")
+    if model and any(b[1] == "cpu" for b in bars):
+        model = re.sub(r"\s*\d+-Core Processor$", "", model)          # drop redundant "64-Core Processor"
+        model = re.sub(r"\s*(Processor|CPU)$", "", model).strip()
+        n = _cpu_core_budget(data)
+        parts.append(f"CPU: {model}" + (f" ({n} cores)" if n else ""))
+    gpus = (data.get("metadata") or {}).get("gpu") or []
+    if gpus and any(b[1] == "cuda" for b in bars):
+        names = list(dict.fromkeys(g.get("name") for g in gpus if g.get("name")))  # dedupe identical cards
+        if names:
+            parts.append("GPU: " + " / ".join(names))
+    return "hardware:  " + "     ".join(parts) if parts else ""
+
+
+def plot_scenario_best(data: dict, scenario: str, out_dir: Path = PLOTS_DIR,
+                       logy: bool = True) -> Path | None:
+    """Per-code 'best' summary: ONE bar per code = its fastest measured config on CPU, then (after a
+    gap) one bar per code = its fastest on GPU. 'Best' is the peak throughput across the whole sweep
+    and all the code's configs on that device (see :func:`_best_measurement`), so a bar may be an SP
+    or fast-math build. Bars keep the code colour; the x-label is ``<Code> (CPU|GPU)`` and the value
+    label is throughput (+ a tiny grey ``@N`` = the particle count where it peaked). model_mismatch /
+    unconverged bars keep the dashed convention; untuned codes keep the asterisk. ``logy`` (default)
+    puts the y-axis on a log scale so the CPU group is readable next to the far-taller GPU bars (the
+    CPU-vs-GPU span is several decades). Written as ``<scenario>_best.svg`` next to the per-scenario
+    plots. All value/marker labels use point offsets so placement is identical on linear or log."""
+    sc = SCENARIOS.get(scenario)
+    untuned = sc.untuned_codes if sc else {}
+
+    # GPU section first, then CPU; within each section fastest -> slowest.
+    bars = []  # (code, device, dev_label, cfg_name, entry)
+    for device, dev_label in (("cuda", "GPU"), ("cpu", "CPU")):
+        section = [(code, device, dev_label, *be)
+                   for code in CODES
+                   if (be := _best_measurement(data, scenario, code, device))]
+        section.sort(key=lambda b: b[4].get("push_per_sec") or 0.0, reverse=True)
+        bars.extend(section)
+    if not bars:
+        return None
+
+    heights = [e.get("push_per_sec") or 0.0 for *_, e in bars]
+    pos = [h for h in heights if h > 0]
+    hi = max(pos) if pos else 1.0
+    any_marker = any(_physics_marker(e) for *_, e in bars)
+    if logy:
+        lo = min(pos) if pos else 1.0
+        ybot = lo / 3.0                       # a little air under the shortest bar
+        ytop = hi * (300 if any_marker else 60)  # headroom for the stacked value / N= / marker labels
+    else:
+        ybot = 0.0
+        ytop = _compute_ylim(heights, 1.6 if any_marker else YHEADROOM)
+
+    # x: GPU block, a gap, then CPU block (gap inserted where the device changes)
+    GROUP_GAP = 0.8
+    xs, xpos, prev = [], 0.0, None
+    for _, device, *_ in bars:
+        if prev is not None and device != prev:
+            xpos += GROUP_GAP
+        xs.append(xpos)
+        xpos += 1.0
+        prev = device
+    span = (xs[-1] + 1.0) if xs else 1.0
+
+    fig, ax = plt.subplots(figsize=(max(6.0, 0.60 * span), 3.4))
+    if logy:
+        ax.set_yscale("log")
+    labels, codes_present, any_untuned = [], [], False
+    for i, (code, device, dev_label, cfg_name, entry) in enumerate(bars):
+        xi = xs[i]
+        color = CODE_COLORS.get(code, "gray")
+        h = heights[i]
+        physics = entry.get("physics")
+        dashed = physics in DASHED_PHYSICS
+        # default bottom=0 -> on a log axis matplotlib clips the bar base to the axis lower limit
+        # (ybot), so the bar spans ybot..h with its top exactly at h (where the labels anchor).
+        bar = ax.bar(xi, h, color=color, edgecolor="black", width=0.8,
+                     linewidth=1.3, alpha=0.55 if dashed else 0.95, zorder=2)[0]
+        if dashed:
+            bar.set_linestyle((0, (4, 2)))
+            bar.set_hatch("//")
+        star = " *" if code in untuned else ""
+        any_untuned = any_untuned or bool(star)
+        # value label, then the grey N= (each code's particle count differs), then an optional
+        # physics marker -- all stacked above the bar top with POINT offsets, so the line spacing is
+        # the same on a linear or log axis.
+        ax.annotate(f"{h:.1e}{star}", xy=(xi, h), xytext=(0, 2), textcoords="offset points",
+                    ha="center", va="bottom", fontsize=6.5)
+        ax.annotate(f"N={_fmt_npart(entry.get('npart'))}", xy=(xi, h),
+                    xytext=(0, 2 + _VALUE_LINE_PT), textcoords="offset points",
+                    ha="center", va="bottom", fontsize=5.5, color="dimgray")
+        marker = _physics_marker(entry)
+        if marker:
+            mcolor, mweight = _marker_style(physics)
+            ax.annotate(marker, xy=(xi, h), xytext=(0, 2 + 2 * _VALUE_LINE_PT), fontsize=7,
+                        textcoords="offset points", ha="center", va="bottom",
+                        color=mcolor, fontweight=mweight, linespacing=0.9)
+        labels.append(f"{CODE_DISPLAY.get(code, code)} ({dev_label})")
+        if code not in codes_present:
+            codes_present.append(code)
+
+    # faint divider in the gap between the two contiguous blocks + group headers (axes-fraction y,
+    # so scale-independent). Order-agnostic: the split is where the device label changes.
+    split = next((i for i in range(1, len(bars)) if bars[i][1] != bars[i - 1][1]), None)
+    if split is not None:
+        ax.axvline((xs[split - 1] + xs[split]) / 2, color="lightgray", lw=0.8, ls=":", zorder=0)
+    gpu_xs = [xs[i] for i, b in enumerate(bars) if b[1] == "cuda"]
+    cpu_xs = [xs[i] for i, b in enumerate(bars) if b[1] == "cpu"]
+    for block, name in ((gpu_xs, "GPU"), (cpu_xs, "CPU")):
+        if block:
+            ax.text(sum(block) / len(block), 0.97, name, transform=ax.get_xaxis_transform(),
+                    ha="center", va="top", fontsize=8, color="dimgray", fontweight="bold")
+
+    ax.set_xticks(xs)
+    ax.set_xticklabels(labels, rotation=40, ha="right", fontsize=7)
+    ax.set_ylim(ybot if logy else 0, ytop)
+    ax.set_ylabel("particles / second")
+    ref = f" — ref: {sc.reference}" if sc else ""
+    title = (sc.display_name or sc.name) if sc else scenario
+    machine = _machine_label(data)
+    prefix = f"{machine} · " if machine else ""
+    ax.set_title(f"{prefix}{title} — best per code, GPU vs. CPU{ref}", fontsize=9)
+    if not logy:  # sci ScalarFormatter is invalid on a log axis (LogFormatter already reads 10^n)
+        ax.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
+
+    notes = ["each bar = the fastest measured config for that code on that device (any precision / "
+             "fast-math); N = the particle count that bar was measured at (top of each device's sweep)"]
+    if any_untuned:
+        notes.append(sc.untuned_note if sc and sc.untuned_note
+                     else "*  lacks a tuned model for this problem; runs a costlier one")
+    ml = _marker_legend(((c, e.get("physics")) for c, _, _, _, e in bars), sc)
+    if ml:
+        notes.append(ml)
+    hw = _hardware_note(data, bars)
+    # footer rows (bottom-up): versions, [hardware], then the notes -- reserve space for all of them
+    rows = 1 + bool(hw) + len(notes)
+    bottom = 0.055 + 0.045 * rows
+    fig.tight_layout(rect=[0, bottom, 1, 1])
+
+    cv = (data.get("metadata") or {}).get("code_version") or {}
+    present = [f"{cc} {cv.get(cc, '?')}" for cc in codes_present]
+    y = 0.012
+    if present:
+        fig.text(0.01, y, "versions:  " + "   ·   ".join(present), fontsize=5.5, color="dimgray")
+        y += 0.045
+    if hw:
+        fig.text(0.01, y, hw, fontsize=6.0, color="dimgray")
+        y += 0.045
+    for note in notes:
+        fig.text(0.01, y, note, fontsize=6.0, color="dimgray", style="italic")
+        y += 0.045
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_path = out_dir / f"{scenario}_best.svg"
+    fig.savefig(out_path)
+    fig.savefig(out_dir / f"{scenario}_best.pdf")
+    fig.savefig(out_dir / f"{scenario}_best.png", dpi=150)
+    plt.close(fig)
+    return out_path
+
+
 def plot_all(data: dict, out_dir: Path = PLOTS_DIR) -> list[Path]:
     made = []
     for scenario in SCENARIOS:
@@ -547,6 +784,11 @@ def plot_all(data: dict, out_dir: Path = PLOTS_DIR) -> list[Path]:
             if p:
                 made.append(p)
                 print(f"wrote {p}")
+        # per-code best-CPU|best-GPU summary
+        pb = plot_scenario_best(data, scenario, out_dir=out_dir)
+        if pb:
+            made.append(pb)
+            print(f"wrote {pb}")
     return made
 
 
