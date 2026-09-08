@@ -9,7 +9,7 @@ metadata:
     impactz: V2.7.7
     pyat: 0.8.0
     pyorbit: 96c8def
-    scibmad: '?'
+    scibmad: 0.4.1 (v0.4.1)
     synergia: v2024.04-209-g795b99f39
     xsuite: 0.53.4
   gpu:
