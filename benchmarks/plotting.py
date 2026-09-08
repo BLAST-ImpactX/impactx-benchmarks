@@ -309,6 +309,7 @@ def plot_scenario(data: dict, scenario: str, npart=None, out_dir: Path = PLOTS_D
     fig, ax = plt.subplots(figsize=(max(5.0, 0.62 * span), 3.2))
 
     any_fm = False
+    fm_labels: list = []  # (xi, h, fmh, color, n_lines); drawn after tight_layout (final geometry)
     for i, (cfg_name, entry, label, code, fm_entry) in enumerate(entries):
         xi = xs[i]
         color = CODE_COLORS.get(code, "gray")
@@ -346,10 +347,11 @@ def plot_scenario(data: dict, scenario: str, npart=None, out_dir: Path = PLOTS_D
             # (6.5pt at linespacing ~1.2 -> ~7.8pt/line). Shown only for a real >=5% fast-math win.
             r = fmh / h if h else 0.0
             if r >= 1.05 and not fm_bad:
+                # Defer placement to after tight_layout: the value sits at the HIGHER of one line
+                # above the black value label, or on top of the light fm bar (a big speedup, e.g.
+                # fodo_exact CPU) -- and comparing those two needs the final data<->points scale.
                 n_lines = 2 if entry.get("cores") else 1
-                ax.annotate(f"{fmh:.1e}", xy=(xi, h + ymax * 0.01),
-                            xytext=(0, n_lines * _VALUE_LINE_PT), textcoords="offset points",
-                            ha="center", va="bottom", fontsize=6.5, color=color, alpha=0.6)
+                fm_labels.append((xi, h, fmh, color, n_lines))
             any_fm = True
 
         dashed = physics in DASHED_PHYSICS
@@ -403,6 +405,20 @@ def plot_scenario(data: dict, scenario: str, npart=None, out_dir: Path = PLOTS_D
         notes.append(ml)
     bottom = 0.08 + 0.045 * len(notes)
     fig.tight_layout(rect=[0, bottom, 1, 1])
+
+    # Fast-math value labels: placed now that the axes geometry is final. Each sits at the HIGHER
+    # of (a) one line above the black value label, or (b) on top of the light fm bar (a big speedup
+    # like fodo_exact CPU). "One line" is static font -> convert points to data via the final axes
+    # height (ymax spans axes_height_pt points), then max() with the fm bar top (data).
+    if fm_labels:
+        axes_h_pt = ax.get_position().height * fig.get_figheight() * 72.0
+        data_per_pt = ymax / axes_h_pt if axes_h_pt else 0.0
+        for xi, h, fmh, color, n_lines in fm_labels:
+            one_line_above = h + ymax * 0.01 + n_lines * _VALUE_LINE_PT * data_per_pt
+            y = max(one_line_above, fmh)
+            ax.annotate(f"{fmh:.1e}", xy=(xi, y), xytext=(0, 2), textcoords="offset points",
+                        ha="center", va="bottom", fontsize=6.5, color=color, alpha=0.6)
+
     cv = (data.get("metadata") or {}).get("code_version") or {}
     seen, present = set(), []
     for cc in codes:
