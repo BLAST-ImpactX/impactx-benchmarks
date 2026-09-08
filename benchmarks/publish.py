@@ -153,8 +153,12 @@ def _publish_files(wt: Path, slug: str, res_path: Path, data: dict, utc: str,
         shutil.rmtree(dst_runs)
     if runs_dir.is_dir():
         shutil.copytree(runs_dir, dst_runs)
-    # per-run archive (results + this machine's plots + the run manifests, under this UTC stamp)
+    # per-run archive (results + this machine's plots + the run manifests, under this UTC stamp).
+    # Re-publishing the same run reuses this UTC stamp, so overwrite the snapshot rather than
+    # crashing on the existing dir (copytree without dirs_exist_ok raises FileExistsError).
     archive = wt / "history" / f"{utc.replace(':', '').replace('-', '')}_{slug}"
+    if archive.exists():
+        shutil.rmtree(archive)
     archive.mkdir(parents=True, exist_ok=True)
     shutil.copy2(res_path, archive / f"{slug}.yaml")
     shutil.copytree(mplots, archive / "plots")
