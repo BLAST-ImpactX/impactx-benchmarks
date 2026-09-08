@@ -255,10 +255,11 @@ def _gpu_entries_for(data: dict, scenario: str, npart: int,
     return out
 
 
-def _compute_ylim(heights: list[float]) -> float:
-    """Y-axis top: fully show the fastest (tallest) bar, with label headroom."""
+def _compute_ylim(heights: list[float], headroom: float = YHEADROOM) -> float:
+    """Y-axis top: fully show the fastest (tallest) bar, with label headroom (pass a larger
+    ``headroom`` when a physics marker sits above a bar, so its 2-line tag clears the value label)."""
     pos = [h for h in heights if h and h > 0]
-    return max(pos) * YHEADROOM if pos else 1.0
+    return max(pos) * headroom if pos else 1.0
 
 
 def plot_scenario(data: dict, scenario: str, npart=None, out_dir: Path = PLOTS_DIR,
@@ -283,7 +284,10 @@ def plot_scenario(data: dict, scenario: str, npart=None, out_dir: Path = PLOTS_D
         fh = fe.get("push_per_sec") if (fe and fe.get("status") == "supported") else 0.0
         fm_heights.append(fh or 0.0)
 
-    ymax = _compute_ylim(heights + fm_heights)  # the fast-math overlay is usually the tallest
+    # extra headroom when any bar carries a physics marker, so the 2-line 'simpler model' tag sits
+    # clearly above the value label rather than overlapping it.
+    any_marker = any(_physics_marker(e) for _, e, _, _, _ in entries)
+    ymax = _compute_ylim(heights + fm_heights, 1.42 if any_marker else YHEADROOM)
 
     # x-positions: bars step by 1 within a code, with an extra gap when the code changes,
     # so each code's DP|SP bars group together with whitespace before the next code.
@@ -362,8 +366,8 @@ def plot_scenario(data: dict, scenario: str, npart=None, out_dir: Path = PLOTS_D
             # skipped-code placeholders) so it doesn't shout or overlap neighbours; lower cap leaves
             # room for the 2-line "simpler\nmodel" tag.
             mcolor, mweight = _marker_style(physics)
-            ax.text(xi, min(h + ymax * 0.16, ymax * 0.80), marker, ha="center", va="bottom",
-                    fontsize=5.5, color=mcolor, fontweight=mweight, linespacing=0.9)
+            ax.text(xi, min(h + ymax * 0.20, ymax * 0.88), marker, ha="center", va="bottom",
+                    fontsize=6.0, color=mcolor, fontweight=mweight, linespacing=0.9)
 
     ax.set_xticks(xs)
     ax.set_xticklabels(labels, rotation=40, ha="right", fontsize=7)
@@ -431,7 +435,8 @@ def plot_scenario_gpu(data: dict, scenario: str, npart=None,
 
     heights = [(e.get("push_per_sec") or 0.0) if e.get("status") == "supported" else 0.0
                for _, e, _, _ in entries]
-    ymax = _compute_ylim(heights)
+    any_marker = any(_physics_marker(e) for _, e, _, _ in entries)
+    ymax = _compute_ylim(heights, 1.42 if any_marker else YHEADROOM)
 
     # caveats grouped BY REASON (compact footnote even with all 7 codes): device/precision
     # fallback (this plot) + costlier untuned model (existing). A code may appear in two groups.
@@ -466,8 +471,8 @@ def plot_scenario_gpu(data: dict, scenario: str, npart=None,
         marker = _physics_marker(entry)
         if marker:
             mcolor, mweight = _marker_style(physics)
-            ax.text(i, min(h + ymax * 0.16, ymax * 0.80), marker, ha="center", va="bottom",
-                    fontsize=5.5, color=mcolor, fontweight=mweight, linespacing=0.9)
+            ax.text(i, min(h + ymax * 0.20, ymax * 0.88), marker, ha="center", va="bottom",
+                    fontsize=6.0, color=mcolor, fontweight=mweight, linespacing=0.9)
 
     ax.set_xticks(range(len(entries)))
     ax.set_xticklabels([c for _, _, c, _ in entries], rotation=40, ha="right", fontsize=8)
