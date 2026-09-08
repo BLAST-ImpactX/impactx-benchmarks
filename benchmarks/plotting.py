@@ -562,21 +562,23 @@ def _fmt_npart(n) -> str:
     return f"{n:.1e}".replace("e+0", "e").replace("e+", "e")
 
 
-def _best_measurement(data: dict, scenario: str, code: str, device: str):
-    """The fastest VALID config for ``(code, device)`` in ``scenario`` at that code's LARGEST measured
-    particle count (>= ``PUBLISHED_MIN_NPART``), over all its configs (any precision, IEEE or
-    fast-math). Returns ``(cfg_name, entry)`` or ``None``.
+def _best_measurement(data: dict, scenario: str, code: str, device: str,
+                      precision: str | None = None, npart_fixed: int | None = None):
+    """The fastest VALID config for ``(code, device)`` in ``scenario`` over all its configs (any
+    precision, IEEE or fast-math). Returns ``(cfg_name, entry)`` or ``None``.
 
-    Why the *largest* N and not the numerically highest throughput: it keeps the comparison fair. A
+    Default: each code at its LARGEST measured N (>= ``PUBLISHED_MIN_NPART``) -- the fair choice, a
     small-N point can sit entirely in cache (L1/L2/L3) and post an unrepresentative rate, so we pin
-    each code to the top of its own sweep -- CPU codes end up ~1M (streaming from RAM), while GPU
-    codes sit at the large N (>=10M, up to 1e9) where the device is actually saturated and used
-    efficiently. N therefore varies per bar (shown as the per-bar ``N=`` label). Ties at the same N
-    (e.g. a DP vs an SP/fast-math build) are broken by throughput. 'Valid' = ``supported`` with a
+    each code to the top of its own sweep (CPU ~1M streaming from RAM; GPU the large N where the
+    device is saturated). ``npart_fixed`` instead pins EVERY code to one exact N (a controlled
+    same-N slice), and ``precision`` (e.g. ``"double"``) restricts to that precision. Ties at the
+    same N (e.g. a DP vs an SP/fast-math build) break by throughput. 'Valid' = ``supported`` with a
     ``push_per_sec`` and not physics-wrong (excludes ``incorrect``)."""
     best = None  # (npart, push, cfg_name, entry)
     for cfg_name, cfg in CONFIGS.items():
         if cfg.code != code or cfg.device != device:
+            continue
+        if precision and cfg.precision != precision:
             continue
         for entry in data.get("results", {}).get(cfg_name, {}).values():
             if entry.get("scenario") != scenario or entry.get("status") != "supported":
@@ -584,7 +586,12 @@ def _best_measurement(data: dict, scenario: str, code: str, device: str):
             if entry.get("physics") == "incorrect":
                 continue
             n, pps = entry.get("npart") or 0, entry.get("push_per_sec")
-            if not pps or n < PUBLISHED_MIN_NPART:
+            if not pps:
+                continue
+            if npart_fixed is not None:
+                if n != npart_fixed:
+                    continue
+            elif n < PUBLISHED_MIN_NPART:
                 continue
             if best is None or (n, pps) > (best[0], best[1]):
                 best = (n, pps, cfg_name, entry)
@@ -631,7 +638,8 @@ def _hardware_note(data: dict, bars: list) -> str:
 
 
 def plot_scenario_best(data: dict, scenario: str, out_dir: Path = PLOTS_DIR,
-                       logy: bool = True) -> Path | None:
+                       logy: bool = True, precision: str | None = None,
+                       npart_fixed: int | None = None) -> Path | None:
     """Per-code 'best' summary: ONE bar per code = its fastest measured config on CPU, then (after a
     gap) one bar per code = its fastest on GPU. 'Best' is the peak throughput across the whole sweep
     and all the code's configs on that device (see :func:`_best_measurement`), so a bar may be an SP
@@ -650,7 +658,7 @@ def plot_scenario_best(data: dict, scenario: str, out_dir: Path = PLOTS_DIR,
     for device, dev_label in (("cuda", "GPU"), ("cpu", "CPU")):
         section = [(code, device, dev_label, *be)
                    for code in CODES
-                   if (be := _best_measurement(data, scenario, code, device))]
+                   if (be := _best_measurement(data, scenario, code, device, precision, npart_fixed))]
         section.sort(key=lambda b: b[4].get("push_per_sec") or 0.0, reverse=True)
         bars.extend(section)
     if not bars:
@@ -736,12 +744,20 @@ def plot_scenario_best(data: dict, scenario: str, out_dir: Path = PLOTS_DIR,
     title = (sc.display_name or sc.name) if sc else scenario
     machine = _machine_label(data)
     prefix = f"{machine} · " if machine else ""
-    ax.set_title(f"{prefix}{title} — best per code, GPU vs. CPU{ref}", fontsize=9)
+    # optional constraint tag (e.g. a controlled "DP · N=1.0e6" slice)
+    _prec_lbl = {"double": "DP", "single": "SP"}
+    con = " · ".join(x for x in (_prec_lbl.get(precision, precision) if precision else "",
+                                 f"N={_fmt_npart(npart_fixed)}" if npart_fixed else "") if x)
+    ctag = f"  ·  {con}" if con else ""
+    ax.set_title(f"{prefix}{title} — best per code, GPU vs. CPU{ctag}{ref}", fontsize=9)
     if not logy:  # sci ScalarFormatter is invalid on a log axis (LogFormatter already reads 10^n)
         ax.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
 
-    notes = ["each bar = the fastest measured config for that code on that device (any precision / "
-             "fast-math); N = the particle count that bar was measured at (top of each device's sweep)"]
+    _base = ("the fastest config for that code on that device"
+             + ("" if precision else " (any precision / fast-math)"))
+    _nnote = (f"all bars at N = {_fmt_npart(npart_fixed)}" if npart_fixed
+              else "N = the particle count that bar was measured at (top of each device's sweep)")
+    notes = [f"each bar = {_base}; {_nnote}"]
     if any_untuned:
         notes.append(sc.untuned_note if sc and sc.untuned_note
                      else "*  lacks a tuned model for this problem; runs a costlier one")
