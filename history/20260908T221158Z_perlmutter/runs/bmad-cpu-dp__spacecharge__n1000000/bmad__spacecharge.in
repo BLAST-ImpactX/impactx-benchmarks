@@ -1,0 +1,18 @@
+&beam_track_params
+  lat_filename = '/pscratch/sd/a/ahuebl/impactx-benchmarks/runs/perlmutter/bmad-cpu-dp__spacecharge__n1000000/bmad__spacecharge.bmad'
+  ran_seed = 12345
+  spin = F
+  n_warmup = 1
+  beam_init%n_particle = 1000000
+  beam_init%n_bunch = 1
+  beam_init%a_emit = 1e-07
+  beam_init%b_emit = 1e-07
+  beam_init%sig_z = 0.001
+  beam_init%sig_pz = 0.0001
+  beam_init%center(6) = 0.0
+  beam_init%distribution_type = 'ran_gauss', 'ran_gauss', 'ran_gauss'
+  beam_init%bunch_charge = 1e-09
+  space_charge = T
+  sc_ds = 6.0
+  sc_mesh = 64, 64, 64
+/
