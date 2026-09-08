@@ -162,24 +162,39 @@ def _entries_for(data: dict, scenario: str, npart: int, device: str | None = Non
 # "GPU FP32". A code whose best is below the top rung (no GPU-FP32 build) shows its next-best
 # instead, marked with an asterisk + a per-code caveat in the footnote -- in analogy to the
 # CPU plots' asterisk for codes running a costlier untuned model.
-_GPU_LADDER = [
-    ("cuda", "single"),   # 0: the headline config -- real GPU FP32 (no caveat)
-    ("cuda", "double"),   # 1: GPU, but FP64 only (no FP32 build) -> Xsuite
-    ("cpu", "single"),    # 2: no GPU; best is CPU FP32
-    ("cpu", "double"),    # 3: no GPU; best is CPU FP64       -> pyAT / PyORBIT / Bmad
-]
-_GPU_RUNG = {dp: i for i, dp in enumerate(_GPU_LADDER)}
-_GPU_CAVEAT = {
-    1: "GPU FP64 (no FP32)",
-    2: "CPU FP32 (no GPU)",
-    3: "CPU FP64 (no GPU)",
+# One ladder per target precision: FP32 (only ImpactX/Cheetah/SciBmad build it) and FP64 (the
+# widely-supported GPU precision -- ImpactX/Synergia/Xsuite/Cheetah/HELIX/...). Each code shows one
+# bar: its best config toward the headline GPU result at that precision; a code below the top rung
+# (no GPU build at that precision) shows its next-best, asterisked with a per-code caveat.
+_GPU_LADDERS = {
+    "single": [           # headline: GPU FP32
+        ("cuda", "single"),   # 0: real GPU FP32 (no caveat)
+        ("cuda", "double"),   # 1: GPU, but FP64 only (no FP32 build)
+        ("cpu", "single"),    # 2: no GPU; CPU FP32
+        ("cpu", "double"),    # 3: no GPU; CPU FP64
+    ],
+    "double": [           # headline: GPU FP64
+        ("cuda", "double"),   # 0: real GPU FP64 (no caveat)
+        ("cpu", "double"),    # 1: no GPU; CPU FP64
+        ("cuda", "single"),   # 2: GPU, but FP32 only (no FP64 build)
+        ("cpu", "single"),    # 3: no GPU; CPU FP32
+    ],
 }
+_GPU_RUNGS = {prec: {dp: i for i, dp in enumerate(ladder)} for prec, ladder in _GPU_LADDERS.items()}
+_GPU_CAVEATS = {
+    "single": {1: "GPU FP64 (no FP32)", 2: "CPU FP32 (no GPU)", 3: "CPU FP64 (no GPU)"},
+    "double": {1: "CPU FP64 (no GPU)", 2: "GPU FP32 (no FP64)", 3: "CPU FP32 (no GPU)"},
+}
+_GPU_HEADLINE = {"single": "GPU FP32", "double": "GPU FP64"}
 
 
-def _gpu_entries_for(data: dict, scenario: str, npart: int) -> list[tuple[str, dict, str, int]]:
-    """``(cfg_name, entry, code, rung)`` per code -- the best *supported* config toward
-    GPU-FP32 (lowest ladder rung; ties within a rung broken by fastest). ``rung`` 0 means a
-    real GPU-FP32 result; >0 means the next-best fallback shown (see ``_GPU_CAVEAT``)."""
+def _gpu_entries_for(data: dict, scenario: str, npart: int,
+                     precision: str = "single") -> list[tuple[str, dict, str, int]]:
+    """``(cfg_name, entry, code, rung)`` per code -- the best *supported* config toward the headline
+    GPU result at ``precision`` (lowest ladder rung; ties within a rung broken by fastest). ``rung``
+    0 means a real GPU result at that precision; >0 is the next-best fallback (see
+    ``_GPU_CAVEATS[precision]``)."""
+    rungs = _GPU_RUNGS[precision]
     key = results_mod.measurement_key(scenario, npart)
     out: list[tuple[str, dict, str, int]] = []
     for code in CODES:
@@ -188,7 +203,7 @@ def _gpu_entries_for(data: dict, scenario: str, npart: int) -> list[tuple[str, d
         for cfg_name, cfg in CONFIGS.items():
             if cfg.code != code or cfg.fast_math:
                 continue  # IEEE bars only (fast-math variants aren't shown in the GPU comparison)
-            rung = _GPU_RUNG.get((cfg.device, cfg.precision))
+            rung = rungs.get((cfg.device, cfg.precision))
             if rung is None:
                 continue
             entry = data.get("results", {}).get(cfg_name, {}).get(key)
@@ -355,14 +370,16 @@ def plot_scenario(data: dict, scenario: str, npart=None, out_dir: Path = PLOTS_D
 
 
 def plot_scenario_gpu(data: dict, scenario: str, npart=None,
-                      out_dir: Path = PLOTS_DIR / "gpu") -> Path | None:
-    """GPU FP32 cross-code comparison: one bar per code = its best config toward GPU-FP32.
-    Codes without a GPU-FP32 build show their next-best (GPU-FP64, or CPU) with an asterisk
-    and a per-code caveat footnote -- analogous to the CPU plots' untuned-model asterisk."""
+                      out_dir: Path = PLOTS_DIR / "gpu", precision: str = "single") -> Path | None:
+    """GPU cross-code comparison at ``precision`` (FP32 or FP64): one bar per code = its best config
+    toward the headline GPU result. Codes without a GPU build at that precision show their next-best
+    (other-precision GPU, or CPU) with an asterisk + a per-code caveat footnote -- analogous to the
+    CPU plots' untuned-model asterisk. FP32 -> ``<scenario>.svg``; FP64 -> ``<scenario>_fp64.svg``."""
     npart = _select_npart(data, scenario, npart)
     if npart is None:
         return None
-    entries = _gpu_entries_for(data, scenario, npart)
+    caveat = _GPU_CAVEATS[precision]
+    entries = _gpu_entries_for(data, scenario, npart, precision)
     if not entries or all(r > 0 for *_, r in entries):
         return None  # nothing actually ran on the GPU for this scenario -> no GPU plot
 
@@ -378,7 +395,7 @@ def plot_scenario_gpu(data: dict, scenario: str, npart=None,
     by_reason: dict[str, list[str]] = {}
     caveats: set[str] = set()  # codes that get an asterisk
     for _, _, code, rung in entries:
-        reasons = ([_GPU_CAVEAT[rung]] if rung in _GPU_CAVEAT else []) + \
+        reasons = ([caveat[rung]] if rung in caveat else []) + \
                   (["exact stand-in model"] if code in untuned else [])
         for r in reasons:
             by_reason.setdefault(r, []).append(code)
@@ -401,7 +418,7 @@ def plot_scenario_gpu(data: dict, scenario: str, npart=None,
         star = " *" if code in caveats else ""
         # for fallbacks, name the actual device/precision shown ("GPU FP64"/"CPU FP32"/"CPU FP64");
         # the headline GPU-FP32 bars need no sub-label (the title already says GPU FP32)
-        sub = f"\n{_GPU_CAVEAT[rung].split(' (')[0]}" if rung > 0 else ""
+        sub = f"\n{caveat[rung].split(' (')[0]}" if rung > 0 else ""
         ax.text(i, h + ymax * 0.01, f"{h:.1e}{star}{sub}", ha="center", va="bottom", fontsize=6.5)
         marker = _physics_marker(entry)
         if marker:
@@ -414,7 +431,7 @@ def plot_scenario_gpu(data: dict, scenario: str, npart=None,
     ax.set_ylabel("particles / second")
     ref = f" — ref: {sc.reference}" if sc else ""
     title = (sc.display_name or sc.name) if sc else scenario
-    ax.set_title(f"{title}  —  GPU FP32  (n = {npart:,} particles){ref}", fontsize=9)
+    ax.set_title(f"{title}  —  {_GPU_HEADLINE[precision]}  (n = {npart:,} particles){ref}", fontsize=9)
     ax.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
 
     bottom = 0.13 if caveats else 0.08
@@ -433,10 +450,11 @@ def plot_scenario_gpu(data: dict, scenario: str, npart=None,
         fig.text(0.01, 0.012 + 0.045, note, fontsize=5.5, color="dimgray", style="italic")
 
     out_dir.mkdir(parents=True, exist_ok=True)
-    out_path = out_dir / f"{scenario}.svg"
+    stem = scenario if precision == "single" else f"{scenario}_fp64"
+    out_path = out_dir / f"{stem}.svg"
     fig.savefig(out_path)
-    fig.savefig(out_dir / f"{scenario}.pdf")
-    fig.savefig(out_dir / f"{scenario}.png", dpi=150)
+    fig.savefig(out_dir / f"{stem}.pdf")
+    fig.savefig(out_dir / f"{stem}.png", dpi=150)
     plt.close(fig)
     return out_path
 
@@ -456,10 +474,11 @@ def plot_all(data: dict, out_dir: Path = PLOTS_DIR) -> list[Path]:
 def plot_all_gpu(data: dict, out_dir: Path = PLOTS_DIR / "gpu") -> list[Path]:
     made = []
     for scenario in SCENARIOS:
-        p = plot_scenario_gpu(data, scenario, out_dir=out_dir)
-        if p:
-            made.append(p)
-            print(f"wrote {p}")
+        for precision in ("single", "double"):   # FP32 (<scenario>) + FP64 (<scenario>_fp64)
+            p = plot_scenario_gpu(data, scenario, out_dir=out_dir, precision=precision)
+            if p:
+                made.append(p)
+                print(f"wrote {p}")
     return made
 
 
@@ -483,9 +502,10 @@ def main(argv=None) -> int:
     base = Path(args.out) if args.out else PLOTS_DIR
     if args.scenario:
         if args.gpu:
-            p = plot_scenario_gpu(data, args.scenario, out_dir=base / "gpu")
-            if p:
-                print(f"wrote {p}")
+            for precision in ("single", "double"):
+                p = plot_scenario_gpu(data, args.scenario, out_dir=base / "gpu", precision=precision)
+                if p:
+                    print(f"wrote {p}")
         else:  # combined + _cpu + _gpu, matching plot_all
             for device in (None, "cpu", "gpu"):
                 p = plot_scenario(data, args.scenario, device=device, out_dir=base)
