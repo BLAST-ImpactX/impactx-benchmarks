@@ -1,0 +1,20 @@
+! Auto-generated Bmad lattice: FODO (EXACT scenario). The quads use tracking_method = symp_lie_ptc,
+! i.e. PTC with EXACT_MODEL=T (Bmad's default) -> the exact non-paraxial CANONICAL quad Hamiltonian,
+! matching the ImpactX ExactQuad reference. bmad_standard's quad is only chromatic-linear/paraxial,
+! so it would be a model_mismatch on the hot beam; symp_lie_ptc is the genuine exact model. The
+! bmad_standard drift is ALREADY the exact non-paraxial map (track_a_drift: sqrt(1-px^2-py^2)), so
+! only the quads change. Step count auto-set by PTC's check_bend (~1e-8 on-orbit); converged here.
+parameter[geometry] = open
+parameter[particle] = electron
+beginning[e_tot] = 100510998.95069
+beginning[beta_a] = 0.01
+beginning[alpha_a] = 0.0
+beginning[beta_b] = 0.01
+beginning[alpha_b] = 0.0
+
+qf: quadrupole, L = 0.5, k1 = 2.0, tracking_method = symp_lie_ptc, integrator_order = 6, num_steps = 12
+dr: drift, L = 0.1
+qd: quadrupole, L = 0.5, k1 = -2.0, tracking_method = symp_lie_ptc, integrator_order = 6, num_steps = 12
+
+fodo: line = (qf, dr, qd, dr)
+use, fodo
