@@ -179,6 +179,42 @@ def _resume_skip(prev: dict | None, retry_failed: bool) -> bool:
     return True
 
 
+def _gpu_names(gpu_list) -> set:
+    """Distinct GPU model names in a gpu_info() list (e.g. {'NVIDIA A100-SXM4-40GB'})."""
+    return {(g or {}).get("name", "") for g in (gpu_list or []) if (g or {}).get("name")}
+
+
+def _gpu_guard(detected: list, recorded: list, path) -> None:
+    """Refuse to record GPU results on the wrong card (cuda runs only). Two independent checks:
+
+    * ``BENCH_GPU_REQUIRE`` (substring, e.g. ``A100-SXM4-40GB`` or ``40GB``): the node's card MUST
+      match, else abort -- so a job that lands on an unwanted variant (e.g. an 80GB node when we
+      standardize on 40GB) dies immediately, before measuring, instead of silently recording data on
+      the wrong card. SLURM can't cleanly express "not 80GB", so this runtime check is the enforcement:
+      just resubmit and the scheduler almost always lands you on the common (40GB) variant.
+    * otherwise, if the results file already holds GPU cells measured on a DIFFERENT card, a
+      ``--resume`` run would MIX cards (exactly the 40GB/80GB mix that bit us) -> abort unless
+      ``BENCH_GPU_ALLOW_MIX=1``. Skipped when ``BENCH_GPU_REQUIRE`` is set (that is the source of
+      truth: we are deliberately standardizing, e.g. overwriting an 80GB outlier back to 40GB)."""
+    cur = _gpu_names(detected)
+    require = os.environ.get("BENCH_GPU_REQUIRE", "").strip()
+    if require:
+        if not cur:
+            sys.exit(f"[gpu-guard] BENCH_GPU_REQUIRE={require!r} set but nvidia-smi found no GPU on "
+                     f"this node -- cannot verify the card; aborting rather than guessing.")
+        if not any(require in n for n in cur):
+            sys.exit(f"[gpu-guard] this node's GPU {sorted(cur)} does not match "
+                     f"BENCH_GPU_REQUIRE={require!r}. Refusing to record GPU results on the wrong "
+                     f"card -- resubmit the job to land on the required variant.")
+        return
+    recorded_names = _gpu_names(recorded)
+    if cur and recorded_names and cur != recorded_names and not os.environ.get("BENCH_GPU_ALLOW_MIX"):
+        sys.exit(f"[gpu-guard] this node's GPU {sorted(cur)} differs from the card already recorded "
+                 f"in {path.name} ({sorted(recorded_names)}); a --resume run would MIX cards and "
+                 f"make the GPU comparison unfair. Resubmit on {sorted(recorded_names)}, set "
+                 f"BENCH_GPU_REQUIRE to standardize, or BENCH_GPU_ALLOW_MIX=1 to override.")
+
+
 def _run_layout(cfg, sc, npart, ranks, threads, nruns, ncores, cpus):
     """Run one (ranks, threads) layout nruns times. Returns (track_ns|None, obs, status, reason)."""
     # Hard fairness invariant: MPI ranks * OMP threads must never exceed the core budget.
@@ -402,7 +438,10 @@ def run_matrix(args) -> Path:
     # only re-reads its own), and keep a GPU recorded by an earlier cuda job so a later CPU run
     # (e.g. the pyorbit re-measure) does not erase it.
     versions = {**(prev_meta.get("versions") or {}), **versions}
-    gpu = meta_mod.gpu_info() or (prev_meta.get("gpu") or [])
+    detected_gpu = meta_mod.gpu_info()   # THIS node's card (empty if none / nvidia-smi fails)
+    if args.device == "cuda":
+        _gpu_guard(detected_gpu, prev_meta.get("gpu") or [], path)
+    gpu = detected_gpu or (prev_meta.get("gpu") or [])
     data["machine"] = slug
     data["metadata"] = {"host": host, "versions": versions, "code_version": code_version}
     if gpu:

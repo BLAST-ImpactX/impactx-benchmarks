@@ -9,10 +9,11 @@
 # filter accepts the job -- an --exclusive job with no explicit layout is rejected as "Job request
 # does not match any supported policy". The harness then uses ONE GPU (BENCH_CUDA_DEVICES=0).
 #SBATCH -A m5125
-# -C gpu (the full A100 pool), NOT gpu&hbm80g: the 80GB-only subset is small -> long queue. We
-# take whatever A100 (40 or 80GB) schedules first and RECORD which card ran via nvidia-smi in the
-# results metadata (metadata.gpu -- the GPU analogue of the CPU microarch), so a 40-vs-80GB run
-# stays interpretable and a 10^9-particle OOM on a 40GB card is legible rather than mysterious.
+# -C gpu (the full A100 pool). We STANDARDIZE the comparison on the common 40GB A100: mixing 40GB and
+# 80GB cards across codes is unfair (an 80GB code reaches a larger N than a 40GB one). SLURM can't
+# cleanly express "not 80GB", so the card is enforced at RUNTIME by BENCH_GPU_REQUIRE below (the job
+# aborts fast if it lands on an 80GB node -- just resubmit; 40GB is the majority). The card that ran
+# is recorded via nvidia-smi in metadata.gpu (the GPU analogue of the CPU microarch).
 #SBATCH -C gpu
 # premium QOS = priority boost to clear the queue faster, at 2x the GPU-hour charge. Drop to
 # `-q regular` (1x) if you'd rather not pay the premium -- relaxing -C above already helps a lot.
@@ -38,6 +39,9 @@ export PIXI_CACHE_DIR="${PIXI_CACHE_DIR:-$PSCRATCH/pixi-cache}"   # same scratch
 export BENCH_MACHINE_SLUG=perlmutter
 export BENCH_CUDA_DEVICES=0
 export MPICH_GPU_SUPPORT_ENABLED=1
+# Standardize on the 40GB A100: the runner aborts (before measuring) if this node's card doesn't
+# match, so a stray 80GB node never silently enters the results. If it trips, just resubmit.
+export BENCH_GPU_REQUIRE="A100-SXM4-40GB"
 
 # 80GB sweep. The default nparts_gpu tops at 16M -- sized for an 8GB card, where 16M is already the
 # ceiling (it OOM'd the PyTorch codes). An A100-80GB has ~10x the memory, so extend the sweep with
