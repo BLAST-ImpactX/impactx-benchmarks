@@ -720,7 +720,7 @@ def plot_scenario_best(data: dict, scenario: str, out_dir: Path = PLOTS_DIR,
             ax.annotate(marker, xy=(xi, h), xytext=(0, 2 + 2 * _VALUE_LINE_PT), fontsize=7,
                         textcoords="offset points", ha="center", va="bottom",
                         color=mcolor, fontweight=mweight, linespacing=0.9)
-        labels.append(f"{CODE_DISPLAY.get(code, code)} ({dev_label})")
+        labels.append(CODE_DISPLAY.get(code, code))  # device is already shown by the GPU/CPU group header
         if code not in codes_present:
             codes_present.append(code)
 
