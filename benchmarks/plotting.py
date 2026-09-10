@@ -639,7 +639,7 @@ def _hardware_note(data: dict, bars: list) -> str:
 
 def plot_scenario_best(data: dict, scenario: str, out_dir: Path = PLOTS_DIR,
                        logy: bool = True, precision: str | None = None,
-                       npart_fixed: int | None = None) -> Path | None:
+                       npart_fixed: int | None = None, device_suffix: bool = True) -> Path | None:
     """Per-code 'best' summary: ONE bar per code = its fastest measured config on CPU, then (after a
     gap) one bar per code = its fastest on GPU. 'Best' is the peak throughput across the whole sweep
     and all the code's configs on that device (see :func:`_best_measurement`), so a bar may be an SP
@@ -720,7 +720,8 @@ def plot_scenario_best(data: dict, scenario: str, out_dir: Path = PLOTS_DIR,
             ax.annotate(marker, xy=(xi, h), xytext=(0, 2 + 2 * _VALUE_LINE_PT), fontsize=7,
                         textcoords="offset points", ha="center", va="bottom",
                         color=mcolor, fontweight=mweight, linespacing=0.9)
-        labels.append(CODE_DISPLAY.get(code, code))  # device is already shown by the GPU/CPU group header
+        name = CODE_DISPLAY.get(code, code)
+        labels.append(f"{name} ({dev_label})" if device_suffix else name)  # suffix off only for the misc relabelings
         if code not in codes_present:
             codes_present.append(code)
 
