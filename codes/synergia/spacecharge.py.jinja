@@ -11,8 +11,9 @@
 #   * exact (non-paraxial) libFF drift.
 # Differences vs ImpactX that matter for this benchmark:
 #   * The Poisson solve runs on (x, y, c*dt) with no rest-frame stretch; gamma enters only the kick
-#     factor (source: space_charge_3d_open_hockney.cc at the built commit). That is right for a bunch
-#     long in the lab frame and wrong for this one, which is 490:1 only in the rest frame.
+#     factor (source: space_charge_3d_open_hockney.cc at the built commit). That gives the right
+#     transverse kick on a bunch long in the lab frame, but not on this one, which is 490:1 only in the
+#     rest frame. The longitudinal kick is low in both cases (<cdt dpop> -59% at 100:1 in the lab frame).
 #   * Synergia's open-BC domain is DYNAMIC (n_sigma * RMS, default 8 sigma in total, so +/-4 sigma)
 #     per solve, vs ImpactX's prob_relative=1.2 (beam max-extent +10%).
 #   * ONE space-charge solve over the drift, like every other SC code (fairness invariant). The
