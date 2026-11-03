@@ -179,6 +179,21 @@ def _resume_skip(prev: dict | None, retry_failed: bool) -> bool:
     return True
 
 
+def _drop_stale_cells(data: dict, cfg: Config, sc: Scenario) -> None:
+    """Forget ``cfg``'s completed cells that lack an observable ``sc`` now validates: they predate a
+    change to the scenario, so --resume must not keep them as settled. Particle counts the sweep no
+    longer contains go too, since they could never be overwritten. The benchmarks branch keeps the
+    previous results in its history."""
+    cells = data.get("results", {}).get(cfg.name, {})
+    for key, entry in list(cells.items()):
+        obs = entry.get("observables")
+        if (entry.get("scenario") == sc.name and entry.get("status") == "supported" and obs
+                and any(k not in obs for k in sc.observables)):
+            print(f"   [{cfg.name}] {sc.name} n={entry.get('npart')}: dropping a stale result "
+                  f"(does not report every observable this scenario validates)", flush=True)
+            del cells[key]
+
+
 def _gpu_names(gpu_list) -> set:
     """Distinct GPU model names in a gpu_info() list (e.g. {'NVIDIA A100-SXM4-40GB'})."""
     return {(g or {}).get("name", "") for g in (gpu_list or []) if (g or {}).get("name")}
@@ -455,6 +470,7 @@ def run_matrix(args) -> Path:
             continue
         for sc_name in scenarios:
             sc = SCENARIOS[sc_name]
+            _drop_stale_cells(data, cfg, sc)
             status, reason = support_status(cfg, sc)
             # GPU runs sweep the larger nparts_gpu (single A100); CPU keeps sc.nparts. --nparts wins.
             sweep = nparts_override or list(sc.sweep(cfg.device))
