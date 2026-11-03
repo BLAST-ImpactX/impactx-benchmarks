@@ -224,8 +224,9 @@ CODES: dict[str, Code] = {
         # composition of thin quad kicks with those exact drifts -- the SAME exact
         # (non-paraxial) model as ImpactX ExactQuad+ExactDrift / SciBmad MatrixKick, so it is a
         # fair participant in fodo_exact (not just the paraxial pole). PIC space charge:
-        # Space_charge_3d_open_hockney (open-BC Hockney FFT, integrated "linear" Green function
-        # = the ImpactX-IGF analog) for 3D and Space_charge_2d_open_hockney for 2.5D. NO spin
+        # Space_charge_3d_open_hockney (open-BC Hockney FFT; its default "linear" Green function
+        # integrates along z only and is point-sampled in x,y, so it is NOT a full 3D IGF) and
+        # Space_charge_2d_open_hockney (point-sampled) for 2.5D. NO spin
         # tracking (grep of bunch/libFF/simulation finds none) -> htu_spin unsupported via SPIN.
         capabilities=frozenset(
             {TRACKING, SPACE_CHARGE, SPACE_CHARGE_3D, SPACE_CHARGE_2P5D}
@@ -305,6 +306,14 @@ class Scenario:
     #: so their numbers legitimately disagree with the reference -> classified model_mismatch (dashed),
     #: NOT "incorrect". Per-scenario because a config is shared across scenarios. reason kept for label.
     model_mismatch_codes: dict = field(default_factory=dict)
+    #: method classes for plots, in display order: ``((label, (code, ...)), ...)``. Bars are grouped
+    #: and labelled by class so a result is read against codes using the same method; codes in no
+    #: class (e.g. unsupported here) sort last, unlabelled. Empty = no grouping (single method).
+    method_groups: tuple = ()
+    #: plot footnote explaining the method classes (optional)
+    method_note: Optional[str] = None
+    #: short reason for an ``untuned_codes`` asterisk, for compact per-reason plot footnotes
+    untuned_label: str = "exact stand-in model"
     #: extension of the run template (python "py" or Julia "jl")
     template_for_language: dict = field(
         default_factory=lambda: {"python": "py", "julia": "jl"}
@@ -326,6 +335,33 @@ _OBS_SC = ("sigma_x", "sigma_y", "sigma_t", "emit_x", "emit_y")
 # emit sigma_sz for the record.
 _OBS_SPIN = ("sigma_sx", "sigma_sy")
 
+# Method classes shown in the plots. The space-charge classes were read from each code's built
+# solver source (2026-11-02), since "open-boundary FFT" alone hides the part that decides accuracy on
+# a stretched mesh: how the kernel is treated across a cell.
+#   * full 3D IGF: the kernel is integrated over the whole 3D cell. ImpactX (ablastr
+#     IntegratedPotential3D), IMPACT-Z (greenf1tIntnew), Bmad (OpenSpaceCharge, direct-field variant),
+#     HELIX (green_kind="igf"), Cheetah (_integrated_green_function), Xsuite (primitive_func_3d).
+#   * Hockney, z-integrated: Synergia's green_fn "linear" (alg_g2_linear) integrates along z only and
+#     stays point-sampled in x and y.
+#   * Hockney, point: the kernel is sampled at the cell centres. PyORBIT (_defineGreenF: 1/r).
+_SC3D_METHODS = (
+    ("full 3D IGF", ("impactx", "impactz", "bmad", "helix", "cheetah", "xsuite")),
+    ("Hockney\nz-integrated", ("synergia",)),
+    ("Hockney\npoint 1/r", ("pyorbit",)),
+)
+_SC3D_METHOD_NOTE = ("kernel over a mesh cell:  IGF = integrated in 3D;  z-integrated = along z only, "
+                     "point-sampled in x,y;  point 1/r = sampled at cell centres")
+# 2.5D: ImpactX (IntegratedPotential2D) and Xsuite (primitive_func_2p5d) integrate over the 2D cell;
+# PyORBIT (-log(r^2)/2) and Synergia (space_charge_2d alg_g2_pointlike) sample it at cell centres.
+_SC2P5D_METHODS = (
+    ("2D IGF", ("impactx", "xsuite")),
+    ("Hockney\npoint log(r)", ("synergia", "pyorbit")),
+)
+_SC2P5D_METHOD_NOTE = ("kernel over a mesh cell:  IGF = integrated in 2D;  "
+                       "point log(r) = sampled at cell centres")
+# Tracking classes mirror untuned_codes / model_mismatch_codes on each scenario below.
+_EXACT_STANDIN = ("cheetah", "scibmad", "bmad", "synergia")
+
 SCENARIOS: dict[str, Scenario] = {
     "fodo_chromatic": Scenario(
         name="fodo_chromatic",
@@ -345,6 +381,10 @@ SCENARIOS: dict[str, Scenario] = {
             "bmad": "only exact bmad_standard tracking; no chromatic-paraxial model",
             "synergia": "only exact (non-paraxial) libFF maps (Yoshida quad + exact drift); no chromatic-paraxial",
         },
+        method_groups=(
+            ("chromatic-paraxial", ("impactx", "impactz", "xsuite", "pyat", "pyorbit", "elegant")),
+            ("exact map", _EXACT_STANDIN),
+        ),
     ),
     "fodo_exact": Scenario(
         name="fodo_exact",
@@ -390,6 +430,10 @@ SCENARIOS: dict[str, Scenario] = {
             # (source-verified; sigma_p->0 makes it agree). A different model, not under-integration.
             "elegant": "trace-space slopes + achromatic drift; no canonical/chromatic x-px coupling",
         },
+        method_groups=(
+            ("exact non-paraxial", ("impactx", "xsuite", "pyat", "scibmad", "bmad", "synergia")),
+            ("simpler model", ("cheetah", "impactz", "elegant")),
+        ),
     ),
     "htu": Scenario(
         name="htu",
@@ -423,6 +467,11 @@ SCENARIOS: dict[str, Scenario] = {
         model_mismatch_codes={
             "elegant": "tracks geometric slope (x,x') not canonical (x,px); px/p0=(1+delta)x' -> ~4% chromatic betatron diff at 2.5% spread",
         },
+        method_groups=(
+            ("chromatic-paraxial", ("impactx", "impactz", "xsuite", "pyat", "pyorbit")),
+            ("exact map", _EXACT_STANDIN),
+            ("slopes", ("elegant",)),
+        ),
     ),
     "htu_spin": Scenario(
         name="htu_spin",
@@ -464,13 +513,17 @@ SCENARIOS: dict[str, Scenario] = {
         tolerances={"default": 5e-2},  # space charge: looser; implementations differ
         reference="impactx",
         intended_model="3d-pic",
-        # ImpactX/Cheetah/Xsuite use the rigorous integrated Green function (IGF); PyORBIT
-        # uses a cheaper, less-rigorous point-1/r grid Green function (agrees here, on a
-        # round beam / fine grid) -> asterisk so its model-driven speed edge is visible.
+        # Codes without a full 3D IGF are grouped and asterisked, so a model-driven speed edge is
+        # visible. They pass this scenario's physics check only because it barely tests space charge
+        # (see BLAST-ImpactX/impactx-benchmarks#1), NOT because their kernels agree on this beam.
         untuned_codes={
-            "pyorbit": "cheaper, less-rigorous point-1/r Green function (not the integrated GF)",
+            "pyorbit": "cheaper point-sampled 1/r kernel (not integrated over the cell)",
+            "synergia": "kernel integrated along z only; point-sampled in x and y",
         },
-        untuned_note="*  uses a cheaper, less-rigorous Green function (point-1/r vs the integrated GF)",
+        untuned_note="*  not a full 3D IGF: cheaper kernel (see the method groups)",
+        untuned_label="not a full 3D IGF",
+        method_groups=_SC3D_METHODS,
+        method_note=_SC3D_METHOD_NOTE,
     ),
     "spacecharge_2p5d": Scenario(
         name="spacecharge_2p5d",
@@ -482,11 +535,21 @@ SCENARIOS: dict[str, Scenario] = {
         reference="impactx",  # ImpactX 2.5D PIC is the 2.5D reference
         intended_model="2.5d-pic",
         untuned_codes={
-            "pyorbit": "cheaper, less-rigorous point-1/r Green function (not the integrated GF)",
+            "pyorbit": "cheaper point-sampled log(r) kernel (not integrated over the cell)",
+            "synergia": "cheaper point-sampled log(r) kernel (not integrated over the cell)",
         },
-        untuned_note="*  uses a cheaper, less-rigorous Green function (point-1/r vs the integrated GF)",
+        untuned_note="*  not a 2D IGF: cheaper point-sampled kernel (see the method groups)",
+        untuned_label="not a 2D IGF",
+        method_groups=_SC2P5D_METHODS,
+        method_note=_SC2P5D_METHOD_NOTE,
     ),
 }
+
+for _sc in SCENARIOS.values():  # a typo here would silently drop a code to the unlabelled tail
+    for _label, _codes in _sc.method_groups:
+        _unknown = set(_codes) - set(CODES)
+        if _unknown:
+            raise ValueError(f"{_sc.name}: unknown codes in method group {_label!r}: {sorted(_unknown)}")
 
 
 # --------------------------------------------------------------------------- #
