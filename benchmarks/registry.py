@@ -329,6 +329,8 @@ class Scenario:
 # is dominated by sampling noise).
 _OBS_TRACKING = ("sigma_x", "sigma_y", "emit_x", "emit_y")
 _OBS_SC = ("sigma_x", "sigma_y", "sigma_t", "emit_x", "emit_y")
+# 3D space charge is a thin kick, so the signal is in momentum space: the beam size barely changes.
+_OBS_SC_KICK = _OBS_SC + ("xpx", "ypy", "sigma_px", "sigma_py", "sigma_pe")
 # spin depolarization: RMS spread of the spin components (beam starts fully aligned +z).
 # Validate only sx/sy -- the in-plane tilt carries the depolarization signal; sigma_sz is a
 # 2nd-order tiny quantity (spins barely leave +z) and is noise-dominated. Templates still
@@ -506,22 +508,24 @@ SCENARIOS: dict[str, Scenario] = {
     # "unsupported" in that benchmark (no dashed model-mismatch needed).
     "spacecharge": Scenario(
         name="spacecharge",
-        display_name="3D space charge",
+        display_name="3D space charge (cold cigar, 490:1)",
         required_capabilities=frozenset({SPACE_CHARGE_3D}),
-        nparts=_NPARTS_SC,
-        observables=_OBS_SC,
-        tolerances={"default": 5e-2},  # space charge: looser; implementations differ
-        reference="impactx",
+        # At 1k particles shot noise alone puts a correct code out of tolerance on this mesh (see params.py).
+        nparts=(10_000, 100_000, 1_000_000),
+        observables=_OBS_SC_KICK,
+        # What the tolerance has to cover is the mesh error of a correct code. At 64^3 and N=1M the full
+        # 3D IGF codes (apart from Bmad's E_z) sit about 1-2.4% from the exact answer, converging at
+        # second order in ImpactX. ImpactX's box follows the beam's maximum extent, so its mesh coarsens
+        # as N grows: emit_x reads -2.4% at 1M and -3.4% at 64M, on a trend to about -4% at 1e9, the top
+        # of the Perlmutter GPU sweep (not measured). The linear kick is less sensitive to this (-1.8% at
+        # 64M) and robust to shot noise, so it gets the tighter limit. Codes that fail miss by 30% or
+        # more, so neither limit is a close call.
+        tolerances={"default": 5e-2, "xpx": 3e-2, "ypy": 3e-2},
+        reference="analytic",  # closed-form Gaussian field: scenarios/spacecharge/analytic.py
         intended_model="3d-pic",
-        # Codes without a full 3D IGF are grouped and asterisked, so a model-driven speed edge is
-        # visible. They pass this scenario's physics check only because it barely tests space charge
-        # (see BLAST-ImpactX/impactx-benchmarks#1), NOT because their kernels agree on this beam.
-        untuned_codes={
-            "pyorbit": "cheaper point-sampled 1/r kernel (not integrated over the cell)",
-            "synergia": "kernel integrated along z only; point-sampled in x and y",
-        },
-        untuned_note="*  not a full 3D IGF: cheaper kernel (see the method groups)",
-        untuned_label="not a full 3D IGF",
+        # A code that misses this answer reads `incorrect`, including one that fails on a single
+        # component (Bmad's direct-field E_z), since the benchmark's question is whether the 3D
+        # problem is solved. Failures are not excused as model_mismatch: the physics has one answer.
         method_groups=_SC3D_METHODS,
         method_note=_SC3D_METHOD_NOTE,
     ),

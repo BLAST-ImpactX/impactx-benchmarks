@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 # Auto-generated benchmark run script: Synergia3 / spacecharge (3D PIC).
 #
-# Model matched to ImpactX (the reference) for a FAIR comparison:
+# Setup, as close to ImpactX as the Python interface allows:
 #   * solver: Space_charge_3d_open_hockney -- OPEN-boundary Hockney FFT Poisson on a doubled
-#             (zero-padded) grid, with the default green_fn = "linear" INTEGRATED Green function.
-#             That is the ImpactX-IGF analog (Qiang/Ryne IGF family), NOT the cheaper point-1/r
-#             GF (PyORBIT's choice, flagged there). So this is a like-for-like IGF comparison.
+#             (zero-padded) grid, with the default green_fn = "linear". That kernel is integrated
+#             along z only and point-sampled in x and y (alg_g2_linear), so it is NOT a full 3D IGF.
+#             The point-sampled option is not exposed to Python.
 #   * grid:   n_cell^3 cells (= ImpactX n_cell).
 #   * deposition/gather: CIC (linear) -- same as ImpactX particle_shape=1.
 #   * exact (non-paraxial) libFF drift.
-# Differences vs ImpactX, documented for honesty (both open-BC FFT-PIC, agree within the 5% tol):
-#   * Synergia's open-BC domain is DYNAMIC (n_sigma * RMS, default 8 sigma) per solve, vs ImpactX's
-#     prob_relative=1.2 (beam max-extent +10%). Open BC -> size-insensitive as long as the box
-#     contains the beam, so this is not a meaningful model difference.
+# Differences vs ImpactX that matter for this benchmark:
+#   * The Poisson solve runs on (x, y, c*dt) with no rest-frame stretch; gamma enters only the kick
+#     factor (source: space_charge_3d_open_hockney.cc at the built commit). That is right for a bunch
+#     long in the lab frame and wrong for this one, which is 490:1 only in the rest frame.
+#   * Synergia's open-BC domain is DYNAMIC (n_sigma * RMS, default 8 sigma in total, so +/-4 sigma)
+#     per solve, vs ImpactX's prob_relative=1.2 (beam max-extent +10%).
 #   * ONE space-charge solve over the drift, like every other SC code (fairness invariant). The
 #     split-operator applies it as a CENTERED kick: half-drift -> 1 SC kick -> half-drift (1 solve).
 # One untimed warm-up propagate (also warms the FFT plan + Kokkos kernels), then a fresh beam is
@@ -120,6 +122,11 @@ obs = {
     "sigma_t": float(std[4]),
     "emit_x": float(math.sqrt(max(mom2[0, 0] * mom2[1, 1] - mom2[0, 1] ** 2, 0.0))),
     "emit_y": float(math.sqrt(max(mom2[2, 2] * mom2[3, 3] - mom2[2, 3] ** 2, 0.0))),
+    "sigma_px": float(math.sqrt(mom2[1, 1])),
+    "sigma_py": float(math.sqrt(mom2[3, 3])),
+    "sigma_pe": float(math.sqrt(mom2[5, 5])) * ref.get_beta(),  # dp/p0 -> dE/(p0 c)
+    "xpx": float(mom2[0, 1]),
+    "ypy": float(mom2[2, 3]),
 }
 
 if rank == 0:

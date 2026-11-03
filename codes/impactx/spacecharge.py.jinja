@@ -9,8 +9,8 @@
 #   * exact (chromatic) drift.
 # Domain: because the solver is OPEN-boundary, the result is insensitive to the box size
 # as long as it contains the beam, so we just pad the beam's max extent by 10%
-# (prob_relative=1.2). Cheetah uses a +/-3 sigma box; for a Gaussian both contain the beam
-# and the two agree to <0.1% (verified) -- the padding is not a meaningful model difference.
+# (prob_relative=1.2). This box always contains every particle; codes with a fixed sigma-based box
+# run at +/-grid_extent_sigma (see scenarios/spacecharge/params.py).
 # One untimed warm-up track (also warms the FFT plan), then reset beam + reference particle.
 import json
 
@@ -94,6 +94,13 @@ obs = {
     "sigma_t": float(rbc["sig_t"]),
     "emit_x": float(rbc["emittance_x"]),
     "emit_y": float(rbc["emittance_y"]),
+    "sigma_px": float(rbc["sig_px"]),
+    "sigma_py": float(rbc["sig_py"]),
+    "sigma_pe": float(rbc["sig_pt"]),
+    # <x px> = -alpha * emittance. ImpactX computes alpha with dispersion removed, and <x pt> is zero
+    # on this beam by symmetry, so this differs from the plain moment only at O(1/npart).
+    "xpx": -float(rbc["alpha_x"]) * float(rbc["emittance_x"]),
+    "ypy": -float(rbc["alpha_y"]) * float(rbc["emittance_y"]),
 }
 # under MPI only rank 0 prints (reduced_beam_characteristics is already global)
 try:

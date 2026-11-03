@@ -673,6 +673,29 @@ def _best_measurement(data: dict, scenario: str, code: str, device: str,
     return (best[2], best[3]) if best else None
 
 
+def _excluded_incorrect(data: dict, scenario: str, shown: set, precision: str | None = None,
+                        npart_fixed: int | None = None) -> list[str]:
+    """``<Code> (<device>)`` for each code left out of the ``_best`` plot for failing the physics
+    check, so a code that fails does not just vanish from the chart. ``shown`` holds the
+    ``(code, device)`` pairs that do have a bar."""
+    out = []
+    for code in CODES:
+        for device, dev_label in (("cuda", "GPU"), ("cpu", "CPU")):
+            if (code, device) in shown:
+                continue
+            for cfg_name, cfg in CONFIGS.items():
+                if cfg.code != code or cfg.device != device or (precision and cfg.precision != precision):
+                    continue
+                entries = data.get("results", {}).get(cfg_name, {}).values()
+                if any(e.get("scenario") == scenario and e.get("physics") == "incorrect"
+                       and ((e.get("npart") or 0) == npart_fixed if npart_fixed is not None
+                            else (e.get("npart") or 0) >= PUBLISHED_MIN_NPART)
+                       for e in entries):
+                    out.append(f"{CODE_DISPLAY.get(code, code)} ({dev_label})")
+                    break
+    return out
+
+
 def _machine_label(data: dict) -> str:
     """Human machine name from the results metadata (``perlmutter`` -> ``Perlmutter``)."""
     slug = ((data.get("metadata") or {}).get("host") or {}).get("machine_slug") or ""
@@ -764,7 +787,8 @@ def plot_scenario_best(data: dict, scenario: str, out_dir: Path = PLOTS_DIR,
         prev = mk
     span = (xs[-1] + 1.0) if xs else 1.0
 
-    fig, ax = plt.subplots(figsize=(max(6.0, 0.60 * span), 3.4))
+    # the minimum width fits the title and footnotes when few bars remain (failing codes are left out)
+    fig, ax = plt.subplots(figsize=(max(7.5, 0.60 * span), 3.4))
     if logy:
         ax.set_yscale("log")
     labels, codes_present, any_untuned = [], [], False
@@ -845,6 +869,9 @@ def plot_scenario_best(data: dict, scenario: str, out_dir: Path = PLOTS_DIR,
     ml = _marker_legend(((c, e.get("physics")) for c, _, _, _, e in bars), sc)
     if ml:
         notes.append(ml)
+    excluded = _excluded_incorrect(data, scenario, {(b[0], b[1]) for b in bars}, precision, npart_fixed)
+    if excluded:
+        notes.append("not shown, physics out of tolerance:  " + ",  ".join(excluded))
     hw = _hardware_note(data, bars)
     # footer rows (bottom-up): versions, [hardware], then the notes -- reserve space for all of them
     rows = 1 + bool(hw) + len(notes)

@@ -6,13 +6,12 @@
                ImpactX's direct predecessor and uses the SAME open-BC IGF/FFT + CIC
                model. This is the fairest possible space-charge comparison.
     * grid:    n_cell^3 (= ImpactX n_cell); domain auto-tracks the beam range each step
-               (update_CompDom), the analog of ImpactX dynamic_size (open BC ->
-               box-size-insensitive; ImpactX pads +10%, IMPACT-Z uses the exact range --
-               agree to <0.1% for a Gaussian).
+               (update_CompDom), the analog of ImpactX dynamic_size (ImpactX pads +10%,
+               IMPACT-Z uses the exact range).
     * kick:    ONE space-charge solve over the drift (bnseg=1: half-drift, solve+kick,
                half-drift). Every SC code in this benchmark does exactly one solve.
-               (Split is symmetric here vs ImpactX's single asymmetric kick -- a minor,
-               documented placement difference, well within the 5% SC tolerance.)
+               (Split is symmetric here vs ImpactX's single asymmetric kick. Placement does
+               not matter on this cold beam, which moves 1e-3 of its size over the drift.)
     * beam:    Gaussian sampled from the SAME Twiss/emittance/energy/charge as ImpactX
                (IMPACT-Z's sample_Dist converts alpha/beta/eps_norm internally).
 
