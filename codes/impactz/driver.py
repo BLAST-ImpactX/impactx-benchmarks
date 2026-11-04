@@ -51,8 +51,9 @@ import read_fort  # noqa: E402
 def _proc_grid(ranks: int) -> tuple[int, int]:
     """(npcol, nprow) with npcol*nprow == ranks. We decompose the longitudinal (Z)
     direction (nprow = ranks, npcol = 1): natural and load-balanced for a bunch, and
-    the transverse Y stays local so the per-slice FFT is undisturbed. Nz (>= 32 in our
-    decks) comfortably exceeds the small rank budget."""
+    the transverse Y stays local so the per-slice FFT is undisturbed. IMPACT-Z stops if
+    Nz < nprow: the tracking decks set Nz from the rank count (their grid is unused, SC
+    off), and the space-charge deck's physical Nz is the limit there."""
     return 1, max(1, int(ranks))
 
 
