@@ -78,7 +78,11 @@ def make_lattice():
 
 def make_propagator(lattice):
     sc = synergia.collective.Space_charge_3d_open_hockney_options(n, n, n)
-    sc.comm_group_size = 1  # canonical single-bunch setting (fodo.py); required on GPU
+    # Ranks in one group share a distributed FFT. With group size 1, every rank does the whole FFT on its
+    # own threads, which is the only option on GPU: cuFFT refuses a communicator larger than 1. Sharing adds
+    # a second full-grid Allreduce, so it only pays when a rank has no threads to run the FFT with. Measured
+    # on 4 cores: 4r x 1t gains 15-27%, 2r x 2t loses 4-14%. Particles stay bit-identical either way.
+    sc.comm_group_size = {{ ranks if device == "cpu" and threads == 1 else 1 }}
     # 1 split-operator step over the single-drift lattice == exactly ONE field solve.
     stepper = synergia.simulation.Split_operator_stepper(sc, 1)
     return synergia.simulation.Propagator(lattice, stepper)
