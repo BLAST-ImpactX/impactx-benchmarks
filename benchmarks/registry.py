@@ -626,7 +626,7 @@ def _supports_fastmath(cfg: Config) -> bool:
         # separate verification across Kokkos + the libFF SIMD maps.
         return False
     if cfg.code == "impactz":
-        return False  # released DP Fortran code; build flags fixed by its CMake, no fast-math axis
+        return False  # released DP Fortran code; -march is set in build.sh, fast-math is not verified
     if cfg.code == "bmad":
         # Bmad's dist build links -Bstatic; under -ffast-math gfortran pulls in glibc's vectorized
         # math (libmvec) via absolute /lib64 paths that don't exist in the conda env, so libsim_utils

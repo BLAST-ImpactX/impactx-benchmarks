@@ -26,7 +26,7 @@ BUILD_TASKS = {
     "elegant": "build-elegant",
     "helix": "build-helix",
     "synergia": "build-synergia",
-    "impactz": "build-impactz",   # source build: CMake + gfortran + MPI (bundled FFTPACK)
+    "impactz": "build-impactz",   # source build: CMake + gfortran + MPI + FFTW
 }
 
 # extra CPU (env, build-task) pairs a code needs beyond its main env, e.g. a separate

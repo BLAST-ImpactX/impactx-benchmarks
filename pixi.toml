@@ -452,7 +452,7 @@ CFLAGS = "-march=native -mtune=native"
 # the -cuda task (run in the synergia-cuda env) switches to the Kokkos CUDA backend + cuFFT.
 build-synergia = { cmd = "BENCH_FASTMATH=0 bash codes/synergia/build.sh", description = "Source-build Synergia3 (Kokkos OpenMP + MPI, DP)" }
 build-synergia-cuda = { cmd = "SYNERGIA_DEVICE=cuda bash codes/synergia/build.sh", description = "Source-build Synergia3 (Kokkos CUDA backend + cuFFT, DP)" }
-# IMPACT-Z (source build: CMake + gfortran + MPI; bundled FFTPACK, no external FFTW).
+# IMPACT-Z (source build: CMake + gfortran + MPI + FFTW).
 # LBNL Fortran/MPI PIC space-charge code, ImpactX's direct predecessor. DP-only, MPI-only
 # (2D domain decomposition; no OpenMP), CPU-only (no GPU path) -> no SP/fast-math/GPU envs.
 # A thin driver.py runs the compiled ImpactZexe-mpi and reads observables from the fort.* files.
@@ -466,10 +466,11 @@ ninja = "*"
 make = "*"
 git = "*"
 mpich = "*"                # MPI Fortran (find_package(MPI)) + mpirun at runtime
+fftw = "*"                 # FFT backend (USE_FFTW=ON, see codes/impactz/build.sh)
 numpy = "*"
 
 [feature.impactz.tasks]
-build-impactz = { cmd = "bash codes/impactz/build.sh", description = "Source-build IMPACT-Z (CMake + MPI, bundled FFTPACK)" }
+build-impactz = { cmd = "bash codes/impactz/build.sh", description = "Source-build IMPACT-Z (CMake + MPI + FFTW)" }
 # <<< END IMPACT-Z ADDITIVE BLOCK <<<
 
 # --------------------------------------------------------------------------- #
