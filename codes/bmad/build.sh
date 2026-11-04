@@ -13,8 +13,8 @@ DRIVER_SRC="$REPO_ROOT/codes/bmad/driver"
 # build (BENCH_FASTMATH=1) fails to link on a conda-only host anyway (-Bstatic pulls in glibc libmvec
 # from absolute /lib64 paths that are absent), and a failed build in the IEEE tree would DELETE the
 # base libbmad/libsim_utils. So fast-math ALWAYS uses a dedicated clone under .builds/src, never the
-# user's IEEE checkout. (bmad-fm is currently dropped from the matrix -- see registry._supports_fastmath
-# and benchmarks/build.py -- but this guard keeps a stray fast-math invocation from corrupting the base.)
+# user's IEEE checkout. (Bmad has no fast-math build or env -- see registry._supports_fastmath and
+# benchmarks/build.py -- but this guard keeps a stray fast-math invocation from corrupting the base.)
 case "${BENCH_FASTMATH:-1}" in 0|off|OFF|false|no) _BMAD_FM=0 ;; *) _BMAD_FM=1 ;; esac
 
 if [ "$_BMAD_FM" = 1 ]; then

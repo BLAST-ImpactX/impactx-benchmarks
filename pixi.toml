@@ -373,7 +373,6 @@ FCFLAGS = "-O2 -march=native -mtune=native"
 
 [feature.bmad.tasks]
 build-bmad = { cmd = "BENCH_FASTMATH=0 bash codes/bmad/build.sh", description = "Source-build Bmad IEEE + driver" }
-build-bmad-fm = { cmd = "BENCH_FASTMATH=1 bash codes/bmad/build.sh", description = "Source-build Bmad fast-math (into bmad-fm)" }
 
 # --------------------------------------------------------------------------- #
 # Elegant (source build: GNU Make; SDDS toolkit sibling; MPI Pelegant; partial CUDA; DP only).
@@ -494,7 +493,6 @@ impactx-fm = { features = ["impactx"], no-default-feature = true }
 impactx-sp-fm = { features = ["impactx"], no-default-feature = true }
 pyat-fm = { features = ["pyat"], no-default-feature = true }
 pyorbit-fm = { features = ["pyorbit"], no-default-feature = true }
-bmad-fm = { features = ["bmad"], no-default-feature = true }
 # GPU (CUDA) envs: ImpactX needs a separate CUDA build per precision AND fast-math (impactx + cuda
 # features); the pip/Julia codes get one GPU env each (precision + fast-math are runtime switches).
 impactx-cuda-dp = { features = ["impactx", "cuda"], no-default-feature = true }
