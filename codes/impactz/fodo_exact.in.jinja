@@ -40,8 +40,8 @@
 1 1
 !--- 6D, npart particles/charge, Flagmap(1=linear-map path: exact drift + transfMapK quad), Flagerr(0), Flagdiag(1)
 6 {{ npart }} 1 0 1
-!--- Nx Ny Nz, Flagbc(1=3D open BC), x/y pipe half-width[m] (unused, SC off), period[m]
-32 32 32 1 1.0 1.0 1.0
+!--- Nx Ny Nz, Flagbc(1=3D open BC), x/y pipe half-width[m] (unused, SC off), period[m]; the driver splits ranks along z, so Nz >= ranks
+32 32 {{ [32, ranks] | max }} 1 1.0 1.0 1.0
 !--- Flagdist(2=3D Gaussian), restart(0), subcycle(0), #charge-states(1)
 2 0 0 1
 !--- # particles per charge state

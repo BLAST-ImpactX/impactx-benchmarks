@@ -182,5 +182,9 @@ drop the 10⁹ point, split `≥256M` into a follow-on job, or lower `--runs` (t
   HELIX (PyTorch PIC) runs the 3D `spacecharge` scenario only, CPU+GPU × FP32/FP64 (same IGF model
   as ImpactX). Elegant covers the tracking scenarios (DP only; CPU MPI + GPU).
 - **Rebuild off-fast-math** (future IEEE axis): re-run `perlmutter_setup.sh` with `BENCH_FASTMATH=0`.
+- **IMPACT-Z and Cray's `ftn`:** CMake's Fortran search tries `ftn` first, and that links Cray MPICH,
+  which the env's `mpirun` cannot start as one job. `codes/impactz/build.sh` pins the env's compiler
+  and MPI, and refuses to stage a binary that links anything else. Results published before this fix
+  have IMPACT-Z on one rank in every cell.
 - The harness pins layouts itself (taskset / per-rank), so the jobs call `pixi run bench` directly
   (its own `mpirun`), not `srun`.

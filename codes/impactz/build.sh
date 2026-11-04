@@ -37,8 +37,10 @@ else
 fi
 echo "== IMPACT-Z source: $SRC"
 
-# Configure + build the MPI executable. find_package(MPI) locates the conda mpich; the compiler is the
-# conda gfortran on PATH. CMake adds -fallow-argument-mismatch for gcc>=10.
+# Configure + build the MPI executable. CMake adds -fallow-argument-mismatch for gcc>=10.
+#   * compiler + MPI wrapper: pinned to the env. The env sets no FC, and CMake's Fortran search tries
+#     Cray's ftn first, wherever it is on PATH. ftn links Cray MPICH, which the env's mpirun cannot
+#     start as one job, so every process sees a communicator of size 1.
 #   * --fresh: an existing build dir's cache otherwise keeps the compiler, MPI and FFTW it first found.
 #   * PKG_CONFIG_PATH: IMPACT-Z's CMake asks pkg-config first, so a system fftw3.pc would otherwise win.
 #   * microarch: same as the other source builds, native or BENCH_ARCH (znver3 on Perlmutter; see
@@ -49,32 +51,36 @@ export PKG_CONFIG_PATH="$CONDA_PREFIX/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONF
 cmake --fresh -S "$SRC/src" -B "$BUILD" -G Ninja \
       -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_PREFIX_PATH="$CONDA_PREFIX" \
+      -DCMAKE_Fortran_COMPILER="$CONDA_PREFIX/bin/gfortran" \
+      -DMPI_Fortran_COMPILER="$CONDA_PREFIX/bin/mpifort" \
       -DCMAKE_Fortran_FLAGS="${FFLAGS:-} -march=${MARCH} -mtune=${MARCH}" \
       -DUSE_MPI=ON \
       -DUSE_FFTW=ON
 cmake --build "$BUILD" -j "$N"
 
+# Check the build BEFORE staging it: the jobs run with --skip-build, so a bad binary left in place
+# would be benchmarked. All shared libs must resolve, and MPI and FFTW must be the env's: a checkout
+# older than upstream's FFTW support (IMPACT-Z #19) ignores USE_FFTW and silently builds FFTPACK.
+BUILT="$BUILD/ImpactZexe-mpi"
+linked="$(ldd "$BUILT")"
+if grep -q "not found" <<< "$linked"; then
+  echo "ERROR: unresolved shared libraries in $BUILT" >&2
+  grep "not found" <<< "$linked" >&2
+  exit 1
+fi
+for lib in libmpi libfftw3; do
+  if ! grep -qF "$CONDA_PREFIX/lib/$lib" <<< "$linked"; then
+    echo "ERROR: $BUILT does not link $CONDA_PREFIX/lib/$lib*; not staging it." >&2
+    [ "$lib" = libfftw3 ] && echo "       Is $SRC older than IMPACT-Z #19?" >&2
+    exit 1
+  fi
+done
+
 # Stage the binary at the stable path the driver hard-codes (relative to the repo root).
 mkdir -p "$DEST"
-cp -f "$BUILD/ImpactZexe-mpi" "$DEST/ImpactZexe-mpi"
+cp -f "$BUILT" "$DEST/ImpactZexe-mpi"
 
 # Stamp the human-facing ref for plot labels / metadata (DRY: what the build actually used).
 ( cd "$SRC" && git describe --tags --always --dirty 2>/dev/null || echo "unknown" ) > "$SRC/.bench_ref"
 echo "== built ref: $(cat "$SRC/.bench_ref")"
-
-# Smoke test: binary present, all shared libs resolve.
-if ldd "$DEST/ImpactZexe-mpi" 2>/dev/null | grep -q "not found"; then
-  echo "ERROR: unresolved shared libraries in $DEST/ImpactZexe-mpi" >&2
-  ldd "$DEST/ImpactZexe-mpi" | grep "not found" >&2
-  exit 1
-fi
-
-# The backend must be the env's FFTW. A checkout older than upstream's FFTW support (IMPACT-Z #19)
-# ignores USE_FFTW and would silently build FFTPACK, so check the binary rather than the configure.
-linked="$(ldd "$DEST/ImpactZexe-mpi")"
-if ! grep -qF "$CONDA_PREFIX/lib/libfftw3" <<< "$linked"; then
-  echo "ERROR: $DEST/ImpactZexe-mpi does not link $CONDA_PREFIX/lib/libfftw3*." >&2
-  echo "       Is $SRC older than IMPACT-Z #19?" >&2
-  exit 1
-fi
 echo "== staged $DEST/ImpactZexe-mpi"
