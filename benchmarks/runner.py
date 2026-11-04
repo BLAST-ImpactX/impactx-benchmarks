@@ -320,6 +320,7 @@ def run_one(cfg: Config, sc: Scenario, npart: int, ncores: int, nruns: int, slug
     best = None  # (track_ns, obs, ranks, threads)
     last_status, last_reason = "failed", "no layout ran"
     last_layout = layouts[0] if layouts else (1, 1)
+    multi_rank_failures = []
 
     if len(layouts) <= 1:
         # Single layout (e.g. GPU): nothing to rank -- just time it directly.
@@ -341,6 +342,8 @@ def run_one(cfg: Config, sc: Scenario, npart: int, ncores: int, nruns: int, slug
                 last_status, last_reason = status, reason
                 print(f"   [{cfg.name}] {sc.name} n={npart} [{ranks}r x {threads}t]: "
                       f"{status} ({reason})", flush=True)
+                if ranks > 1:
+                    multi_rank_failures.append(f"{ranks}r x {threads}t: {reason}")
                 continue
             if probe is None or ns < probe[0]:
                 probe = (ns, obs, ranks, threads)
@@ -372,9 +375,18 @@ def run_one(cfg: Config, sc: Scenario, npart: int, ncores: int, nruns: int, slug
     cores = f"{ranks}r x {threads}t"
     print(f"   [{cfg.name}] {sc.name} n={npart}: {track_ns} ns "
           f"({push_per_sec:.3e} part/s)  best layout {cores}", flush=True)
-    return {"status": "supported", "reason": "", "physics": None,
-            "model": cfg.sc_model, "track_ns": track_ns,
-            "push_per_sec": push_per_sec, "observables": observables, "cores": cores}
+    entry = {"status": "supported", "reason": "", "physics": None,
+             "model": cfg.sc_model, "track_ns": track_ns,
+             "push_per_sec": push_per_sec, "observables": observables, "cores": cores}
+    # A failed layout is only skipped, so a code whose MPI is broken still yields a clean-looking cell
+    # from its 1-rank layout, compared against codes that got the whole budget. Keep that visible:
+    # validate reports these cells.
+    multi_rank_layouts = sum(1 for r, _ in layouts if r > 1)
+    if multi_rank_layouts and len(multi_rank_failures) == multi_rank_layouts:
+        entry["layout_warning"] = ("every multi-rank layout failed, e.g. "
+                                   f"{multi_rank_failures[-1]}")
+        print(f"   [{cfg.name}] {sc.name} n={npart}: WARNING: {entry['layout_warning']}", flush=True)
+    return entry
 
 
 def _render_context(cfg: Config, sc: Scenario, npart: int, threads: int, ranks: int = 1) -> dict:

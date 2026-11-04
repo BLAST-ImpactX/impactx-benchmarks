@@ -223,6 +223,8 @@ _STATE_ORDER = ["correct", "unconverged", "model_mismatch", "unsupported_physics
 
 def main() -> None:
     """Re-classify the stored results file for this machine and save in place."""
+    import collections
+
     from .metadata import machine_slug
 
     path = results_mod.results_path(machine_slug())
@@ -239,6 +241,15 @@ def main() -> None:
     attention = counts.get("incorrect", 0) + counts.get("failed", 0)
     if attention:
         print(f"  ⚠ {attention} cell(s) need a look (incorrect/failed)")
+    single_rank = collections.Counter(
+        config
+        for config, cells in (data.get("results") or {}).items()
+        for m in (cells or {}).values()
+        if m.get("layout_warning")
+    )
+    if single_rank:
+        print(f"  ⚠ {sum(single_rank.values())} cell(s) ran without any multi-rank layout, "
+              "because they all failed: " + ", ".join(sorted(single_rank)))
 
 
 if __name__ == "__main__":

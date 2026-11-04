@@ -16,6 +16,7 @@ A results file is one YAML document per machine::
           push_per_sec: <float> | null
           observables: {sigma_x: ..., ...} | null
           reason: <str>                    # for unsupported/oom/failed/mismatch
+          layout_warning: <str>            # only if every multi-rank layout failed
 
 Writes are incremental and atomic so a long run that is interrupted keeps every
 measurement collected so far (mirrors the original ``save_timings`` behaviour).
