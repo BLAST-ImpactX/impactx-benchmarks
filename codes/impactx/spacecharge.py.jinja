@@ -45,25 +45,24 @@ def load_beam(sim):
 
 
 sim = ImpactX()
-# Grid decomposition keyed on the MPI rank count of this layout ({{ ranks }} rank(s), baked in at
-# render time by the harness). With ONE rank -- every GPU run AND the 1-rank pure-OpenMP CPU layouts
-# -- use EXACTLY ONE grid (a single box covering the whole domain). Otherwise AMReX's multi-box
-# particle Redistribute dominates (profiled at 68-76% of the GPU time) and scales super-linearly.
-# With >1 rank we split so each rank can own a grid (a single n_cell-sized box leaves extra ranks
-# with none). The open-BC FFT solver gathers the full domain either way, so the result is unchanged.
-{% if ranks == 1 %}
-# amr.max_grid_size = n_cell stops AMReX auto-splitting n_cell^3 into 8 boxes; MUST precede init_grids.
-import amrex.space3d as _amr
-_amr.ParmParse("amr").add("max_grid_size", n)
-bf = n                    # one block per axis -> a single grid (no inter-box Redistribute)
-{% else %}
-bf = max(n // 2, 1)       # >1 rank: split each axis into 2 blocks so each rank can own a grid
-{% endif %}
+# One box per MPI rank of this layout ({{ ranks }} rank(s), baked in at render time by the harness), so
+# every GPU run and 1-rank CPU layout gets exactly one box. More boxes than ranks adds overhead:
+# inter-box particle Redistribute was profiled at 68-76% of the GPU time on one rank. Fewer leaves ranks
+# holding no particles. AMReX halves the largest box edge until there are enough boxes, but never below
+# the blocking factor, so bf must allow them on all three axes. Setting blocking_factor_* also sets
+# max_grid_size_*, so those are raised afterwards, or bf alone would decide the number of boxes. A rank
+# count that is not a power of two rounds up to the next one. n_cell is a power of two. The open-BC FFT
+# solver gathers the full domain, so the result is unchanged.
+halvings = ({{ ranks }} - 1).bit_length()  # ceil(log2(ranks)); each halving doubles the boxes
+bf = max(n // 2 ** ((halvings + 2) // 3), 1)
 sim.max_level = 0
 sim.n_cell = [n, n, n]
 sim.blocking_factor_x = [bf]
 sim.blocking_factor_y = [bf]
 sim.blocking_factor_z = [bf]
+sim.max_grid_size_x = [n]
+sim.max_grid_size_y = [n]
+sim.max_grid_size_z = [n]
 sim.particle_shape = 1
 sim.space_charge = "3D"
 sim.poisson_solver = "fft"   # IGF / open boundary (matches Cheetah)
