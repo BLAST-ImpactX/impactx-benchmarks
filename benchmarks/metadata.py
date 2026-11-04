@@ -216,7 +216,7 @@ _CODE_PACKAGES = {
     "elegant": ["mpich", "gsl", "liblapack", "fftw"],  # elegant itself is a source build (see _CODE_SRC_DIRS)
     "helix": ["pytorch", "numpy", "scipy"],  # linac_gen is a pip --no-deps source install (see _CODE_SRC_DIRS)
     "synergia": ["fftw", "hdf5", "gsl", "mpich", "mpi4py", "numpy"],  # synergia is a source build (see _CODE_SRC_DIRS)
-    "impactz": ["mpich"],  # IMPACT-Z itself is a source build (see _CODE_SRC_DIRS); bundled FFTPACK (no fftw dep)
+    "impactz": ["fftw", "mpich"],  # IMPACT-Z itself is a source build (see _CODE_SRC_DIRS)
 }
 
 
