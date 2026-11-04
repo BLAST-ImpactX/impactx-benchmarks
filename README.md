@@ -45,7 +45,7 @@ to fully show the fastest code):
 | appearance | meaning |
 |---|---|
 | solid bar | physics **validated correct** vs the reference |
-| value with **`*`** | shown, but the code runs a *non-tuned* model for this problem — either a costlier one (exact where chromatic suffices) or a cheaper/cruder one (point-1/r vs the integrated Green function); see the per-plot footnote |
+| value with **`*`** | shown, but the code runs a *non-tuned* model for this problem — either a costlier one (exact where chromatic suffices) or a cheaper/cruder one (a point-sampled kernel vs the integrated Green function in 2.5D); see the per-plot footnote |
 | **dashed** bar + marker | plotted but physics flagged: `incorrect` (`physics ✗`) or `unconverged` |
 | grey "unsupported" | the **code** cannot do this physics (e.g. no space charge) |
 | grey "not in harness" | the code can, but a run template hasn't been added **here** yet |
@@ -56,18 +56,18 @@ to fully show the fastest code):
 Scenarios: **fodo_chromatic** (chromatic-paraxial FODO), **fodo_exact** (exact non-paraxial
 FODO), **htu** (tracking), **htu_spin** (htu + Thomas-BMT spin), **spacecharge** (3D PIC),
 **spacecharge_2p5d** (2.5D PIC). ✓ = implemented and physics-validated; ✓\* = shown but runs a
-*non-tuned* model (see footnotes); ✗ = the code cannot do that physics. (All current
-numbers are **FP64** — shown in each plot title.)
+*non-tuned* model (see footnotes); `physics ✗` = runs, but fails the physics check; ✗ = the code
+cannot do that physics. (All current numbers are **FP64** — shown in each plot title.)
 
 | code | fodo_chr¹ | fodo_exact² | htu³ | htu_spin⁵ | 3D SC⁴ | 2.5D SC⁴ | FP32⁶ | parallelism | install |
 |------|:--:|:--:|:--:|:--:|:--:|:--:|:--:|------|------|
 | [ImpactX](https://github.com/BLAST-ImpactX/impactx) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | OpenMP+SIMD(+MPI) | source (CMake) |
 | [Cheetah](https://github.com/desy-ml/cheetah) | ✓\* | ✓ | ✓\* | ✗ | ✓ | ✗ | ✓ | torch / `torch.compile` | pip |
 | [pyAT](https://github.com/atcollab/at) | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ | ✗ | OpenMP | source (native+OpenMP) |
-| [PyORBIT3](https://github.com/PyORBIT-Collaboration/PyORBIT3) | ✓ | ✗ | ✓ | ✗ | ✓\* | ✓\* | ✗ | MPI | source (Meson) |
+| [PyORBIT3](https://github.com/PyORBIT-Collaboration/PyORBIT3) | ✓ | ✗ | ✓ | ✗ | `physics ✗` | ✓\* | ✗ | MPI | source (Meson) |
 | [Xsuite](https://github.com/xsuite/xsuite) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | OpenMP | pip |
 | [SciBmad.jl](https://github.com/bmad-sim/SciBmad.jl) | ✓\* | ✓ | ✓\* | ✓ | ✗ | ✗ | ✓ | Julia threads | Julia pkg |
-| [Bmad](https://github.com/bmad-sim/bmad-ecosystem) | ✓\* | ✓ | ✓\* | ✓ | ✗ | ✗ | ✗ | OpenMP | source (Fortran, libbmad) |
+| [Bmad](https://github.com/bmad-sim/bmad-ecosystem) | ✓\* | ✓ | ✓\* | ✓ | `physics ✗` | ✗ | ✗ | OpenMP | source (Fortran, libbmad) |
 
 The FODO and space-charge benchmarks split on the element/solver *model* so the comparison is
 always like-for-like:
@@ -86,10 +86,14 @@ spin-aligned (+z) and the dispersive chicane differentially precesses spins → 
 and SciBmad (`Bunch(spin=true)` quaternions); cross-code agreement vs ImpactX is ~0.5% (SciBmad)
 to ~11% (Xsuite) — depolarization is bend-model-sensitive, hence a 15% tolerance. Cheetah/pyAT/
 PyORBIT have no spin tracking (✗).
-⁴ **space charge** — open-boundary FFT PIC. ImpactX/Cheetah/Xsuite use the rigorous **integrated
-Green function (IGF)**; PyORBIT uses a cheaper, less-rigorous **point-1/r** Green function (agrees
-here on a round beam) → **\*** (its speed is partly model-driven). pyAT/SciBmad have no self-
-consistent space charge; Cheetah is 3D-only.
+⁴ **space charge** — open-boundary FFT PIC, with plots grouped by how the kernel treats a mesh cell.
+ImpactX, IMPACT-Z, Bmad, HELIX, Cheetah and Xsuite use a **full 3D integrated Green function (IGF)**;
+Synergia's kernel is integrated along z only; PyORBIT samples **point 1/r** at cell centres. The 3D
+benchmark is a single kick on a cold 490:1 (rest-frame) Gaussian bunch, checked against the **exact
+closed-form field** (`scenarios/spacecharge/analytic.py`), so no code is the reference; a code that
+misses it reads `physics ✗`. The 2.5D benchmark still compares to ImpactX on a beam where space charge
+barely shows, so a ✓ there says less (issue #1). pyAT/SciBmad have no self-consistent space charge;
+Cheetah is 3D-only.
 
 > **Xsuite FFT threading (important for SC perf).** The xfields PIC solve is FFT-bound (~77% of a
 > 3D SC step). On CPU, xobjects only threads the FFT through **pyfftw**, which is **broken with
@@ -142,8 +146,7 @@ exact variant, we run **two separate benchmarks** so it stays like-for-like:
 > **Bmad** is driven by a small standalone Fortran driver linked directly to `libbmad`
 > (no Tao/pytao) — see `codes/bmad/driver/` — and is exact-native like Cheetah/SciBmad.
 * **space charge** — open-boundary FFT PIC, kept **separate** for 3D and 2.5D (a code without the
-  matching solver is *unsupported* there). ImpactX/Cheetah/Xsuite use the rigorous integrated
-  Green function; PyORBIT uses a cheaper point-1/r Green function (agrees here) → marked `*`.
+  matching solver is *unsupported* there). See footnote ⁴ for the kernel classes and the checks.
 
 ## Run it locally
 
@@ -186,8 +189,9 @@ run parses `Track: <ns>ns` (wall-clock, min over runs) and `Validate: {json}` (b
 classifies failures (`oom`/`failed`) and physics (`correct`/`incorrect`/`unconverged`), and saves
 incrementally. `Code.core_configs()` only ever emits layouts with `ranks*threads ≤ ncores`, and the
 runner asserts it before launching. Validation compares each result to the **ImpactX** result for
-that scenario (each FODO variant has its own ImpactX reference), with a sampling-aware tolerance
-(looser for the dispersive htu and the space-charge scenarios).
+that scenario (each FODO variant has its own ImpactX reference), or to the exact answer where one
+exists (3D space charge), with a sampling-aware tolerance (looser for the dispersive htu and the
+space-charge scenarios). A run that does not report a validated observable fails that check.
 
 **JIT fairness:** every run template does one untimed **warm-up** call before timing, so JIT
 codes (Cheetah `torch.compile`, Xsuite cffi kernels, SciBmad/Julia) are measured at

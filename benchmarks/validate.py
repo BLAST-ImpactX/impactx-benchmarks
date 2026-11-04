@@ -52,7 +52,14 @@ def _compare(obs: dict, ref: dict, keys, tolerances: dict, npart: int) -> tuple[
     all_within = True
     compared = 0
     for key in keys:
-        if key not in ref or key not in obs:
+        if key not in ref:
+            continue
+        # A run that does not report a validated observable has not passed that check. Skipping it
+        # would let a stale result or a template gap read as correct on the remaining observables.
+        if key not in obs:
+            all_within = False
+            compared += 1
+            worst_err, worst_key = float("inf"), key
             continue
         try:
             ref_f = float(ref[key])
@@ -151,8 +158,12 @@ def classify_measurement(data: dict, cfg: Config, sc: Scenario, entry: dict) -> 
     if within:
         return "correct", ""
 
-    reason = (f"{worst} is non-finite (NaN/Inf)" if not math.isfinite(err)
-              else f"{worst} off by {err:.2%}")
+    if worst not in obs:
+        reason = f"{worst} not reported"
+    elif not math.isfinite(err):
+        reason = f"{worst} is non-finite (NaN/Inf)"
+    else:
+        reason = f"{worst} off by {err:.2%}"
     if cfg.precision == "single" and _dp_sibling_correct(
         data, cfg, results_mod.measurement_key(sc.name, entry["npart"])
     ):

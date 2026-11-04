@@ -89,6 +89,11 @@ obs = {
     "sigma_t": math.sqrt(max(cc(4, 4), 0.0)),
     "emit_x": math.sqrt(max(cc(0, 0) * cc(1, 1) - cc(0, 1) ** 2, 0.0)),
     "emit_y": math.sqrt(max(cc(2, 2) * cc(3, 3) - cc(2, 3) ** 2, 0.0)),
+    "sigma_px": math.sqrt(max(cc(1, 1), 0.0)),
+    "sigma_py": math.sqrt(max(cc(3, 3), 0.0)),
+    "sigma_pe": math.sqrt(max(cc(5, 5), 0.0)) / p0c,  # dE[GeV] -> dE/(p0 c)
+    "xpx": cc(0, 1),
+    "ypy": cc(2, 3),
 }
 
 if rank == 0:

@@ -15,6 +15,9 @@
   beam_init%spin = 0.0, 0.0, 1.0
 {% endif %}
 {% if space_charge|default('F') == 'T' %}
+  ! Pin the converter: the default 'ziggurat' sampled kurtosis 3.65 instead of 3 on a Bmad checkout
+  ! from 2026-06-17, which alone moved this scenario's RMS transverse kicks by several percent.
+  beam_init%random_gauss_converter = 'exact'
   beam_init%bunch_charge = {{ params.bunch_charge_C }}
   space_charge = T
   sc_ds = {{ params.drift_length }}

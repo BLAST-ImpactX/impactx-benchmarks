@@ -140,6 +140,57 @@ def _marker_legend(code_physics, sc=None) -> str:
 PUBLISHED_MIN_NPART = 100_000
 
 
+#: extra x gap between method classes, on top of the per-code gap
+_METHOD_GAP = 0.9
+
+
+def _method_index(sc, code: str) -> int:
+    """Display position of ``code``'s method class; a code in no class (e.g. unsupported here) sorts
+    after all classes."""
+    groups = sc.method_groups if sc else ()
+    return next((i for i, (_, members) in enumerate(groups) if code in members), len(groups))
+
+
+def _codes_by_method(sc) -> list[str]:
+    """All codes in display order: by method class, then in the order the class lists them."""
+    groups = sc.method_groups if sc else ()
+
+    def key(code):
+        i = _method_index(sc, code)
+        return (i, groups[i][1].index(code) if i < len(groups) else 0)
+
+    return sorted(CODES, key=key)
+
+
+def _draw_method_labels(ax, xs: list, keys: list, sc, half_width: float = 0.4) -> float:
+    """Label each contiguous run of bars with its method class: a thin rule spanning the run + the
+    class name, above the axes (axes-fraction y, so it is independent of a linear or log y-axis).
+    ``keys`` holds one hashable per bar, ``(block, method index)``, so a class split across blocks
+    gets one label per block. Returns the title pad [pt] that clears the labels (default pad if the
+    scenario shows no more than one class)."""
+    groups = sc.method_groups if sc else ()
+    if len({k[-1] for k in keys if k[-1] < len(groups)}) < 2:
+        return 6.0
+    transform = ax.get_xaxis_transform()
+    pad = 15.0
+    start = 0
+    for i in range(1, len(keys) + 1):
+        if i < len(keys) and keys[i] == keys[start]:
+            continue
+        index = keys[start][-1]
+        if index < len(groups):
+            left, right = xs[start] - half_width, xs[i - 1] + half_width
+            label = groups[index][0]
+            ax.plot([left, right], [1.012, 1.012], transform=transform, clip_on=False,
+                    color="dimgray", lw=1.0, solid_capstyle="butt")
+            ax.text((left + right) / 2, 1.022, label, transform=transform, ha="center", va="bottom",
+                    fontsize=7, color="dimgray", linespacing=0.95)
+            if "\n" in label:
+                pad = 23.0
+        start = i
+    return pad
+
+
 def _select_npart(data: dict, scenario: str, npart_override=None) -> int | None:
     """Pick the published particle count: among counts >= PUBLISHED_MIN_NPART, the one
     with the most configs measured (ties broken toward the larger count). Falls back to
@@ -184,7 +235,7 @@ def _entries_for(data: dict, scenario: str, npart: int, device: str | None = Non
             fm_entry = results.get(cfg_name + "-fm", {}).get(key) if (cfg_name + "-fm") in CONFIGS else None
             per_code.setdefault(cfg.code, []).append((cfg_name, cfg, entry, fm_entry))
     out: list[tuple] = []
-    for code in CODES:
+    for code in _codes_by_method(SCENARIOS.get(scenario)):
         items = per_code.get(code)
         if not items:
             continue
@@ -256,7 +307,7 @@ def _gpu_entries_for(data: dict, scenario: str, npart: int,
     rungs = _GPU_RUNGS[precision]
     key = results_mod.measurement_key(scenario, npart)
     out: list[tuple[str, dict, str, int]] = []
-    for code in CODES:
+    for code in _codes_by_method(SCENARIOS.get(scenario)):
         best_sort = None            # (rung, -push, cfg_name) -- min() picks preferred+fastest
         best = None                 # (cfg_name, entry, rung)
         for cfg_name, cfg in CONFIGS.items():
@@ -310,20 +361,24 @@ def plot_scenario(data: dict, scenario: str, npart=None, out_dir: Path = PLOTS_D
     any_marker = any(_physics_marker(e) for _, e, _, _, _ in entries)
     ymax = _compute_ylim(heights + fm_heights, 1.6 if any_marker else YHEADROOM)
 
-    # x-positions: bars step by 1 within a code, with an extra gap when the code changes,
-    # so each code's DP|SP bars group together with whitespace before the next code.
+    # x-positions: bars step by 1 within a code, with an extra gap when the code changes (so each
+    # code's DP|SP bars group together) and a larger one when the method class changes.
     GROUP_GAP = 0.4
+    method_keys = [(_method_index(sc, cd),) for cd in codes]
     xs: list[float] = []
     xpos, prev = 0.0, None
-    for cd in codes:
+    for cd, mk in zip(codes, method_keys):
         if prev is not None and cd != prev:
             xpos += GROUP_GAP
+            if mk != (_method_index(sc, prev),):
+                xpos += _METHOD_GAP
         xs.append(xpos)
         xpos += 1.0
         prev = cd
     span = (xs[-1] + 1.0) if xs else 1.0
 
-    fig, ax = plt.subplots(figsize=(max(5.0, 0.62 * span), 3.2))
+    # a little taller when the method labels + their footnote take vertical room from the axes
+    fig, ax = plt.subplots(figsize=(max(5.0, 0.62 * span), 3.9 if sc and sc.method_groups else 3.2))
 
     any_fm = False
     fm_labels: list = []  # (xi, h, fmh, color, n_lines); drawn after tight_layout (final geometry)
@@ -407,10 +462,14 @@ def plot_scenario(data: dict, scenario: str, npart=None, out_dir: Path = PLOTS_D
                     for c, e, _, _, _ in entries if e.get("status") == "supported" and c in CONFIGS})
     plabel = "/".join(precs) if precs else ""
     dev_label = {"cpu": " · CPU", "gpu": " · GPU"}.get(device, "")
-    ax.set_title(f"{title}{dev_label}  (n = {npart:,} particles, {plabel}){ref}", fontsize=9)
+    title_pad = _draw_method_labels(ax, xs, method_keys, sc)
+    ax.set_title(f"{title}{dev_label}  (n = {npart:,} particles, {plabel}){ref}", fontsize=9,
+                 pad=title_pad)
     ax.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
-    # footers: code versions (always) + asterisk note (untuned) + fast-math-overlay note
+    # footers: code versions (always) + method-class note + asterisk note (untuned) + fast-math note
     notes = []
+    if sc and sc.method_note:
+        notes.append(sc.method_note)
     if any_untuned:
         notes.append(sc.untuned_note if sc and sc.untuned_note
                      else "*  lacks a tuned model for this problem; runs a costlier one")
@@ -486,21 +545,31 @@ def plot_scenario_gpu(data: dict, scenario: str, npart=None,
     caveats: set[str] = set()  # codes that get an asterisk
     for _, _, code, rung in entries:
         reasons = ([caveat[rung]] if rung in caveat else []) + \
-                  (["exact stand-in model"] if code in untuned else [])
+                  ([sc.untuned_label] if code in untuned else [])
         for r in reasons:
             by_reason.setdefault(r, []).append(code)
         if reasons:
             caveats.add(code)
 
+    # x: one bar per code, with a gap where the method class changes
+    method_keys = [(_method_index(sc, code),) for _, _, code, _ in entries]
+    xs: list[float] = []
+    xpos = 0.0
+    for i, mk in enumerate(method_keys):
+        if i and mk != method_keys[i - 1]:
+            xpos += _METHOD_GAP
+        xs.append(xpos)
+        xpos += 1.0
+
     # width: keep a generous minimum so the long "— GPU FP32 (...) — ref:" title and the
     # per-code caveat footnote fit even for the narrow (few-bar) scenarios.
-    fig, ax = plt.subplots(figsize=(max(6.8, 1.05 * len(entries) + 1.9), 3.4))
+    fig, ax = plt.subplots(figsize=(max(6.8, 1.05 * xpos + 1.9), 3.4))
     for i, (cfg_name, entry, code, rung) in enumerate(entries):
         color = CODE_COLORS.get(code, "gray")
         physics = entry.get("physics")
         dashed = physics in DASHED_PHYSICS
         h = heights[i]
-        bar = ax.bar(i, h, color=color, edgecolor="black", width=0.72,
+        bar = ax.bar(xs[i], h, color=color, edgecolor="black", width=0.72,
                      linewidth=1.3, alpha=0.55 if dashed else 0.95)[0]
         if dashed:
             bar.set_linestyle((0, (4, 2)))
@@ -509,24 +578,27 @@ def plot_scenario_gpu(data: dict, scenario: str, npart=None,
         # for fallbacks, name the actual device/precision shown ("GPU FP64"/"CPU FP32"/"CPU FP64");
         # the headline GPU-FP32 bars need no sub-label (the title already says GPU FP32)
         sub = f"\n{caveat[rung].split(' (')[0]}" if rung > 0 else ""
-        ax.text(i, h + ymax * 0.01, f"{h:.1e}{star}{sub}", ha="center", va="bottom", fontsize=6.5)
+        ax.text(xs[i], h + ymax * 0.01, f"{h:.1e}{star}{sub}", ha="center", va="bottom", fontsize=6.5)
         marker = _physics_marker(entry)
         if marker:
             mcolor, mweight = _marker_style(physics)
-            ax.text(i, min(h + ymax * 0.24, ymax * 0.88), marker, ha="center", va="bottom",
+            ax.text(xs[i], min(h + ymax * 0.24, ymax * 0.88), marker, ha="center", va="bottom",
                     fontsize=7, color=mcolor, fontweight=mweight, linespacing=0.9)
 
-    ax.set_xticks(range(len(entries)))
+    ax.set_xticks(xs)
     ax.set_xticklabels([c for _, _, c, _ in entries], rotation=40, ha="right", fontsize=8)
     ax.set_ylim(0, ymax)
     ax.set_ylabel("particles / second")
     ref = f" — ref: {sc.reference}" if sc else ""
     title = (sc.display_name or sc.name) if sc else scenario
-    ax.set_title(f"{title}  —  {_GPU_HEADLINE[precision]}  (n = {npart:,} particles){ref}", fontsize=9)
+    title_pad = _draw_method_labels(ax, xs, method_keys, sc, half_width=0.36)
+    ax.set_title(f"{title}  —  {_GPU_HEADLINE[precision]}  (n = {npart:,} particles){ref}", fontsize=9,
+                 pad=title_pad)
     ax.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
 
     ml = _marker_legend(((c, e.get("physics")) for _, e, c, _ in entries), sc)
-    bottom = 0.08 + 0.05 * (bool(by_reason) + bool(ml))
+    method_note = sc.method_note if sc else None
+    bottom = 0.08 + 0.05 * (bool(by_reason) + bool(ml) + bool(method_note))
     fig.tight_layout(rect=[0, bottom, 1, 1])
     cv = (data.get("metadata") or {}).get("code_version") or {}
     seen, present = set(), []
@@ -537,6 +609,9 @@ def plot_scenario_gpu(data: dict, scenario: str, npart=None,
     if present:
         fig.text(0.01, 0.012, "versions:  " + "   ·   ".join(present), fontsize=5.5, color="dimgray")
     y = 0.012 + 0.05
+    if method_note:
+        fig.text(0.01, y, method_note, fontsize=5.5, color="dimgray", style="italic")
+        y += 0.05
     if by_reason:
         note = "*  next-best shown:   " + ";   ".join(
             f"{', '.join(codes)} = {reason}" for reason, codes in by_reason.items())
@@ -598,6 +673,29 @@ def _best_measurement(data: dict, scenario: str, code: str, device: str,
     return (best[2], best[3]) if best else None
 
 
+def _excluded_incorrect(data: dict, scenario: str, shown: set, precision: str | None = None,
+                        npart_fixed: int | None = None) -> list[str]:
+    """``<Code> (<device>)`` for each code left out of the ``_best`` plot for failing the physics
+    check, so a code that fails does not just vanish from the chart. ``shown`` holds the
+    ``(code, device)`` pairs that do have a bar."""
+    out = []
+    for code in CODES:
+        for device, dev_label in (("cuda", "GPU"), ("cpu", "CPU")):
+            if (code, device) in shown:
+                continue
+            for cfg_name, cfg in CONFIGS.items():
+                if cfg.code != code or cfg.device != device or (precision and cfg.precision != precision):
+                    continue
+                entries = data.get("results", {}).get(cfg_name, {}).values()
+                if any(e.get("scenario") == scenario and e.get("physics") == "incorrect"
+                       and ((e.get("npart") or 0) == npart_fixed if npart_fixed is not None
+                            else (e.get("npart") or 0) >= PUBLISHED_MIN_NPART)
+                       for e in entries):
+                    out.append(f"{CODE_DISPLAY.get(code, code)} ({dev_label})")
+                    break
+    return out
+
+
 def _machine_label(data: dict) -> str:
     """Human machine name from the results metadata (``perlmutter`` -> ``Perlmutter``)."""
     slug = ((data.get("metadata") or {}).get("host") or {}).get("machine_slug") or ""
@@ -653,13 +751,13 @@ def plot_scenario_best(data: dict, scenario: str, out_dir: Path = PLOTS_DIR,
     sc = SCENARIOS.get(scenario)
     untuned = sc.untuned_codes if sc else {}
 
-    # GPU section first, then CPU; within each section fastest -> slowest.
+    # GPU section first, then CPU; within each section by method class, then fastest -> slowest.
     bars = []  # (code, device, dev_label, cfg_name, entry)
     for device, dev_label in (("cuda", "GPU"), ("cpu", "CPU")):
         section = [(code, device, dev_label, *be)
                    for code in CODES
                    if (be := _best_measurement(data, scenario, code, device, precision, npart_fixed))]
-        section.sort(key=lambda b: b[4].get("push_per_sec") or 0.0, reverse=True)
+        section.sort(key=lambda b: (_method_index(sc, b[0]), -(b[4].get("push_per_sec") or 0.0)))
         bars.extend(section)
     if not bars:
         return None
@@ -676,18 +774,21 @@ def plot_scenario_best(data: dict, scenario: str, out_dir: Path = PLOTS_DIR,
         ybot = 0.0
         ytop = _compute_ylim(heights, 1.6 if any_marker else YHEADROOM)
 
-    # x: GPU block, a gap, then CPU block (gap inserted where the device changes)
+    # x: GPU block, a gap, then CPU block (gap inserted where the device changes), and within a block
+    # a smaller gap where the method class changes.
     GROUP_GAP = 0.8
+    method_keys = [(b[1], _method_index(sc, b[0])) for b in bars]
     xs, xpos, prev = [], 0.0, None
-    for _, device, *_ in bars:
-        if prev is not None and device != prev:
-            xpos += GROUP_GAP
+    for mk in method_keys:
+        if prev is not None and mk != prev:
+            xpos += GROUP_GAP if mk[0] != prev[0] else _METHOD_GAP * 0.6
         xs.append(xpos)
         xpos += 1.0
-        prev = device
+        prev = mk
     span = (xs[-1] + 1.0) if xs else 1.0
 
-    fig, ax = plt.subplots(figsize=(max(6.0, 0.60 * span), 3.4))
+    # the minimum width fits the title and footnotes when few bars remain (failing codes are left out)
+    fig, ax = plt.subplots(figsize=(max(7.5, 0.60 * span), 3.4))
     if logy:
         ax.set_yscale("log")
     labels, codes_present, any_untuned = [], [], False
@@ -750,7 +851,8 @@ def plot_scenario_best(data: dict, scenario: str, out_dir: Path = PLOTS_DIR,
     con = " · ".join(x for x in (_prec_lbl.get(precision, precision) if precision else "",
                                  f"N={_fmt_npart(npart_fixed)}" if npart_fixed else "") if x)
     ctag = f"  ·  {con}" if con else ""
-    ax.set_title(f"{prefix}{title} — best per code, GPU vs. CPU{ctag}{ref}", fontsize=9)
+    title_pad = _draw_method_labels(ax, xs, method_keys, sc)
+    ax.set_title(f"{prefix}{title} — best per code, GPU vs. CPU{ctag}{ref}", fontsize=9, pad=title_pad)
     if not logy:  # sci ScalarFormatter is invalid on a log axis (LogFormatter already reads 10^n)
         ax.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
 
@@ -759,12 +861,17 @@ def plot_scenario_best(data: dict, scenario: str, out_dir: Path = PLOTS_DIR,
     _nnote = (f"all bars at N = {_fmt_npart(npart_fixed)}" if npart_fixed
               else "N = the particle count that bar was measured at (top of each device's sweep)")
     notes = [f"each bar = {_base}; {_nnote}"]
+    if sc and sc.method_note:
+        notes.append(sc.method_note)
     if any_untuned:
         notes.append(sc.untuned_note if sc and sc.untuned_note
                      else "*  lacks a tuned model for this problem; runs a costlier one")
     ml = _marker_legend(((c, e.get("physics")) for c, _, _, _, e in bars), sc)
     if ml:
         notes.append(ml)
+    excluded = _excluded_incorrect(data, scenario, {(b[0], b[1]) for b in bars}, precision, npart_fixed)
+    if excluded:
+        notes.append("not shown, physics out of tolerance:  " + ",  ".join(excluded))
     hw = _hardware_note(data, bars)
     # footer rows (bottom-up): versions, [hardware], then the notes -- reserve space for all of them
     rows = 1 + bool(hw) + len(notes)

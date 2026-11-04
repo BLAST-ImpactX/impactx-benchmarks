@@ -22,6 +22,10 @@ reports GEOMETRIC emittance and physical RMS sizes in metres:
   phase. Convert back to metres: sigma_t = sigma_phi[rad] * beta * xl, where
   xl = c/(2*pi*f_ref) is IMPACT-Z's length scale and f_ref is the reference RF
   frequency from the input deck. (Internal phase = z/(beta*xl).)
+* ``sigma_px/sigma_py`` -- fort.24/25 col 5, already in rad. Direct.
+* ``xpx/ypy``          -- <x x'> = -alpha * (geometric emittance), from cols 6 and 7.
+* ``sigma_pe``         -- fort.26 col 5 is the RMS energy deviation in MeV; divide by
+  p0 c = betagamma * mass to get dE/(p0 c).
 
 The beam gamma/beta/xl needed for these conversions are recovered from the input
 deck's beam header line (kinetic energy, mass, reference frequency), so this module
@@ -93,7 +97,8 @@ def beam_header(impactz_in: Path) -> dict:
 def observables(workdir: Path, impactz_in: Path) -> dict:
     """Final-state observables from fort.24/25/26, converted to ImpactX conventions.
 
-    Returns ``{sigma_x, sigma_y, sigma_t, emit_x, emit_y}`` (SI: metres, m.rad).
+    Returns ``{sigma_x, sigma_y, sigma_t, emit_x, emit_y}`` (SI: metres, m.rad) and the momentum
+    moments ``{sigma_px, sigma_py, sigma_pe, xpx, ypy}`` (rad, dimensionless, m.rad).
     """
     workdir = Path(workdir)
     hdr = beam_header(Path(impactz_in))
@@ -112,6 +117,11 @@ def observables(workdir: Path, impactz_in: Path) -> dict:
         "sigma_t": fz[2] * deg2rad * beta * xl,   # deg of phase -> metres
         "emit_x": fx[6] / bg,             # col 7: normalised -> geometric
         "emit_y": fy[6] / bg,
+        "sigma_px": fx[4],                # col 5: RMS x' [rad]
+        "sigma_py": fy[4],
+        "sigma_pe": fz[4] * 1.0e6 / (bg * hdr["mass_eV"]),   # col 5: MeV -> dE/(p0 c)
+        "xpx": -fx[5] * fx[6] / bg,       # cols 6, 7: <x x'> = -alpha * geometric emittance
+        "ypy": -fy[5] * fy[6] / bg,
     }
 
 

@@ -94,6 +94,21 @@ def beam_observables(x, px, y, py, tau=None, p=None) -> dict:
     return obs
 
 
+def momentum_observables(x, px, y, py, pe) -> dict:
+    """Momentum-space moments that show a space-charge kick: RMS spreads and position correlations.
+
+    ``px``/``py`` are normalized by p0 and ``pe`` is the energy deviation dE / (p0 c), so a code that
+    tracks other coordinates converts first. The sign of ``pe`` does not matter here."""
+    x, px, y, py = _host(x), _host(px), _host(y), _host(py)
+    return {
+        "sigma_px": float(np.std(px)),
+        "sigma_py": float(np.std(py)),
+        "sigma_pe": float(np.std(_host(pe))),
+        "xpx": float(np.mean((x - x.mean()) * (px - px.mean()))),
+        "ypy": float(np.mean((y - y.mean()) * (py - py.mean()))),
+    }
+
+
 def gaussian_twiss_plane(emit, beta, alpha, n, rng):
     """Sample (u, u') from a matched Gaussian with the given Twiss parameters.
 

@@ -5,7 +5,8 @@
 ! (lattice file + beam_init + ran_seed + spin/n_warmup, and optional space-charge knobs), tracks a
 ! Gaussian beam through the lattice, times ONLY the tracking (one untimed warm-up first), and prints:
 !     Track: <ns>ns
-!     Validate: {json}      ! tracking: sigma_x/y, sigma_t, emit_x/y ; spin: sigma_sx/sy/sz
+!     Validate: {json}      ! tracking: sigma_x/y, sigma_t, emit_x/y, sigma_px/py/pe, xpx, ypy ;
+!                           ! spin: sigma_sx/sy/sz
 !
 ! Space charge (spacecharge scenario): when space_charge=T, one 3D OpenSpaceCharge kick (Ryne's
 ! integrated Green function; open-boundary Hockney FFT + CIC deposit/gather -- the SAME model as
@@ -142,15 +143,16 @@ logical spin
 type (coord_struct), pointer :: p(:)
 integer j, n
 real(rp) x, px, y, py, z
-real(rp) sx, s2x, spx, s2px, sxpx, sy, s2y, spy, s2py, sypy, sz, s2z
+real(rp) sx, s2x, spx, s2px, sxpx, sy, s2y, spy, s2py, sypy, sz, s2z, spz, s2pz
 real(rp) ssx, ssy, ssz, s2sx, s2sy, s2sz
 real(rp) sig_x, sig_y, sig_t, emit_x, emit_y, sig_sx, sig_sy, sig_sz
+real(rp) sig_px, sig_py, sig_pe, xpx, ypy
 
 p => beam%bunch(1)%particle
 n = 0
 sx=0; s2x=0; spx=0; s2px=0; sxpx=0
 sy=0; s2y=0; spy=0; s2py=0; sypy=0
-sz=0; s2z=0
+sz=0; s2z=0; spz=0; s2pz=0
 ssx=0; ssy=0; ssz=0; s2sx=0; s2sy=0; s2sz=0
 
 do j = 1, size(p)
@@ -160,6 +162,7 @@ do j = 1, size(p)
   sx=sx+x; s2x=s2x+x*x; spx=spx+px; s2px=s2px+px*px; sxpx=sxpx+x*px
   sy=sy+y; s2y=s2y+y*y; spy=spy+py; s2py=s2py+py*py; sypy=sypy+y*py
   sz=sz+z; s2z=s2z+z*z
+  spz=spz+p(j)%vec(6); s2pz=s2pz+p(j)%vec(6)**2
   if (spin) then
     ssx=ssx+p(j)%spin(1); s2sx=s2sx+p(j)%spin(1)**2
     ssy=ssy+p(j)%spin(2); s2sy=s2sy+p(j)%spin(2)**2
@@ -183,9 +186,17 @@ else
   sig_t = sqrt(max(s2z/n - (sz/n)**2, 0.0_rp))
   emit_x = sqrt(max((s2x/n - (sx/n)**2)*(s2px/n - (spx/n)**2) - (sxpx/n - (sx/n)*(spx/n))**2, 0.0_rp))
   emit_y = sqrt(max((s2y/n - (sy/n)**2)*(s2py/n - (spy/n)**2) - (sypy/n - (sy/n)*(spy/n))**2, 0.0_rp))
-  write (*, '(a, es16.9, a, es16.9, a, es16.9, a, es16.9, a, es16.9, a)') &
+  xpx = sxpx/n - (sx/n)*(spx/n)
+  ypy = sypy/n - (sy/n)*(spy/n)
+  sig_px = sqrt(max(s2px/n - (spx/n)**2, 0.0_rp))
+  sig_py = sqrt(max(s2py/n - (spy/n)**2, 0.0_rp))
+  ! Bmad's vec(6) is dp/p0; dE/(p0 c) = beta0 * dp/p0, with gamma from the host program
+  sig_pe = sqrt(1.0_rp - 1.0_rp/gamma**2) * sqrt(max(s2pz/n - (spz/n)**2, 0.0_rp))
+  write (*, '(a, 9(es16.9, a), es16.9, a)') &
         'Validate: {"sigma_x": ', sig_x, ', "sigma_y": ', sig_y, &
-        ', "sigma_t": ', sig_t, ', "emit_x": ', emit_x, ', "emit_y": ', emit_y, '}'
+        ', "sigma_t": ', sig_t, ', "emit_x": ', emit_x, ', "emit_y": ', emit_y, &
+        ', "sigma_px": ', sig_px, ', "sigma_py": ', sig_py, ', "sigma_pe": ', sig_pe, &
+        ', "xpx": ', xpx, ', "ypy": ', ypy, '}'
 endif
 
 end subroutine
