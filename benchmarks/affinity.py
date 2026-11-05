@@ -3,7 +3,7 @@
 Without pinning, ``mpirun -np N`` and a plain threaded ``python`` both float across all
 logical CPUs, so on a multi-core workstation the "N-core budget" is only logical and the
 OS placement (and P-core vs E-core, hyperthreading, turbo) dominates the measurement
-rather than the code (see FIXME_local_running_harness_pinning_MPI-vs-OpenMP.md). We pin
+rather than the code (see https://github.com/BLAST-ImpactX/impactx/issues/1522). We pin
 every run to the SAME set of ``ncores`` *distinct physical cores* so OpenMP and MPI layouts
 compete on identical hardware.
 """
@@ -72,7 +72,7 @@ def budget_cpus(ncores: int) -> list[int]:
     """The CPU ids forming the ``ncores``-core budget, shared by every layout.
 
     Priority: ``$BENCH_CPU_LIST`` override → distinct physical cores (of ``$BENCH_SOCKET`` only,
-    if set) → logical 0..n-1. Using distinct physical cores emulates a real N-vCPU runner; pinning
+    if set) → logical 0..n-1. Using distinct physical cores emulates a real N-core machine; pinning
     to one ``$BENCH_SOCKET`` keeps a Perlmutter run on a single EPYC socket (no cross-socket spill).
     """
     env = os.environ.get("BENCH_CPU_LIST")
