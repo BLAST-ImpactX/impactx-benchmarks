@@ -1,55 +1,79 @@
 # ImpactX Benchmarks
 
 Automated **correctness & performance** benchmarks of [ImpactX](https://github.com/BLAST-ImpactX/impactx)
-against other community beam-dynamics codes. Each run compiles/installs the codes the
-best-performing supported way for the host (native `-march=native -mtune=native` where it
-beats prebuilt packages), tracks identical physics scenarios, **validates the physics**, and
-records throughput (particles/second).
+against other community beam-dynamics codes. Each code is built the best-performing supported
+way for the target CPU (`-march` builds where they beat prebuilt packages), tracks identical
+physics scenarios, has its **physics validated**, and has its throughput (particles/second)
+recorded.
 
-The same harness runs **locally** and in **GitHub Actions** (Ubuntu 24.04, 4 vCPU — the
-single public, CPU-only source of truth). Results and plots are published to the
+**Published results come from [NERSC Perlmutter](https://docs.nersc.gov/systems/perlmutter/architecture/)**
+under the rules below. The same harness also runs on a laptop or workstation with a smaller core
+budget, for development. Results and plots are published to the
 [`benchmarks`](../../tree/benchmarks) branch and embedded below.
 
 ## Benchmark rules
 
-**You get 4 CPU cores. Use them however is fastest.** Each code may spend that budget any
-way its design allows — all MPI ranks, all OpenMP/threads, or a mix — but the total must
-satisfy **`MPI_ranks × threads ≤ 4`**. The budget is **physically pinned**: every run is
-confined to the *same* set of 4 distinct physical cores (`taskset` for the threaded process,
-one core per rank for MPI), so OpenMP and MPI layouts compete on identical hardware rather than
-whatever the OS scheduler hands out. For every `(code, scenario)` the harness *sweeps* the
-layouts a code supports (e.g. `4r×1t`, `2r×2t`, `1r×4t`) and reports the **fastest** one; the
+Every code gets the same hardware and may use it however is fastest:
+
+| device | hardware | what a code may use |
+|---|---|---|
+| **CPU** | one 64-core **AMD EPYC 7763** socket of a CPU node | any split with **`MPI_ranks × threads ≤ 64`** |
+| **GPU** | a GPU node's AMD EPYC 7763 socket + **one NVIDIA A100 (40 GB)** | one process on that GPU |
+
+Jobs book whole nodes only because NERSC's job policies require it; each run uses only the
+share above.
+
+**CPU: one socket, used however is fastest.** Each code may spend the 64 cores any way its
+design allows — all MPI ranks, all OpenMP/threads, or a mix. The budget is **physically pinned**:
+every run is confined to the *same* 64 physical cores (`taskset` for the threaded process, one
+slice of cores per rank for MPI), so OpenMP and MPI layouts compete on identical hardware rather
+than whatever the OS scheduler hands out. For every `(code, scenario)` the harness *sweeps* the
+layouts a code supports (e.g. `64r×1t`, `8r×8t`, `1r×64t`) and reports the **fastest** one; the
 winning layout is printed under each bar. This keeps the comparison about implementation
 quality, not who was allowed more cores — and it lets each code shine where its parallelism
-works best (e.g. ImpactX chromatic FODO is fastest at `2r×2t` but exact FODO at `1r×4t`; PyORBIT
-tracking scales with ranks but its space charge is fastest at `1r×1t`). Codes are also built the
-best-performing supported way (native `-march=native -mtune=native`, SIMD, the right solver),
-and physics is validated every run.
+works best (at 1M particles, ImpactX's chromatic FODO is fastest at `32r×2t` and its 3D space
+charge at `8r×8t`; PyORBIT tracks fastest at `64r×1t` but its 3D space charge at `4r×1t`; Xsuite,
+which only threads, mostly picks `1r×64t`). The CPU sweep goes up to 10⁶ particles.
+
+**GPU: one A100.** Each code runs one process on one 40 GB A100, sweeping up to 10⁹ particles; a
+code that runs out of the card's memory shows as `OOM` from that particle count on. The job
+requests the 40 GB nodes and refuses to record on any other card, so every code gets the same
+memory.
+
+Codes are also built the best-performing supported way (`-march=znver3` for Perlmutter's Zen 3
+CPUs, SIMD, the right solver), and physics is validated every run. Where a code supports them,
+FP32 and fast-math builds run alongside the FP64 one. Local runs follow the same rules with a
+smaller budget, set with `--ncores` (see *Run it locally*); Perlmutter's setup is in
+[`machines/PERLMUTTER.md`](machines/PERLMUTTER.md).
 
 ## Latest results
 
-<!-- These images live on the `benchmarks` branch and update on every run. -->
-![fodo_chromatic](https://raw.githubusercontent.com/BLAST-ImpactX/impactx-benchmarks/benchmarks/plots/fodo_chromatic.svg)
-![fodo_exact](https://raw.githubusercontent.com/BLAST-ImpactX/impactx-benchmarks/benchmarks/plots/fodo_exact.svg)
-![htu](https://raw.githubusercontent.com/BLAST-ImpactX/impactx-benchmarks/benchmarks/plots/htu.svg)
-![htu_spin](https://raw.githubusercontent.com/BLAST-ImpactX/impactx-benchmarks/benchmarks/plots/htu_spin.svg)
-![spacecharge](https://raw.githubusercontent.com/BLAST-ImpactX/impactx-benchmarks/benchmarks/plots/spacecharge.svg)
-![spacecharge_2p5d](https://raw.githubusercontent.com/BLAST-ImpactX/impactx-benchmarks/benchmarks/plots/spacecharge_2p5d.svg)
+<!-- These images live on the `benchmarks` branch and update on every publish from Perlmutter. -->
+![fodo_chromatic](https://raw.githubusercontent.com/BLAST-ImpactX/impactx-benchmarks/benchmarks/plots/perlmutter/fodo_chromatic_best.svg)
+![fodo_exact](https://raw.githubusercontent.com/BLAST-ImpactX/impactx-benchmarks/benchmarks/plots/perlmutter/fodo_exact_best.svg)
+![htu](https://raw.githubusercontent.com/BLAST-ImpactX/impactx-benchmarks/benchmarks/plots/perlmutter/htu_best.svg)
+![htu_spin](https://raw.githubusercontent.com/BLAST-ImpactX/impactx-benchmarks/benchmarks/plots/perlmutter/htu_spin_best.svg)
+![spacecharge](https://raw.githubusercontent.com/BLAST-ImpactX/impactx-benchmarks/benchmarks/plots/perlmutter/spacecharge_best.svg)
+![spacecharge_2p5d](https://raw.githubusercontent.com/BLAST-ImpactX/impactx-benchmarks/benchmarks/plots/perlmutter/spacecharge_2p5d_best.svg)
 
-> Images appear once the first run has published to the `benchmarks` branch.
-> (GitHub's CDN caches raw images for a few minutes, so updates may lag slightly.)
+> GitHub's CDN caches raw images for a few minutes, so updates may lag slightly. Every plot,
+> including one per particle count and the GPU-only comparison, is in
+> [`plots/perlmutter`](../../tree/benchmarks/plots/perlmutter), and each run's exact input and
+> launch command is in [`runs/perlmutter`](../../tree/benchmarks/runs/perlmutter).
 
-**How to read the bars** (taller = faster, particles/second; the y-axis always scales
-to fully show the fastest code):
+**How to read the bars** (taller = faster, particles/second, on a log scale): GPU bars come first,
+then CPU. Each bar is a code's **fastest** measured configuration on that device across the whole
+particle sweep, so it may be an FP32 or fast-math build; the small `N=` label is the particle count
+it was measured at.
 
 | appearance | meaning |
 |---|---|
 | solid bar | physics **validated correct** vs the reference |
 | value with **`*`** | shown, but the code runs a *non-tuned* model for this problem — either a costlier one (exact where chromatic suffices) or a cheaper/cruder one (a point-sampled kernel vs the integrated Green function in 2.5D); see the per-plot footnote |
-| **dashed** bar + marker | plotted but physics flagged: `incorrect` (`physics ✗`) or `unconverged` |
-| grey "unsupported" | the **code** cannot do this physics (e.g. no space charge) |
-| grey "not in harness" | the code can, but a run template hasn't been added **here** yet |
-| grey "OOM" / "failed" | ran out of memory / errored |
+| **dashed, hatched** bar + label | plotted but physics flagged: `simpler model` (a lower-fidelity model than the reference, named per code in the footnote), `physics ✗` (out of tolerance) or `unconv.` (out of tolerance, but its FP64 run is correct) |
+| grey "unsupported" | the **code** cannot do this physics (e.g. no space charge); per-particle-count plots only |
+| grey "not in harness" | the code can, but a run template hasn't been added **here** yet; per-particle-count plots only |
+| grey "OOM" / "failed" | ran out of memory / errored; per-particle-count plots only |
 
 ## Codes & capabilities
 
@@ -153,12 +177,12 @@ exact variant, we run **two separate benchmarks** so it stays like-for-like:
 Requires [pixi](https://pixi.sh).
 
 ```bash
-# build the from-source codes (ImpactX, pyAT, PyORBIT, SciBmad); pip codes need no build
+# build the codes that compile from source; pip codes need no build
 pixi run build
 
-# run the full matrix (no args = all 6 codes x 5 scenarios); or filter freely
-pixi run bench
-pixi run bench --codes cheetah,pyat,xsuite --scenarios fodo_chromatic,fodo_exact,htu --runs 5
+# run the full matrix (no other args = every code and scenario) on a 4-core budget; or filter freely
+pixi run bench --ncores 4
+pixi run bench --ncores 4 --codes cheetah,pyat,xsuite --scenarios fodo_chromatic,fodo_exact,htu --runs 5
 
 # validate physics & (re)generate plots
 pixi run validate
@@ -169,7 +193,9 @@ pixi run metadata
 ```
 
 Results are written to `results/<machine>.yaml`; plots to `plots/`. To commit them to the
-`benchmarks` branch (CI does this automatically): `pixi run publish --push`.
+`benchmarks` branch: `pixi run publish --push`. Without `--ncores`, the budget is `$BENCH_NCORES`,
+or else every CPU the OS reports, hyperthreads included. To run on Perlmutter, see
+[`machines/PERLMUTTER.md`](machines/PERLMUTTER.md).
 
 ## How it works
 
