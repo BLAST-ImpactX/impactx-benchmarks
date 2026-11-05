@@ -46,21 +46,25 @@ _HARNESS_ENV_KEYS = (
     "TORCHINDUCTOR_USE_FAST_MATH", "PYTHONPATH",
 )
 
+# What each code prints when an allocation fails, matched case-insensitively against each stderr line.
+# All of these came from forcing the named code out of memory through this harness, unless marked. A
+# miss reads `failed`, which --retry-failed then re-runs for nothing, and which the plots label as an
+# error rather than as the card's limit. Not listed: cuFFT short of memory reported CUFFT_INTERNAL_ERROR
+# in PyTorch, which other causes can also produce.
 OOM_MARKERS = (
-    "MemoryError",
-    "std::bad_alloc",
-    "out of memory",
-    "OutOfMemory",
-    "CUDA out of memory",
-    "Killed",
-    "Cannot allocate memory",
-    "bad_alloc",
-    # Julia / CUDA.jl device-OOM (SciBmad-cuda at the top of the GPU sweep): CUDA.jl raises
-    # `OutOfGPUMemoryError: Out of GPU memory ...`, which none of the above match (the "GPU"
-    # infix breaks "out of memory"), so it was misclassified `failed` instead of `oom`.
-    "Out of GPU memory",
-    "OutOfGPUMemoryError",
+    "out of memory",  # ImpactX on GPU (AMReX arena), PyTorch on GPU, Xsuite on GPU (cupy), Elegant on GPU
+    "out of gpu memory",  # SciBmad on GPU (CUDA.jl): the "GPU" infix breaks "out of memory"
+    "outofgpumemory",  # the same CUDA.jl error by its type name; not forced
+    "outofmemory",  # SciBmad on CPU (Julia's OutOfMemoryError)
+    "memoryerror",  # Python, including numpy's _ArrayMemoryError: pyAT, PyORBIT, HELIX and Xsuite on CPU
+    "cannot allocate memory",  # ENOMEM: Bmad and IMPACT-Z (gfortran's allocate), Cheetah on CPU (PyTorch)
+    "memory space failed to allocate",  # Synergia on CPU and GPU (Kokkos)
+    "insufficient cpu memory",  # ImpactX on CPU (AMReX's handler for a failed C++ new)
+    "memory allocation failure",  # Elegant on CPU (SDDS tmalloc)
+    "bad_alloc",  # C++ std::bad_alloc; not forced
 )
+# How mpirun reports a SIGKILLed rank, such as from the kernel's OOM killer. It then returns 9, not 137.
+OOM_KILLED = "Killed"
 
 
 def default_ncores() -> int:
@@ -150,11 +154,24 @@ def _launch_cmd(cfg: Config, script: Path, ranks: int, threads: int, cpus: list)
     return base + ["taskset", "-c", cpu_csv] + inner
 
 
+def _oom_line(stderr: str) -> str:
+    """The first stderr line reporting a failed allocation, or an empty string."""
+    for line in (stderr or "").splitlines():
+        lowered = line.lower()
+        if OOM_KILLED in line or any(marker in lowered for marker in OOM_MARKERS):
+            return line.strip()[:200]
+    return ""
+
+
 def _classify_failure(returncode: int, stderr: str) -> tuple[str, str]:
-    blob = stderr or ""
-    if returncode in (137, 139) or any(m in blob for m in OOM_MARKERS):
-        return "oom", _last_error_line(blob)
-    return "failed", _last_error_line(blob)
+    # The reason is the line that matched, so a wrong match can be seen in the results. The last line is
+    # often just the end of a traceback, as with Bmad, IMPACT-Z, SciBmad and Elegant.
+    oom_line = _oom_line(stderr)
+    if oom_line:
+        return "oom", oom_line
+    if returncode in (137, 139):
+        return "oom", _last_error_line(stderr)
+    return "failed", _last_error_line(stderr)
 
 
 def _last_error_line(stderr: str) -> str:
@@ -253,7 +270,12 @@ def _run_layout(cfg, sc, npart, ranks, threads, nruns, ncores, cpus):
                 return None, None, status, reason
             ns = results_mod.parse_track_ns(proc.stdout)
             if ns is None:
-                return None, None, "failed", "no Track line"
+                # A clean exit doesn't mean the run got anywhere: PyORBIT returns 0 after an uncaught
+                # exception once orbit.core is imported, so its failures only show up here.
+                status, reason = _classify_failure(proc.returncode, proc.stderr)
+                if status == "failed":
+                    reason = f"no Track line ({reason})" if reason else "no Track line"
+                return None, None, status, reason
             best_ns = ns if best_ns is None else min(best_ns, ns)
             obs = results_mod.parse_observables(proc.stdout)
             if obs is not None:
