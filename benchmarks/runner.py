@@ -233,8 +233,8 @@ def _gpu_guard(detected: list, recorded: list, path) -> None:
     * ``BENCH_GPU_REQUIRE`` (substring, e.g. ``A100-SXM4-40GB`` or ``40GB``): the node's card MUST
       match, else abort -- so a job that lands on an unwanted variant (e.g. an 80GB node when we
       standardize on 40GB) dies immediately, before measuring, instead of silently recording data on
-      the wrong card. SLURM can't cleanly express "not 80GB", so this runtime check is the enforcement:
-      just resubmit and the scheduler almost always lands you on the common (40GB) variant.
+      the wrong card. This backs up the job's Slurm constraint (``-C gpu&hbm40g``), which can be
+      overridden at submit time.
     * otherwise, if the results file already holds GPU cells measured on a DIFFERENT card, a
       ``--resume`` run would MIX cards (exactly the 40GB/80GB mix that bit us) -> abort unless
       ``BENCH_GPU_ALLOW_MIX=1``. Skipped when ``BENCH_GPU_REQUIRE`` is set (that is the source of

@@ -114,10 +114,9 @@ def gpu_info() -> list[dict]:
     """Per-GPU identity via ``nvidia-smi`` -- name, total memory, driver.
 
     Returns ``[]`` on a host with no NVIDIA GPU (e.g. a Perlmutter CPU node), so it is safe to
-    call on every run and only populates on GPU nodes. Perlmutter's general ``gpu`` pool mixes
-    40GB and 80GB A100s (the ``&hbm80g`` constraint restricts to the small 80GB subset -> long
-    queue), so recording which card actually ran a timing keeps the numbers interpretable -- the
-    GPU analogue of the CPU microarch. The card name already encodes the memory tier
+    call on every run and only populates on GPU nodes. Perlmutter has both 40GB and 80GB A100s, so
+    recording which card actually ran a timing keeps the numbers interpretable -- the GPU analogue
+    of the CPU microarch. The card name already encodes the memory tier
     ('A100-SXM4-80GB' vs '-40GB'), which is exactly what makes a 10^9-particle OOM legible.
     """
     if shutil.which("nvidia-smi") is None:

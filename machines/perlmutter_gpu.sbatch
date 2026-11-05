@@ -1,5 +1,5 @@
 #!/bin/bash -l
-# Perlmutter (NERSC) GPU benchmark job: a single A100-80GB, driven by pixi.
+# Perlmutter (NERSC) GPU benchmark job: a single A100-40GB, driven by pixi.
 # Submit AFTER the CPU job so the GPU-FP32 comparison plot sees the CPU fallbacks:
 #   cpu=$(sbatch --parsable machines/perlmutter_cpu.sbatch)
 #   sbatch --dependency=afterok:$cpu machines/perlmutter_gpu.sbatch
@@ -9,14 +9,13 @@
 # filter accepts the job -- an --exclusive job with no explicit layout is rejected as "Job request
 # does not match any supported policy". The harness then uses ONE GPU (BENCH_CUDA_DEVICES=0).
 #SBATCH -A m5125
-# -C gpu (the full A100 pool). We STANDARDIZE the comparison on the common 40GB A100: mixing 40GB and
-# 80GB cards across codes is unfair (an 80GB code reaches a larger N than a 40GB one). SLURM can't
-# cleanly express "not 80GB", so the card is enforced at RUNTIME by BENCH_GPU_REQUIRE below (the job
-# aborts fast if it lands on an 80GB node -- just resubmit; 40GB is the majority). The card that ran
-# is recorded via nvidia-smi in metadata.gpu (the GPU analogue of the CPU microarch).
-#SBATCH -C gpu
+# We STANDARDIZE the comparison on the 40GB A100: mixing 40GB and 80GB cards across codes is unfair (an
+# 80GB code reaches a larger N than a 40GB one). Plain -C gpu also schedules 80GB nodes, where
+# BENCH_GPU_REQUIRE below aborts the job. The card that ran is recorded via nvidia-smi in metadata.gpu
+# (the GPU analogue of the CPU microarch).
+#SBATCH -C gpu&hbm40g
 # premium QOS = priority boost to clear the queue faster, at 2x the GPU-hour charge. Drop to
-# `-q regular` (1x) if you'd rather not pay the premium -- relaxing -C above already helps a lot.
+# `-q regular` (1x) if you'd rather not pay the premium.
 #SBATCH -q premium
 #SBATCH -N 1
 #SBATCH --exclusive
@@ -39,13 +38,13 @@ export PIXI_CACHE_DIR="${PIXI_CACHE_DIR:-$PSCRATCH/pixi-cache}"   # same scratch
 export BENCH_MACHINE_SLUG=perlmutter
 export BENCH_CUDA_DEVICES=0
 export MPICH_GPU_SUPPORT_ENABLED=1
-# Standardize on the 40GB A100: the runner aborts (before measuring) if this node's card doesn't
-# match, so a stray 80GB node never silently enters the results. If it trips, just resubmit.
+# Second check on the card: the runner aborts (before measuring) if this node's card doesn't match, so
+# an 80GB node never silently enters the results, even if -C above is overridden at submit time.
 export BENCH_GPU_REQUIRE="A100-SXM4-40GB"
 
-# 80GB sweep. The default nparts_gpu tops at 16M -- sized for an 8GB card, where 16M is already the
-# ceiling (it OOM'd the PyTorch codes). An A100-80GB has ~10x the memory, so extend the sweep with
-# --nparts (which overrides the per-scenario default) up to 1e9 to reach the compute-bound plateau.
+# The default nparts_gpu tops at 16M -- sized for an 8GB card, where 16M is already the ceiling (it
+# OOM'd the PyTorch codes). An A100-40GB has 5x the memory, so extend the sweep with --nparts (which
+# overrides the per-scenario default) up to 1e9 to reach the compute-bound plateau.
 # Expect a spread at the top: lean AMReX codes (ImpactX) scale furthest; memory-heavy codes
 # (Cheetah/HELIX, and space charge at the very top) OOM gracefully (classified 'oom', not failed).
 # NOTE: 1e9 x runs=5 across all GPU configs is heavy and its runtime is uncertain, so -t is 24h as
