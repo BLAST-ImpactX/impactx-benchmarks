@@ -5,8 +5,8 @@
 #
 # The driver shells out to each code environment via `pixi run -e <code> ...`.
 # Native build flags (-march=native -mtune=native) are injected per code via
-# `[feature.<code>.activation.env]`, which applies both locally and in CI
-# (the runner is always the host that executes the benchmark).
+# `[feature.<code>.activation.env]`, which applies both locally and on Perlmutter
+# (the build always targets the machine that runs the benchmark).
 #
 # Usage:
 #   pixi run build          # compile/install the from-source codes
@@ -25,7 +25,7 @@ channels = ["conda-forge"]
 platforms = ["linux-64"]
 
 # Target Perlmutter's system glibc (2.38) so a lock solved on a newer host (e.g. local Ubuntu
-# glibc 2.39, or CI) stays valid there and pixi never selects a build needing glibc > 2.38.
+# glibc 2.39) stays valid there and pixi never selects a build needing glibc > 2.38.
 # conda-forge sysroot_linux-64 maxes at 2.34 (<= 2.38), so every native build is Perlmutter-safe;
 # the runtime libstdc++/libgcc (15.x) and gcc (14.x) are already the latest for best SIMD codegen.
 [system-requirements]
@@ -41,7 +41,7 @@ pyyaml = "*"
 numpy = "*"
 scipy = "*"
 matplotlib-base = "*"
-archspec = "*"   # CPU microarchitecture name for metadata (CI runner pool varies)
+archspec = "*"   # CPU microarchitecture name for metadata
 
 [tasks]
 bench = { cmd = "python -m benchmarks.runner", description = "Run the benchmark matrix" }

@@ -67,7 +67,7 @@ class Code:
         The auto-tune sweeps 1, 2 and the powers of two up to ``ncores`` (plus ``ncores`` itself),
         so a big single socket (Perlmutter: 64 cores) actually explores NUMA-friendly splits like
         16 threads (one NUMA domain), not just {1, 2, 64} -- "the best way a code provides". On the
-        4-core local/CI budget this collapses to the previous {1,2,4} behaviour.
+        4-core local budget this collapses to the previous {1,2,4} behaviour.
         """
         n = max(1, int(ncores))
         pts = {1, 2, n}
@@ -567,7 +567,7 @@ class Config:
     code: str
     precision: str  # "single" | "double"
     device: str = "cpu"  # "cpu" | "cuda"
-    ncores: Optional[int] = None  # None -> harness default (nproc locally, 4 in CI)
+    ncores: Optional[int] = None  # None -> harness default ($BENCH_NCORES, else every CPU)
     #: space-charge model this variant uses, for model-mismatch detection
     sc_model: Optional[str] = None
     #: free-form knobs forwarded into the run template's Jinja context

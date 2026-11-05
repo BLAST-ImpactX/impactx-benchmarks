@@ -5,7 +5,7 @@
 set -eu -o pipefail
 
 SRC="${PYORBIT_SRC:-/home/axel/src/PyORBIT3}"
-# Fall back to a fresh clone if the local checkout is absent (e.g. in CI).
+# Fall back to a fresh clone if the local checkout is absent (e.g. on Perlmutter).
 if [ ! -f "$SRC/pyproject.toml" ]; then
     SRC=".builds/src/PyORBIT3"
     mkdir -p .builds/src

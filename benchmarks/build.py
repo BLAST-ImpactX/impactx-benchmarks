@@ -45,7 +45,7 @@ EXTRA_ENVS = {
     # See registry._supports_fastmath and codes/bmad/build.sh (fast-math is refused there too).
 }
 
-# GPU (CUDA) envs per code -- built ONLY with --device cuda (never on CPU/CI runs). A code
+# GPU (CUDA) envs per code -- built ONLY with --device cuda (never on CPU runs). A code
 # absent here has no GPU variant (pyAT/PyORBIT/Bmad stay CPU-only). task=None => pip/pixi-only env.
 GPU_ENVS = {
     "impactx": [("impactx-cuda-dp", "build-impactx-cuda-dp"),

@@ -96,7 +96,7 @@ if [ ! -f "$REFSTAMP" ] || [ "$(cat "$REFSTAMP" 2>/dev/null)" != "$HEAD_NOW" ]; 
 fi
 
 export CMAKE_BUILD_PARALLEL_LEVEL="${BUILD_NPROC:-6}"
-# ccache speeds up repeat CI builds; CCACHE_BASEDIR normalizes the per-tree absolute paths so
+# ccache speeds up repeat builds; CCACHE_BASEDIR normalizes the per-tree absolute paths so
 # the (identical) AMReX objects are shared across the separate cpu-dp/cpu-sp/... build trees.
 export CMAKE_CXX_COMPILER_LAUNCHER="${CMAKE_CXX_COMPILER_LAUNCHER:-ccache}"
 export CCACHE_BASEDIR="$PWD"

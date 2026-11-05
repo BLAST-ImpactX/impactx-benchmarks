@@ -38,8 +38,8 @@ def utc_now() -> str:
 def machine_slug() -> str:
     """Filesystem-/branch-safe identifier for this machine.
 
-    Overridable via ``$BENCH_MACHINE_SLUG`` so CI uses a stable name (e.g.
-    ``github-ubuntu-24.04``) instead of a random runner hostname.
+    Overridable via ``$BENCH_MACHINE_SLUG`` so a machine keeps a stable name (e.g.
+    ``perlmutter``) instead of the hostname of whichever node or login node runs it.
     """
     import os
 
@@ -79,7 +79,7 @@ def _cpu_model() -> str:
 
 
 def cpu_info() -> dict:
-    """Detailed CPU identity -- crucial since hosted CI runners use a mixed pool.
+    """Detailed CPU identity, so every result records exactly which CPU produced it.
 
     Captures vendor, model name, family/model/stepping, frequencies, cache sizes,
     SIMD flags and (via archspec) the microarchitecture name (e.g. 'skylake'),

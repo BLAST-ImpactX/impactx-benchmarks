@@ -3,7 +3,7 @@
 using Pkg
 
 # Use the local SciBmad.jl checkout if present (override path with SCIBMAD_PATH); else
-# add the registered package (e.g. in CI). BeamTracking.jl / Beamlines.jl resolve from
+# add the registered package (e.g. on Perlmutter). BeamTracking.jl / Beamlines.jl resolve from
 # the General registry as normal deps either way.
 scibmad_path = get(ENV, "SCIBMAD_PATH", "/home/axel/src/SciBmad.jl")
 if isdir(scibmad_path)

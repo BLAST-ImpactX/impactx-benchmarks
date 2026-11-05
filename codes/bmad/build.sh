@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Native source-build of Bmad (forest/PTC + sim_utils + bmad libs only -- NO Tao/pytao),
 # then compile our standalone Fortran driver (codes/bmad/driver) against libbmad.
-# Uses the local ~/src/bmad-ecosystem checkout if present, else a shallow clone (CI).
+# Uses the local ~/src/bmad-ecosystem checkout if present, else a shallow clone.
 # NOTE: Bmad's dist scripts are NOT `set -e`-safe (they reference unset vars and return
 # non-zero), so we run without -e and gate success on the produced driver binary.
 set -u -o pipefail
