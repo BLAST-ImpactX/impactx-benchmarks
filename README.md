@@ -194,45 +194,66 @@ exact variant, we run **two separate benchmarks** so it stays like-for-like:
 
 ## Run it locally
 
-Requires [pixi](https://pixi.sh).
+Requires [pixi](https://pixi.sh). Local runs are for development; the published numbers come from
+Perlmutter (see [`machines/PERLMUTTER.md`](machines/PERLMUTTER.md)).
 
 ```bash
-# build the codes that compile from source; pip codes need no build
+# build the codes that compile from source (pip codes need no build); add --device cuda for GPU builds
 pixi run build
+pixi run build --device cuda
 
-# run the full matrix (no other args = every code and scenario) on a 4-core budget; or filter freely
-pixi run bench --ncores 4
-pixi run bench --ncores 4 --codes cheetah,pyat,xsuite --scenarios fodo_chromatic,fodo_exact,htu --runs 5
+# run the full matrix on a 4-core budget (no other args = every code and scenario); --skip-build
+# reuses the builds above, since without it bench re-runs every build task first
+pixi run bench --ncores 4 --skip-build
+pixi run bench --ncores 4 --skip-build --codes cheetah,pyat,xsuite --scenarios fodo_chromatic,fodo_exact,htu --runs 5
+pixi run bench --device cuda --skip-build --codes impactx --nparts 100000,1000000   # on a local GPU
 
 # validate physics & (re)generate plots
 pixi run validate
-pixi run plot            # writes plots/<scenario>.svg
+pixi run plot            # plots/<scenario>{,_cpu,_gpu,_best,_best_liny}.svg (+ .pdf, .png)
+pixi run plot --gpu      # GPU-only comparison, in plots/gpu/
 
 # host/CPU/compiler/version metadata
 pixi run metadata
 ```
 
-Results are written to `results/<machine>.yaml`; plots to `plots/`. To commit them to the
-`benchmarks` branch: `pixi run publish --push`. Without `--ncores`, the budget is `$BENCH_NCORES`,
-or else every CPU the OS reports, hyperthreads included. To run on Perlmutter, see
-[`machines/PERLMUTTER.md`](machines/PERLMUTTER.md).
+Results are written to `results/<machine>.yaml`, where `<machine>` is `$BENCH_MACHINE_SLUG` or else
+the hostname, and each cell's rendered input and launch command to `runs/<machine>/`. Pass
+`--out plots/<machine>` to `plot` to match the published layout. Other `bench` options:
+`--precision single` or `double` (default: both), `--nparts` to override the particle sweep,
+`--resume` to skip cells already in the results file, and `--retry-failed` (with `--resume`) to
+re-run cells stored as failed. Without `--ncores`, the budget is `$BENCH_NCORES`, or else every CPU
+the OS reports, hyperthreads included. To commit results, plots and manifests to the `benchmarks`
+branch, run `pixi run publish` for a dry run, then `pixi run publish --push`.
 
 ## How it works
 
 ```
-benchmarks/      driver: registry, runner, render, validate, metadata, results, plotting, publish
-scenarios/<s>/   physics params per scenario: fodo_chromatic, fodo_exact, htu,
-                 htu_spin, spacecharge, spacecharge_2p5d
-codes/<c>/<s>.<ext>.jinja   per-(code, scenario) run template (python / julia) + build.sh|build.jl
-pixi.toml        one isolated environment per code + a driver environment
+benchmarks/      driver: registry, runner, affinity (core pinning), build, render, validate,
+                 metadata, results, plotting, publish
+scenarios/<s>/   physics params per scenario: fodo_chromatic and fodo_exact (sharing fodo/), htu,
+                 htu_spin, spacecharge, spacecharge_2p5d; plus shared helpers (scenarios/_*.py)
+codes/<c>/       one run template per scenario, <s>.<ext>.jinja (Python, Julia, Bmad, Elegant .lte,
+                 IMPACT-Z .in), the code's build script, and any driver or patches it needs
+machines/        Perlmutter job scripts, setup script and guide (PERLMUTTER.md)
+pixi.toml        isolated environments per code (and per device, precision and fast-math build),
+                 plus a driver environment
 ```
 
-For each `config × scenario × particle-count` the runner **sweeps the code's parallel layouts**
-(`ranks × threads ≤ ncores`; see *Benchmark rules*), rendering and running each in the code's pixi
-environment with the matching launcher (`mpirun -np <ranks>` + `OMP_NUM_THREADS=<threads>`, or
-`julia -t <threads>`), and keeps the **fastest** layout (recorded as `cores`, e.g. `4r x 1t`). Each
-run parses `Track: <ns>ns` (wall-clock, min over runs) and `Validate: {json}` (beam observables),
-classifies failures (`oom`/`failed`) and physics (`correct`/`incorrect`/`unconverged`), and saves
+The [`benchmarks`](../../tree/benchmarks) branch holds what `publish` pushes:
+`results/<machine>.yaml`, `plots/<machine>/`, `runs/<machine>/` (each cell's input and `run.sh`) and a
+timestamped copy of each publish under `history/`.
+
+For each `config × scenario × particle-count` the runner **sweeps the code's parallel layouts** on
+CPU (`ranks × threads ≤ ncores`; see *Benchmark rules*); a GPU cell has a single layout, one process
+on one GPU. It renders the template and launches it in the code's pixi environment: `mpirun -np
+<ranks>` with each rank pinned to its own slice of cores and `OMP_NUM_THREADS=<threads>`, `taskset`
+for a single threaded process (including `julia -t <threads>`), or a small driver for the
+file-driven codes Elegant and IMPACT-Z, which builds the same command. The sweep is
+**probe-then-time**: every layout runs once to rank them, then only the fastest runs `--runs` times
+(default 5) and the minimum is reported, with its layout recorded as `cores` (e.g. `8r x 8t`). Each
+run parses `Track: <ns>ns` (wall-clock) and `Validate: {json}` (beam observables), classifies
+failures (`oom`/`failed`) and physics (`correct`/`incorrect`/`unconverged`), and saves
 incrementally. `Code.core_configs()` only ever emits layouts with `ranks*threads ≤ ncores`, and the
 runner asserts it before launching. Validation compares each result to the **ImpactX** result for
 that scenario (each FODO variant has its own ImpactX reference), or to the exact answer where one
