@@ -266,7 +266,7 @@ CODES: dict[str, Code] = {
 # Scenarios
 # --------------------------------------------------------------------------- #
 # Default particle sweeps (override per run via the CLI --nparts). CPU tops out at 1M; the GPU
-# sweep goes higher (single A100-80GB) to saturate the device and amortize kernel-launch overhead.
+# sweep goes higher (single A100) to saturate the device and amortize kernel-launch overhead.
 _NPARTS_SMALL = (1_000, 10_000, 100_000, 1_000_000)
 _NPARTS_SC = (1_000, 10_000, 100_000, 1_000_000)
 _NPARTS_GPU = (100_000, 1_000_000, 4_000_000, 16_000_000)
