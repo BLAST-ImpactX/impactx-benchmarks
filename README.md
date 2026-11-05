@@ -80,44 +80,60 @@ it was measured at.
 Scenarios: **fodo_chromatic** (chromatic-paraxial FODO), **fodo_exact** (exact non-paraxial
 FODO), **htu** (tracking), **htu_spin** (htu + Thomas-BMT spin), **spacecharge** (3D PIC),
 **spacecharge_2p5d** (2.5D PIC). ✓ = implemented and physics-validated; ✓\* = shown but runs a
-*non-tuned* model (see footnotes); `physics ✗` = runs, but fails the physics check; ✗ = the code
-cannot do that physics. (All current numbers are **FP64** — shown in each plot title.)
+*non-tuned* model (see footnotes); `simpler model` = runs a lower-fidelity model than the reference
+(drawn hatched); `physics ✗` = runs, but fails the physics check; ✗ = the code cannot do that physics.
+The marks are the published Perlmutter results for FP64 on CPU at 10⁶ particles. GPU = runs on the
+A100.
 
-| code | fodo_chr¹ | fodo_exact² | htu³ | htu_spin⁵ | 3D SC⁴ | 2.5D SC⁴ | FP32⁶ | parallelism | install |
-|------|:--:|:--:|:--:|:--:|:--:|:--:|:--:|------|------|
-| [ImpactX](https://github.com/BLAST-ImpactX/impactx) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | OpenMP+SIMD(+MPI) | source (CMake) |
-| [Cheetah](https://github.com/desy-ml/cheetah) | ✓\* | ✓ | ✓\* | ✗ | ✓ | ✗ | ✓ | torch / `torch.compile` | pip |
-| [pyAT](https://github.com/atcollab/at) | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ | ✗ | OpenMP | source (native+OpenMP) |
-| [PyORBIT3](https://github.com/PyORBIT-Collaboration/PyORBIT3) | ✓ | ✗ | ✓ | ✗ | `physics ✗` | ✓\* | ✗ | MPI | source (Meson) |
-| [Xsuite](https://github.com/xsuite/xsuite) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | OpenMP | pip |
-| [SciBmad.jl](https://github.com/bmad-sim/SciBmad.jl) | ✓\* | ✓ | ✓\* | ✓ | ✗ | ✗ | ✓ | Julia threads | Julia pkg |
-| [Bmad](https://github.com/bmad-sim/bmad-ecosystem) | ✓\* | ✓ | ✓\* | ✓ | `physics ✗` | ✗ | ✗ | OpenMP | source (Fortran, libbmad) |
+| code | fodo_chr¹ | fodo_exact² | htu³ | htu_spin⁵ | 3D SC⁴ | 2.5D SC⁴ | FP32⁶ | GPU | parallelism | install |
+|------|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|------|------|
+| [ImpactX](https://github.com/BLAST-ImpactX/impactx) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | OpenMP+SIMD(+MPI) | source (CMake) |
+| [Cheetah](https://github.com/desy-ml/cheetah) | ✓\* | `simpler model` | ✓\* | ✗ | ✓ | ✗ | ✓ | ✓ | torch / `torch.compile` | pip |
+| [pyAT](https://github.com/atcollab/at) | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ | OpenMP | source (native+OpenMP) |
+| [PyORBIT3](https://github.com/PyORBIT-Collaboration/PyORBIT3) | ✓ | ✗ | ✓ | ✗ | `physics ✗` | ✓\* | ✗ | ✗ | MPI | source (Meson) |
+| [Xsuite](https://github.com/xsuite/xsuite) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✓ | OpenMP | pip |
+| [SciBmad.jl](https://github.com/bmad-sim/SciBmad.jl) | ✓\* | ✓ | ✓\* | ✓ | ✗ | ✗ | ✓ | ✓ | Julia threads | Julia pkg |
+| [Bmad](https://github.com/bmad-sim/bmad-ecosystem) | ✓\* | ✓ | ✓\* | ✓ | `physics ✗` | ✗ | ✗ | ✗ | OpenMP | source (Fortran, libbmad) |
+| [Synergia](https://github.com/fnalacceleratormodeling/synergia2) | ✓\* | ✓ | ✓\* | ✗ | `physics ✗` | ✓\* | ✗ | ✓ | MPI+OpenMP (Kokkos) | source (CMake) |
+| [IMPACT-Z](https://github.com/impact-lbl/IMPACT-Z) | ✓ | `simpler model` | ✓ | ✗ | ✓ | ✗ | ✗ | ✗ | MPI | source (CMake, Fortran) |
+| [HELIX](https://github.com/Accel-Toolkit/HELIX) | ✗ | ✗ | ✗ | ✗ | ✓ | ✗ | ✓ | ✓ | torch | source (pip) |
+| [Elegant](https://github.com/rtsoliday/elegant) | ✓ | `simpler model` | `simpler model` | ✗ | ✗ | ✗ | ✗ | ✓ | MPI (Pelegant) | source (Make) |
 
 The FODO and space-charge benchmarks split on the element/solver *model* so the comparison is
 always like-for-like:
 ¹ **fodo_chr** — chromatic-paraxial FODO: `ChrQuad` + `ChrDrift` (`x' = px/(1+δ)`), the fast
-workhorse model. ImpactX/pyAT/Xsuite/PyORBIT run it natively. Cheetah (no chromatic quad) and
-SciBmad (only exact `MatrixKick`+exact drift) run the costlier **exact** map as a stand-in → **\***.
+workhorse model. ImpactX, pyAT, Xsuite, PyORBIT, IMPACT-Z and Elegant run a chromatic model
+natively. Cheetah (no chromatic quad), SciBmad (only exact `MatrixKick`+exact drift), Bmad (only exact
+`bmad_standard`) and Synergia (only exact libFF maps) run the costlier **exact** map as a stand-in →
+**\***.
 ² **fodo_exact** — exact, non-paraxial FODO: `ExactQuad` + `ExactDrift` (nonlinear, sqrt-based):
-ImpactX, Cheetah (`drift_kick_drift`), pyAT (`ExactMultipolePass`), Xsuite (`drift-kick-drift-exact`),
-SciBmad (`MatrixKick` — a symplectic integrator of the exact quad Hamiltonian — + `exact_drift`).
-PyORBIT has no exact quad/drift (TEAPOT is chromatic-paraxial) → ✗. Chromatic vs exact agree to O(angle²).
-³ **htu** — the BELLA HTU beamline, chromatic-paraxial model. Cheetah/SciBmad run the costlier
-exact map (no chromatic quad/drift) → **\***.
+ImpactX, pyAT (`ExactMultipolePass`), Xsuite (`drift-kick-drift-exact`), SciBmad (`MatrixKick` — a
+symplectic integrator of the exact quad Hamiltonian — + `exact_drift`), Bmad (`symp_lie_ptc` quads)
+and Synergia (libFF Yoshida quad + exact drift). Cheetah (whose quad is paraxial chromatic-linear even
+with `drift_kick_drift`), IMPACT-Z (chromatic thick quad `transfmapK`) and Elegant (`KQUAD` in trace-space
+slopes with an achromatic drift) have no exact quad; on this quad-dominated, hot beam they land about
+2% below the exact result in `sigma_x` → **simpler model**. PyORBIT has no exact quad/drift (TEAPOT is
+chromatic-paraxial) → ✗. Chromatic vs exact agree to O(angle²).
+³ **htu** — the BELLA HTU beamline, chromatic-paraxial model. Cheetah, SciBmad, Bmad and Synergia run
+the costlier exact map (no chromatic quad/drift) → **\***. Elegant tracks geometric slopes `(x, x')`
+rather than canonical momenta, which differs by about 4% at the line's 2.5% energy spread →
+**simpler model**.
 ⁵ **htu_spin** — the same HTU lattice with **Thomas-BMT spin tracking**; the beam starts fully
 spin-aligned (+z) and the dispersive chicane differentially precesses spins → depolarization
-(RMS spin spread, validated on sigma_sx/sy). Run by ImpactX (`SpinvMF`), Xsuite (`configure_spin`)
-and SciBmad (`Bunch(spin=true)` quaternions); cross-code agreement vs ImpactX is ~0.5% (SciBmad)
-to ~11% (Xsuite) — depolarization is bend-model-sensitive, hence a 15% tolerance. Cheetah/pyAT/
-PyORBIT have no spin tracking (✗).
+(RMS spin spread, validated on sigma_sx/sy). Run by ImpactX (`SpinvMF`), Xsuite (`configure_spin`),
+SciBmad (`Bunch(spin=true)` quaternions) and Bmad (`bmad_com%spin_tracking_on`); SciBmad and Bmad agree
+with ImpactX to about 1% and Xsuite to 8–11% — depolarization is bend-model-sensitive, hence a 15%
+tolerance. Cheetah, pyAT, PyORBIT, Synergia, IMPACT-Z and HELIX have no spin tracking (✗). Elegant's
+spin tracking is experimental and gives zero spin spread here, so it is excluded (✗).
 ⁴ **space charge** — open-boundary FFT PIC, with plots grouped by how the kernel treats a mesh cell.
 ImpactX, IMPACT-Z, Bmad, HELIX, Cheetah and Xsuite use a **full 3D integrated Green function (IGF)**;
 Synergia's kernel is integrated along z only; PyORBIT samples **point 1/r** at cell centres. The 3D
 benchmark is a single kick on a cold 490:1 (rest-frame) Gaussian bunch, checked against the **exact
 closed-form field** (`scenarios/spacecharge/analytic.py`), so no code is the reference; a code that
 misses it reads `physics ✗`. The 2.5D benchmark still compares to ImpactX on a beam where space charge
-barely shows, so a ✓ there says less (issue #1). pyAT/SciBmad have no self-consistent space charge;
-Cheetah is 3D-only.
+barely shows, so a ✓ there says less (issue #1). pyAT, SciBmad and Elegant have no self-consistent
+(PIC) space charge. Cheetah, Bmad, IMPACT-Z and HELIX are 3D-only, and HELIX runs only the space-charge
+benchmark, since its tracker is linear.
 
 > **Xsuite FFT threading (important for SC perf).** The xfields PIC solve is FFT-bound (~77% of a
 > 3D SC step). On CPU, xobjects only threads the FFT through **pyfftw**, which is **broken with
@@ -141,31 +157,35 @@ Cheetah is 3D-only.
 > is benchmarked on a non-drift element / N>1 slices.
 
 ⁶ **FP32** — single-precision variant, run **side-by-side** with FP64 in each scenario plot
-(`<code>-cpu-sp` bars). Only ImpactX, Cheetah and SciBmad have FP32 tracking; pyAT/PyORBIT/Xsuite
-track in FP64 only (Xsuite's kernels stay double even given float32 input) and Bmad's `rp` is
-compile-fixed to double. ImpactX FP32 is a **separate compiled build** in its own `impactx-sp`
+(`<code>-cpu-sp` bars). ImpactX, Cheetah, SciBmad and HELIX (space charge only) have FP32;
+pyAT, PyORBIT, Xsuite, Synergia, IMPACT-Z and Elegant run in FP64 only (Xsuite's kernels stay double
+even given float32 input) and Bmad's `rp` is compile-fixed to double. ImpactX FP32 is a **separate compiled build** in its own `impactx-sp`
 env (a clean build dir + `-DImpactX_PRECISION=SINGLE` sets fields *and* particles to single; a
 pip install of SP would otherwise overwrite the DP one) and covers all scenarios incl. space
 charge. FP32 results are validated against the FP64 ImpactX reference and dashed if outside tolerance.
-On CPU only ImpactX (compiled SIMD) gets an FP32 speedup; the Python/Julia codes are FP32-neutral or slower.
+On Perlmutter's CPUs at 10⁶ particles, FP32 runs 1.15–1.9× faster for ImpactX, 1.3–1.9× for Cheetah
+and 2.8× for HELIX space charge, while SciBmad gains nothing (0.75–0.99×).
 
 **Fair, matched models.** To make the comparison about implementation, not algorithm, every
 code is pinned to the *same* physical model per scenario; where a model splits into a fast and an
 exact variant, we run **two separate benchmarks** so it stays like-for-like:
 * **FODO chromatic** — chromatic-paraxial thick quad (`k1 → k1/(1+δ)`) + chromatic-paraxial drift:
   ImpactX `ChrQuad`+`ChrDrift`, pyAT `QuadLinearPass`+`DriftPass`, Xsuite `mat-kick-mat`+`expanded`,
-  PyORBIT `QuadTEAPOT`+`DriftTEAPOT`. Cheetah/SciBmad/Bmad lack a tuned chromatic model and run
-  the exact map (marked `*`).
+  PyORBIT `QuadTEAPOT`+`DriftTEAPOT`, IMPACT-Z chromatic thick quad (`transfmapK`) + exact drift,
+  Elegant matrix `QUAD`+`DRIF` to third order. Cheetah/SciBmad/Bmad/Synergia lack a tuned chromatic
+  model and run the exact map (marked `*`).
 * **FODO exact** — exact nonlinear quad + exact non-paraxial drift: ImpactX `ExactQuad`+`ExactDrift`,
-  Cheetah `drift_kick_drift`, pyAT `ExactMultipolePass`+`ExactDriftPass`, Xsuite
-  `drift-kick-drift-exact`+`exact`, SciBmad `MatrixKick`+`exact_drift`, Bmad `bmad_standard`
-  (the exact map Cheetah/SciBmad port). PyORBIT has no exact quad/drift → unsupported.
+  pyAT `ExactMultipolePass`+`ExactDriftPass`, Xsuite `drift-kick-drift-exact`+`exact`, SciBmad
+  `MatrixKick`+`exact_drift`, Bmad `bmad_standard` with `symp_lie_ptc` quads, Synergia libFF.
+  Cheetah, IMPACT-Z and Elegant have no exact quad and run a simpler model (see ²). PyORBIT has no
+  exact quad/drift → unsupported.
 * **htu** — the BELLA HTU beamline (chromatic-paraxial quads + drifts; the few weak chicane
-  bends use each code's thick bend). Cheetah/SciBmad/Bmad run the costlier exact map (marked `*`).
+  bends use each code's thick bend). Cheetah/SciBmad/Bmad/Synergia run the costlier exact map
+  (marked `*`); Elegant tracks slopes rather than canonical momenta (`simpler model`, see ³).
 * **htu_spin** — the same HTU lattice with **Thomas-BMT spin tracking**: the beam starts fully
   spin-aligned (+z) and the dispersive chicane differentially precesses spins → depolarization
   (RMS spin spread). ImpactX, Xsuite (`configure_spin`), SciBmad (`Bunch(spin=true)`) and Bmad
-  (`bmad_com%spin_tracking_on`) all run it; Cheetah/pyAT/PyORBIT have no spin tracking.
+  (`bmad_com%spin_tracking_on`) all run it; see ⁵ for the codes that don't.
 
 > **Bmad** is driven by a small standalone Fortran driver linked directly to `libbmad`
 > (no Tao/pytao) — see `codes/bmad/driver/` — and is exact-native like Cheetah/SciBmad.
