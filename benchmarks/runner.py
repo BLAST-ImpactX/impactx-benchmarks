@@ -51,7 +51,18 @@ _HARNESS_ENV_KEYS = (
 # miss reads `failed`, which --retry-failed then re-runs for nothing, and which the plots label as an
 # error rather than as the card's limit. Not listed: cuFFT short of memory reported CUFFT_INTERNAL_ERROR
 # in PyTorch, which other causes can also produce.
+#
+# The kernel's OOM killer sends SIGKILL, so the process prints nothing. How that reaches the harness
+# depends on the launch, measured by letting it take each CPU code in a memory-limited cgroup:
+#   -9   a single process: pixi dies of the same signal
+#   247  the same -9, after the IMPACT-Z and Elegant drivers pass it to sys.exit
+#   137  the shell's way of reporting it; no launch produced this, but it has no other meaning
+SIGKILL_RETURN_CODES = (-9, 137, 247)
+# mpirun instead exits 9, which an application could also do, so that alone isn't enough. It prints this
+# to stdout, and the IMPACT-Z and Elegant drivers relay it to stderr.
+MPIRUN_SIGKILL = "killed (signal 9)"
 OOM_MARKERS = (
+    MPIRUN_SIGKILL,
     "out of memory",  # ImpactX on GPU (AMReX arena), PyTorch on GPU, Xsuite on GPU (cupy), Elegant on GPU
     "out of gpu memory",  # SciBmad on GPU (CUDA.jl): the "GPU" infix breaks "out of memory"
     "outofgpumemory",  # the same CUDA.jl error by its type name; not forced
@@ -63,8 +74,6 @@ OOM_MARKERS = (
     "memory allocation failure",  # Elegant on CPU (SDDS tmalloc)
     "bad_alloc",  # C++ std::bad_alloc; not forced
 )
-# How mpirun reports a SIGKILLed rank, such as from the kernel's OOM killer. It then returns 9, not 137.
-OOM_KILLED = "Killed"
 
 
 def default_ncores() -> int:
@@ -158,20 +167,22 @@ def _oom_line(stderr: str) -> str:
     """The first stderr line reporting a failed allocation, or an empty string."""
     for line in (stderr or "").splitlines():
         lowered = line.lower()
-        if OOM_KILLED in line or any(marker in lowered for marker in OOM_MARKERS):
+        if any(marker in lowered for marker in OOM_MARKERS):
             return line.strip()[:200]
     return ""
 
 
-def _classify_failure(returncode: int, stderr: str) -> tuple[str, str]:
+def _classify_failure(returncode: int, stderr: str, stdout: str = "") -> tuple[str, str]:
     # The reason is the line that matched, so a wrong match can be seen in the results. The last line is
     # often just the end of a traceback, as with Bmad, IMPACT-Z, SciBmad and Elegant.
     oom_line = _oom_line(stderr)
     if oom_line:
         return "oom", oom_line
-    if returncode in (137, 139):
-        return "oom", _last_error_line(stderr)
-    return "failed", _last_error_line(stderr)
+    if returncode in SIGKILL_RETURN_CODES or MPIRUN_SIGKILL in (stdout or "").lower():
+        return "oom", f"killed by SIGKILL (return code {returncode})"
+    # That includes a segfault: no code ended in one when forced out of memory, and reading it as `oom`
+    # would hide a real crash from --retry-failed.
+    return "failed", _last_error_line(stderr) or f"return code {returncode}"
 
 
 def _last_error_line(stderr: str) -> str:
@@ -266,15 +277,15 @@ def _run_layout(cfg, sc, npart, ranks, threads, nruns, ncores, cpus):
             proc = subprocess.run(cmd, cwd=str(REPO_ROOT), env=env,
                                   capture_output=True, text=True)
             if proc.returncode != 0:
-                status, reason = _classify_failure(proc.returncode, proc.stderr)
+                status, reason = _classify_failure(proc.returncode, proc.stderr, proc.stdout)
                 return None, None, status, reason
             ns = results_mod.parse_track_ns(proc.stdout)
             if ns is None:
                 # A clean exit doesn't mean the run got anywhere: PyORBIT returns 0 after an uncaught
                 # exception once orbit.core is imported, so its failures only show up here.
-                status, reason = _classify_failure(proc.returncode, proc.stderr)
+                status, reason = _classify_failure(proc.returncode, proc.stderr, proc.stdout)
                 if status == "failed":
-                    reason = f"no Track line ({reason})" if reason else "no Track line"
+                    reason = f"no Track line ({reason})" if (proc.stderr or "").strip() else "no Track line"
                 return None, None, status, reason
             best_ns = ns if best_ns is None else min(best_ns, ns)
             obs = results_mod.parse_observables(proc.stdout)
