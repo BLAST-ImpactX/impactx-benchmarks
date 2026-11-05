@@ -35,7 +35,7 @@ metadata:
       ninja: 1.10.0
       pixi: pixi 0.77.1
     cpu:
-      BogoMIPS: '4890.87'
+      BogoMIPS: '4891.16'
       CPU family: '25'
       CPU max MHz: '3530.4929'
       CPU min MHz: '1500.0000'
@@ -56,13 +56,13 @@ metadata:
     cpu_count: 128
     cpu_governor: performance
     cpu_model: AMD EPYC 7763 64-Core Processor
-    hostname: nid001324
+    hostname: nid001013
     kernel: 6.4.0-150600.23.135_15.0.45-cray_shasta_c
     machine_slug: perlmutter
     mem_total: 251.2 GiB
     os: SUSE Linux Enterprise Server 15 SP6
     python: 3.14.6
-    timestamp_utc: '2026-11-05T00:49:48Z'
+    timestamp_utc: '2026-11-05T05:47:41Z'
   versions:
     bmad:
       _openmp_mutex: '4.5'
@@ -18240,7 +18240,7 @@ results:
       reason: 'RuntimeError: Kokkos ERROR: Cuda memory space failed to allocate 52.15
         GiB (label="particles").'
       scenario: fodo_chromatic
-      status: failed
+      status: oom
       track_ns: null
     fodo_chromatic_16000000:
       cores: 1r x 1t
@@ -18342,7 +18342,7 @@ results:
       reason: 'RuntimeError: Kokkos ERROR: Cuda memory space failed to allocate 52.15
         GiB (label="particles").'
       scenario: fodo_exact
-      status: failed
+      status: oom
       track_ns: null
     fodo_exact_16000000:
       cores: 1r x 1t
@@ -18444,7 +18444,7 @@ results:
       reason: 'RuntimeError: Kokkos ERROR: Cuda memory space failed to allocate 52.15
         GiB (label="particles").'
       scenario: htu
-      status: failed
+      status: oom
       track_ns: null
     htu_16000000:
       cores: 1r x 1t
@@ -18628,7 +18628,7 @@ results:
       reason: 'RuntimeError: Kokkos ERROR: Cuda memory space failed to allocate 52.15
         GiB (label="particles").'
       scenario: spacecharge
-      status: failed
+      status: oom
       track_ns: null
     spacecharge_16000000:
       cores: 1r x 1t
@@ -18714,7 +18714,7 @@ results:
       reason: 'RuntimeError: Kokkos ERROR: Cuda memory space failed to allocate 52.15
         GiB (label="particles").'
       scenario: spacecharge_2p5d
-      status: failed
+      status: oom
       track_ns: null
     spacecharge_2p5d_16000000:
       cores: 1r x 1t

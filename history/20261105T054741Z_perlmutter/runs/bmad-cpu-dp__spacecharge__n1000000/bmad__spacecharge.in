@@ -1,0 +1,21 @@
+&beam_track_params
+  lat_filename = '/pscratch/sd/a/ahuebl/impactx-benchmarks/runs/perlmutter/bmad-cpu-dp__spacecharge__n1000000/bmad__spacecharge.bmad'
+  ran_seed = 12345
+  spin = F
+  n_warmup = 1
+  beam_init%n_particle = 1000000
+  beam_init%n_bunch = 1
+  beam_init%a_emit = 1.5533051715234088e-12
+  beam_init%b_emit = 1.5533051715234088e-12
+  beam_init%sig_z = 0.001
+  beam_init%sig_pz = 1.9241656871487193e-08
+  beam_init%center(6) = 0.0
+  beam_init%distribution_type = 'ran_gauss', 'ran_gauss', 'ran_gauss'
+  ! Pin the converter: the default 'ziggurat' sampled kurtosis 3.65 instead of 3 on a Bmad checkout
+  ! from 2026-06-17, which alone moved this scenario's RMS transverse kicks by several percent.
+  beam_init%random_gauss_converter = 'exact'
+  beam_init%bunch_charge = 1e-09
+  space_charge = T
+  sc_ds = 6.4
+  sc_mesh = 64, 64, 64
+/

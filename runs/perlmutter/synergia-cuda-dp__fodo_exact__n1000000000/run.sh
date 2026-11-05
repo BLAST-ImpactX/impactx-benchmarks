@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # FAITHFUL run manifest -- synergia-cuda-dp / fodo_exact / n=1000000000
-#   status: failed   layout: 1r x 1t   env: synergia-cuda   device: cuda   precision: double
+#   status: oom   layout: 1r x 1t   env: synergia-cuda   device: cuda   precision: double
 # The input file(s) in this folder are the template-resolved script that ran; the
 # command below is exactly how the harness launched it (auto-written by
 # benchmarks/runner.py for author review / reproduction). Run from the repo root.
