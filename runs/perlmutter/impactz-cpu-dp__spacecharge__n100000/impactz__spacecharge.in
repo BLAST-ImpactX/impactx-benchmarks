@@ -14,13 +14,13 @@
 !--- q/m per charge state, normalised = charge/mass[eV] (electron: -1/mass)
 -1.956951180917e-06
 !--- X: alpha  beta[m]  eps_norm[m.rad]  xscale pxscale  xoff pxoff
-0.000000000000e+00 1.000000000000e+00 4.902367753149e-05 1.0 1.0 0.0 0.0
+0.000000000000e+00 6.437884958686e+05 7.614873183676e-10 1.0 1.0 0.0 0.0
 !--- Y: alpha  beta[m]  eps_norm[m.rad]  yscale pyscale  yoff pyoff
-0.000000000000e+00 1.000000000000e+00 4.902367753149e-05 1.0 1.0 0.0 0.0
+0.000000000000e+00 6.437884958686e+05 7.614873183676e-10 1.0 1.0 0.0 0.0
 !--- Z: alpha_z  beta_z[deg/MeV]  eps_z[deg.MeV]  zscale pzscale  zoff pzoff
-0.0 6.231621427179e+01 3.910668880101e-02 1.0 1.0 0.0 0.0
+0.0 3.238609579622e+05 7.524774872891e-06 1.0 1.0 0.0 0.0
 !--- Bcurrent[A]  Bkin_energy[eV]  Bmass[eV]  Bcharge  Bfreq[Hz]  Bphase[deg]
 1.300000000000e+00 2.500000000000e+08 5.109989506900e+05 -1.0 1.300000000000e+09 0.0
 !====================== ACC. LATTICE ======================
 !--- drift: length[m]  bnseg(1 => ONE SC solve)  bmpstp(1 => SC every step)  type(0=drift)  radius[m]
-6.000000000000e+00 1 1 0 1.0 /
+6.400000000000e+00 1 1 0 1.0 /

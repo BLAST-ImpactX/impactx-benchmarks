@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # FAITHFUL run manifest -- cheetah-cpu-compiled-sp-fm / spacecharge / n=100000
-#   status: supported   layout: 1r x 32t   env: cheetah   device: cpu   precision: single
+#   status: supported   layout: 1r x 4t   env: cheetah   device: cpu   precision: single
 # The input file(s) in this folder are the template-resolved script that ran; the
 # command below is exactly how the harness launched it (auto-written by
 # benchmarks/runner.py for author review / reproduction). Run from the repo root.
@@ -9,10 +9,10 @@ set -eu
 
 export BENCH_FASTMATH=1
 export CUDA_VISIBLE_DEVICES=''
-export JULIA_NUM_THREADS=32
-export MKL_NUM_THREADS=32
+export JULIA_NUM_THREADS=4
+export MKL_NUM_THREADS=4
 export MPICH_GPU_SUPPORT_ENABLED=0
-export OMP_NUM_THREADS=32
+export OMP_NUM_THREADS=4
 export PYTHONPATH=/pscratch/sd/a/ahuebl/impactx-benchmarks:/opt/nersc/pymon
 export TORCHINDUCTOR_USE_FAST_MATH=1
 

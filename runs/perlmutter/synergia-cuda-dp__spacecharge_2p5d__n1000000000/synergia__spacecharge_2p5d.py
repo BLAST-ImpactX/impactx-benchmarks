@@ -63,6 +63,8 @@ def make_lattice():
 
 def make_propagator(lattice):
     sc = synergia.collective.Space_charge_2d_open_hockney_options(n, n, n)  # gridz = long. bins
+    # Every rank does its own FFT. Unlike the 3D solver there is nothing to gain from sharing it: this 2D
+    # FFT takes about 0.15 ms per solve on one core, and sharing would add an Allreduce (no gain measured).
     sc.comm_group_size = 1
     stepper = synergia.simulation.Split_operator_stepper(sc, 1)  # 1 step -> 1 solve
     return synergia.simulation.Propagator(lattice, stepper)

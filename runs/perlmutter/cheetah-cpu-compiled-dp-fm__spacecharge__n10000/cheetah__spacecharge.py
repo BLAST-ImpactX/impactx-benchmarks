@@ -6,18 +6,18 @@ import torch
 
 import cheetah
 
-from scenarios._obs import Timer, beam_observables
+from scenarios._obs import Timer, beam_observables, momentum_observables
 
 try:
-    torch.set_num_interop_threads(4)  # match compute thread count
+    torch.set_num_interop_threads(8)  # match compute thread count
 except RuntimeError:
     pass
-torch.set_num_threads(4)
+torch.set_num_threads(8)
 torch.set_default_dtype(torch.float64)
 torch.set_default_device("cpu")
 torch.set_float32_matmul_precision("highest")
 
-p = {'mass_MeV': 0.51099895069, 'kin_energy_MeV': 250.0, 'bunch_charge_C': 1e-09, 'emit_x': 1e-07, 'emit_y': 1e-07, 'beta_x': 1.0, 'beta_y': 1.0, 'alpha_x': 0.0, 'alpha_y': 0.0, 'sigma_t': 0.001, 'sigma_p': 0.0001, 'drift_length': 6.0, 'n_cell': 64, 'grid_extent_sigma': 3.0}
+p = {'mass_MeV': 0.51099895069, 'kin_energy_MeV': 250.0, 'bunch_charge_C': 1e-09, 'emit_x': 1.5533051715234088e-12, 'emit_y': 1.5533051715234088e-12, 'beta_x': 643788.4958686174, 'beta_y': 643788.4958686174, 'alpha_x': 0.0, 'alpha_y': 0.0, 'sigma_t': 0.001, 'sigma_p': 1.9241656871487193e-08, 'drift_length': 6.4, 'n_cell': 64, 'grid_extent_sigma': 5.0}
 npart = 10000
 n = int(p["n_cell"])
 ext = float(p["grid_extent_sigma"])
@@ -73,6 +73,13 @@ obs = beam_observables(
     outgoing.py.detach().cpu().numpy(),
     tau=outgoing.tau.detach().cpu().numpy(),
 )
+obs.update(momentum_observables(
+    outgoing.x.detach().cpu().numpy(),
+    outgoing.px.detach().cpu().numpy(),
+    outgoing.y.detach().cpu().numpy(),
+    outgoing.py.detach().cpu().numpy(),
+    outgoing.p.detach().cpu().numpy(),  # Cheetah's p is dE / (p0 c)
+))
 
 print(f"Track: {t.ns}ns")
 print("Validate: " + json.dumps(obs))

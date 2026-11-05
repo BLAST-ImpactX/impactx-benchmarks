@@ -1,18 +1,21 @@
 #!/usr/bin/env python3
 # Auto-generated benchmark run script: Synergia3 / spacecharge (3D PIC).
 #
-# Model matched to ImpactX (the reference) for a FAIR comparison:
+# Setup, as close to ImpactX as the Python interface allows:
 #   * solver: Space_charge_3d_open_hockney -- OPEN-boundary Hockney FFT Poisson on a doubled
-#             (zero-padded) grid, with the default green_fn = "linear" INTEGRATED Green function.
-#             That is the ImpactX-IGF analog (Qiang/Ryne IGF family), NOT the cheaper point-1/r
-#             GF (PyORBIT's choice, flagged there). So this is a like-for-like IGF comparison.
+#             (zero-padded) grid, with the default green_fn = "linear". That kernel is integrated
+#             along z only and point-sampled in x and y (alg_g2_linear), so it is NOT a full 3D IGF.
+#             The point-sampled option is not exposed to Python.
 #   * grid:   n_cell^3 cells (= ImpactX n_cell).
 #   * deposition/gather: CIC (linear) -- same as ImpactX particle_shape=1.
 #   * exact (non-paraxial) libFF drift.
-# Differences vs ImpactX, documented for honesty (both open-BC FFT-PIC, agree within the 5% tol):
-#   * Synergia's open-BC domain is DYNAMIC (n_sigma * RMS, default 8 sigma) per solve, vs ImpactX's
-#     prob_relative=1.2 (beam max-extent +10%). Open BC -> size-insensitive as long as the box
-#     contains the beam, so this is not a meaningful model difference.
+# Differences vs ImpactX that matter for this benchmark:
+#   * The Poisson solve runs on (x, y, c*dt) with no rest-frame stretch; gamma enters only the kick
+#     factor (source: space_charge_3d_open_hockney.cc at the built commit). That gives the right
+#     transverse kick on a bunch long in the lab frame, but not on this one, which is 490:1 only in the
+#     rest frame. The longitudinal kick is low in both cases (<cdt dpop> -59% at 100:1 in the lab frame).
+#   * Synergia's open-BC domain is DYNAMIC (n_sigma * RMS, default 8 sigma in total, so +/-4 sigma)
+#     per solve, vs ImpactX's prob_relative=1.2 (beam max-extent +10%).
 #   * ONE space-charge solve over the drift, like every other SC code (fairness invariant). The
 #     split-operator applies it as a CENTERED kick: half-drift -> 1 SC kick -> half-drift (1 solve).
 # One untimed warm-up propagate (also warms the FFT plan + Kokkos kernels), then a fresh beam is
@@ -25,7 +28,7 @@ import synergia
 
 from scenarios._obs import Timer
 
-p = {'mass_MeV': 0.51099895069, 'kin_energy_MeV': 250.0, 'bunch_charge_C': 1e-09, 'emit_x': 1e-07, 'emit_y': 1e-07, 'beta_x': 1.0, 'beta_y': 1.0, 'alpha_x': 0.0, 'alpha_y': 0.0, 'sigma_t': 0.001, 'sigma_p': 0.0001, 'drift_length': 6.0, 'n_cell': 64, 'grid_extent_sigma': 3.0}
+p = {'mass_MeV': 0.51099895069, 'kin_energy_MeV': 250.0, 'bunch_charge_C': 1e-09, 'emit_x': 1.5533051715234088e-12, 'emit_y': 1.5533051715234088e-12, 'beta_x': 643788.4958686174, 'beta_y': 643788.4958686174, 'alpha_x': 0.0, 'alpha_y': 0.0, 'sigma_t': 0.001, 'sigma_p': 1.9241656871487193e-08, 'drift_length': 6.4, 'n_cell': 64, 'grid_extent_sigma': 5.0}
 npart = 16000000
 n = int(p["n_cell"])
 RANKS = 1
@@ -75,7 +78,11 @@ def make_lattice():
 
 def make_propagator(lattice):
     sc = synergia.collective.Space_charge_3d_open_hockney_options(n, n, n)
-    sc.comm_group_size = 1  # canonical single-bunch setting (fodo.py); required on GPU
+    # Ranks in one group share a distributed FFT. With group size 1, every rank does the whole FFT on its
+    # own threads, which is the only option on GPU: cuFFT refuses a communicator larger than 1. Sharing adds
+    # a second full-grid Allreduce, so it only pays when a rank has no threads to run the FFT with. Measured
+    # on 4 cores: 4r x 1t gains 15-27%, 2r x 2t loses 4-14%. Particles stay bit-identical either way.
+    sc.comm_group_size = 1
     # 1 split-operator step over the single-drift lattice == exactly ONE field solve.
     stepper = synergia.simulation.Split_operator_stepper(sc, 1)
     return synergia.simulation.Propagator(lattice, stepper)
@@ -120,6 +127,11 @@ obs = {
     "sigma_t": float(std[4]),
     "emit_x": float(math.sqrt(max(mom2[0, 0] * mom2[1, 1] - mom2[0, 1] ** 2, 0.0))),
     "emit_y": float(math.sqrt(max(mom2[2, 2] * mom2[3, 3] - mom2[2, 3] ** 2, 0.0))),
+    "sigma_px": float(math.sqrt(mom2[1, 1])),
+    "sigma_py": float(math.sqrt(mom2[3, 3])),
+    "sigma_pe": float(math.sqrt(mom2[5, 5])) * ref.get_beta(),  # dp/p0 -> dE/(p0 c)
+    "xpx": float(mom2[0, 1]),
+    "ypy": float(mom2[2, 3]),
 }
 
 if rank == 0:

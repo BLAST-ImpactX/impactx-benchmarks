@@ -39,17 +39,18 @@ def load_beam(sim):
 
 
 sim = ImpactX()
-# Grid decomposition keyed on the MPI rank count of this layout (8 rank(s), baked in at
-# render time). ONE rank (every GPU run + 1-rank pure-OpenMP CPU layouts) -> EXACTLY ONE grid, so
-# there is no inter-box particle Redistribute (which otherwise dominates and scales super-linearly).
-# >1 rank -> split so each rank can own a grid. The open-BC FFT solver gathers the full domain, so
-# the result is unchanged. amr.max_grid_size = n_cell (before init_grids) stops AMReX auto-splitting.
-bf = max(n // 2, 1)
+# One box per MPI rank of this layout (8 rank(s), baked in at render time by the harness), so
+# every GPU run and 1-rank CPU layout gets exactly one box. See the same block in spacecharge.py.jinja.
+halvings = (8 - 1).bit_length()  # ceil(log2(ranks)); each halving doubles the boxes
+bf = max(n // 2 ** ((halvings + 2) // 3), 1)
 sim.max_level = 0
 sim.n_cell = [n, n, n]
 sim.blocking_factor_x = [bf]
 sim.blocking_factor_y = [bf]
 sim.blocking_factor_z = [bf]
+sim.max_grid_size_x = [n]
+sim.max_grid_size_y = [n]
+sim.max_grid_size_z = [n]
 sim.particle_shape = 1
 sim.space_charge = "2p5D"
 sim.poisson_solver = "fft"   # IGF / open boundary (matches Cheetah)

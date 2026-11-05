@@ -5,12 +5,12 @@
 parameter[geometry] = open
 parameter[particle] = electron
 beginning[e_tot] = 250510998.95069
-beginning[beta_a] = 1.0
+beginning[beta_a] = 643788.4958686174
 beginning[alpha_a] = 0.0
-beginning[beta_b] = 1.0
+beginning[beta_b] = 643788.4958686174
 beginning[alpha_b] = 0.0
 
-dr: drift, L = 6.0
+dr: drift, L = 6.4
 
 sc_line: line = (dr)
 use, sc_line

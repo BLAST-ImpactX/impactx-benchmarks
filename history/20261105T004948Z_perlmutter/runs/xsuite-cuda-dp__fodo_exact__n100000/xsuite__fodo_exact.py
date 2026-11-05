@@ -1,0 +1,57 @@
+#!/usr/bin/env python3
+# Auto-generated benchmark run script: Xsuite / fodo_exact (drift-kick-drift-exact quad + Drift exact; exact non-paraxial).
+import json
+import math
+
+import numpy as np
+import xobjects as xo
+import xtrack as xt
+from scenarios._xsuite_kernel_cache import enable as _enable_xsk_cache
+from scenarios._xsuite_threaded_fft import make_context
+_enable_xsk_cache()  # persistent compiled-kernel cache: compile once, reuse across layouts/runs
+
+from scenarios._obs import Timer, beam_observables, gaussian_twiss_plane
+
+p = {'mass_MeV': 0.51099895069, 'kin_energy_MeV': 100.0, 'emit_x': 0.0001, 'emit_y': 0.0001, 'beta_x': 0.01, 'beta_y': 0.01, 'alpha_x': 0.0, 'alpha_y': 0.0, 'sigma_t': 0.001, 'sigma_p': 0.01, 'quad_length': 0.5, 'drift_length': 0.1, 'k1': 2.0}
+npart = 100000
+rng = np.random.default_rng(12345)
+ctx = make_context("cuda", omp_num_threads=1)
+
+xx = gaussian_twiss_plane(p["emit_x"], p["beta_x"], p["alpha_x"], npart, rng)
+yy = gaussian_twiss_plane(p["emit_y"], p["beta_y"], p["alpha_y"], npart, rng)
+delta = rng.normal(0.0, p["sigma_p"], npart)
+zeta = rng.normal(0.0, p["sigma_t"], npart)
+
+mass0 = p["mass_MeV"] * 1e6
+e_tot = (p["kin_energy_MeV"] + p["mass_MeV"]) * 1e6
+p0c = math.sqrt(e_tot * e_tot - mass0 * mass0)
+
+particles = xt.Particles(
+    _context=ctx, mass0=mass0, q0=-1.0, p0c=p0c,
+    x=xx[0], px=xx[1], y=yy[0], py=yy[1], zeta=zeta, delta=delta,
+)
+
+# Same model as the other codes:
+#  - drift-kick-drift-exact: exact nonlinear quad (exact sqrt drift between kicks),
+#    matching ImpactX ExactQuad / Cheetah drift_kick_drift / pyAT ExactMultipolePass.
+#  - Drift model="exact": full non-paraxial exact drift.
+line = xt.Line(
+    elements=[
+        # num_multipole_kicks=4: converged on the hot beam through the long 0.5 m quad (the exact-drift substeps absorb
+        # most of the nonlinearity, so even 1 nearly converges; default auto=1).
+        xt.Quadrupole(length=p["quad_length"], k1=p["k1"], model="drift-kick-drift-exact", num_multipole_kicks=4),
+        xt.Drift(length=p["drift_length"], model="exact"),
+        xt.Quadrupole(length=p["quad_length"], k1=-p["k1"], model="drift-kick-drift-exact", num_multipole_kicks=4),
+        xt.Drift(length=p["drift_length"], model="exact"),
+    ]
+)
+line.build_tracker(_context=ctx)
+
+line.track(particles.copy())  # warm-up: cffi kernel JIT (NOT timed)
+with Timer() as t:
+    line.track(particles)
+
+obs = beam_observables(particles.x, particles.px, particles.y, particles.py)
+
+print(f"Track: {t.ns}ns")
+print("Validate: " + json.dumps(obs))

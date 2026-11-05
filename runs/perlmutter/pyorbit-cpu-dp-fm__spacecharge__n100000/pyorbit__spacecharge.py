@@ -19,7 +19,7 @@ from orbit.core.orbit_mpi import mpi_comm, MPI_Comm_rank, MPI_Comm_size
 
 from scenarios._obs import gaussian_twiss_plane
 
-p = {'mass_MeV': 0.51099895069, 'kin_energy_MeV': 250.0, 'bunch_charge_C': 1e-09, 'emit_x': 1e-07, 'emit_y': 1e-07, 'beta_x': 1.0, 'beta_y': 1.0, 'alpha_x': 0.0, 'alpha_y': 0.0, 'sigma_t': 0.001, 'sigma_p': 0.0001, 'drift_length': 6.0, 'n_cell': 64, 'grid_extent_sigma': 3.0}
+p = {'mass_MeV': 0.51099895069, 'kin_energy_MeV': 250.0, 'bunch_charge_C': 1e-09, 'emit_x': 1.5533051715234088e-12, 'emit_y': 1.5533051715234088e-12, 'beta_x': 643788.4958686174, 'beta_y': 643788.4958686174, 'alpha_x': 0.0, 'alpha_y': 0.0, 'sigma_t': 0.001, 'sigma_p': 1.9241656871487193e-08, 'drift_length': 6.4, 'n_cell': 64, 'grid_extent_sigma': 5.0}
 npart = 100000
 n = int(p["n_cell"])
 ELEM_CHARGE = 1.602176634e-19
@@ -89,6 +89,11 @@ obs = {
     "sigma_t": math.sqrt(max(cc(4, 4), 0.0)),
     "emit_x": math.sqrt(max(cc(0, 0) * cc(1, 1) - cc(0, 1) ** 2, 0.0)),
     "emit_y": math.sqrt(max(cc(2, 2) * cc(3, 3) - cc(2, 3) ** 2, 0.0)),
+    "sigma_px": math.sqrt(max(cc(1, 1), 0.0)),
+    "sigma_py": math.sqrt(max(cc(3, 3), 0.0)),
+    "sigma_pe": math.sqrt(max(cc(5, 5), 0.0)) / p0c,  # dE[GeV] -> dE/(p0 c)
+    "xpx": cc(0, 1),
+    "ypy": cc(2, 3),
 }
 
 if rank == 0:

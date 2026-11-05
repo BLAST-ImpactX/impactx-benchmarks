@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 # Auto-generated benchmark run script: Xsuite / spacecharge (3D PIC space charge).
 # xfields SpaceCharge3D with solver="FFTSolver3D": the genuine 3D integrated-Green-function
-# open-boundary FFT Poisson solver (same family as ImpactX/Cheetah). n_cell^3 grid, exact
-# drift, +/- grid_extent_sigma * sigma box (open BC -> size-insensitive). One SC kick.
+# open-boundary FFT Poisson solver (same family as ImpactX/Cheetah). n_cell^3 grid, exact drift. One
+# SC kick, including its longitudinal part (apply_z_kick), which the check validates via sigma_pe.
+# The box is FIXED at construction, at +/- grid_extent_sigma * sigma of this beam, and particles
+# outside it get no kick. That is sound here because the cold beam barely grows over the drift; on a
+# beam that grows, the mesh would no longer hold the charge when the kick comes after the drift.
 import json
 import math
 
@@ -13,10 +16,10 @@ from scenarios._xsuite_kernel_cache import enable as _enable_xsk_cache
 _enable_xsk_cache()  # persistent compiled-kernel cache: compile once, reuse across layouts/runs
 import xfields as xf
 
-from scenarios._obs import Timer, beam_observables, gaussian_twiss_plane
+from scenarios._obs import Timer, beam_observables, gaussian_twiss_plane, momentum_observables
 from scenarios._xsuite_threaded_fft import make_context
 
-p = {'mass_MeV': 0.51099895069, 'kin_energy_MeV': 250.0, 'bunch_charge_C': 1e-09, 'emit_x': 1e-07, 'emit_y': 1e-07, 'beta_x': 1.0, 'beta_y': 1.0, 'alpha_x': 0.0, 'alpha_y': 0.0, 'sigma_t': 0.001, 'sigma_p': 0.0001, 'drift_length': 6.0, 'n_cell': 64, 'grid_extent_sigma': 3.0}
+p = {'mass_MeV': 0.51099895069, 'kin_energy_MeV': 250.0, 'bunch_charge_C': 1e-09, 'emit_x': 1.5533051715234088e-12, 'emit_y': 1.5533051715234088e-12, 'beta_x': 643788.4958686174, 'beta_y': 643788.4958686174, 'alpha_x': 0.0, 'alpha_y': 0.0, 'sigma_t': 0.001, 'sigma_p': 1.9241656871487193e-08, 'drift_length': 6.4, 'n_cell': 64, 'grid_extent_sigma': 5.0}
 npart = 1000000
 n = int(p["n_cell"])
 N = float(p["grid_extent_sigma"])
@@ -24,7 +27,7 @@ ds = p["drift_length"]
 ELEM_CHARGE = 1.602176634e-19
 # threaded scipy.fft plan (workers = OMP threads); xobjects' default CPU FFT is single-threaded
 # numpy (pyfftw, its threaded path, is broken with xfields). See scenarios/_xsuite_threaded_fft.py
-ctx = make_context("cpu", omp_num_threads=16, threaded_fft=True)
+ctx = make_context("cpu", omp_num_threads=64, threaded_fft=True)
 
 rng = np.random.default_rng(12345)
 xx = gaussian_twiss_plane(p["emit_x"], p["beta_x"], p["alpha_x"], npart, rng)
@@ -49,7 +52,7 @@ sigy = math.sqrt(p["emit_y"] * p["beta_y"])
 sigz = p["sigma_t"]
 
 sc = xf.SpaceCharge3D(
-    _context=ctx, update_on_track=True, length=ds, apply_z_kick=False,
+    _context=ctx, update_on_track=True, length=ds, apply_z_kick=True,
     x_range=(-N * sigx, N * sigx), y_range=(-N * sigy, N * sigy),
     z_range=(-N * sigz, N * sigz), nx=n, ny=n, nz=n,
     solver="FFTSolver3D", gamma0=gamma0,
@@ -63,5 +66,6 @@ with Timer() as t:
 
 obs = beam_observables(particles.x, particles.px, particles.y, particles.py,
                        tau=particles.zeta)
+obs.update(momentum_observables(particles.x, particles.px, particles.y, particles.py, particles.ptau))
 print(f"Track: {t.ns}ns")
 print("Validate: " + json.dumps(obs))

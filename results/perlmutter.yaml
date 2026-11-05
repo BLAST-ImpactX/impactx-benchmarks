@@ -13,56 +13,56 @@ metadata:
     synergia: v2024.04-209-g795b99f39
     xsuite: 0.53.4
   gpu:
-  - driver: 580.159.04
+  - driver: 580.178.04
     memory_total: 40960 MiB
     name: NVIDIA A100-SXM4-40GB
-  - driver: 580.159.04
+  - driver: 580.178.04
     memory_total: 40960 MiB
     name: NVIDIA A100-SXM4-40GB
-  - driver: 580.159.04
+  - driver: 580.178.04
     memory_total: 40960 MiB
     name: NVIDIA A100-SXM4-40GB
-  - driver: 580.159.04
+  - driver: 580.178.04
     memory_total: 40960 MiB
     name: NVIDIA A100-SXM4-40GB
   host:
     arch: x86_64
     compilers:
-      cmake: cmake version 3.26.3
+      cmake: cmake version 3.28.3
       gcc: 14.3.0
       gxx: 14.3.0
       julia: ''
       ninja: 1.10.0
       pixi: pixi 0.77.1
     cpu:
-      BogoMIPS: '4890.81'
+      BogoMIPS: '4890.87'
       CPU family: '25'
       CPU max MHz: '3530.4929'
       CPU min MHz: '1500.0000'
-      CPU(s): '256'
+      CPU(s): '128'
       Core(s) per socket: '64'
-      L1d cache: 4 MiB (128 instances)
-      L1i cache: 4 MiB (128 instances)
-      L2 cache: 64 MiB (128 instances)
-      L3 cache: 512 MiB (16 instances)
+      L1d cache: 2 MiB (64 instances)
+      L1i cache: 2 MiB (64 instances)
+      L2 cache: 32 MiB (64 instances)
+      L3 cache: 256 MiB (8 instances)
       Model: '1'
       Model name: AMD EPYC 7763 64-Core Processor
-      Socket(s): '2'
+      Socket(s): '1'
       Stepping: '1'
       Thread(s) per core: '2'
       Vendor ID: AuthenticAMD
       microarch: zen3
       simd: sse4_2,avx,avx2,fma
-    cpu_count: 256
+    cpu_count: 128
     cpu_governor: performance
     cpu_model: AMD EPYC 7763 64-Core Processor
-    hostname: nid004186
-    kernel: 6.4.0-150600.23.125_15.0.28-cray_shasta_c
+    hostname: nid001324
+    kernel: 6.4.0-150600.23.135_15.0.45-cray_shasta_c
     machine_slug: perlmutter
-    mem_total: 503.1 GiB
+    mem_total: 251.2 GiB
     os: SUSE Linux Enterprise Server 15 SP6
     python: 3.14.6
-    timestamp_utc: '2026-09-08T22:11:58Z'
+    timestamp_utc: '2026-11-05T00:49:48Z'
   versions:
     bmad:
       _openmp_mutex: '4.5'
@@ -1534,6 +1534,7 @@ metadata:
       zlib: 1.3.2
       zstd: 1.5.7
     impactz:
+      fftw: 3.3.11
       mpich: 5.0.1
     pyat:
       numpy: 2.4.6
@@ -2205,70 +2206,69 @@ results:
       scenario: htu_spin
       status: supported
       track_ns: 14094813910
-    spacecharge_1000:
-      cores: 1r x 32t
-      model: null
-      npart: 1000
-      observables:
-        emit_x: 9.999555828e-08
-        emit_y: 9.999700417e-08
-        sigma_t: 0.001000016578
-        sigma_x: 0.001923916456
-        sigma_y: 0.001923896875
-      physics: correct
-      push_per_sec: 18499.109184646768
-      reason: ''
-      scenario: spacecharge
-      status: supported
-      track_ns: 54056657
     spacecharge_10000:
       cores: 1r x 32t
       model: null
       npart: 10000
       observables:
-        emit_x: 9.999922329e-08
-        emit_y: 1.000010556e-07
-        sigma_t: 0.0009999997277
-        sigma_x: 0.001923921719
-        sigma_y: 0.001923943124
-      physics: correct
-      push_per_sec: 180110.9267175468
-      reason: ''
+        emit_x: 7.883594878e-11
+        emit_y: 7.776147925e-11
+        sigma_pe: 1.102291217e-06
+        sigma_px: 1.554903473e-07
+        sigma_py: 1.552895923e-07
+        sigma_t: 0.001000000024
+        sigma_x: 0.001000857874
+        sigma_y: 0.001000860394
+        xpx: 1.341776477e-10
+        ypy: 1.345716324e-10
+      physics: incorrect
+      push_per_sec: 182616.83496390688
+      reason: sigma_pe off by 42.72%
       scenario: spacecharge
       status: supported
-      track_ns: 55521340
+      track_ns: 54759464
     spacecharge_100000:
-      cores: 1r x 16t
+      cores: 1r x 8t
       model: null
       npart: 100000
       observables:
-        emit_x: 1.000002943e-07
-        emit_y: 1.000005829e-07
-        sigma_t: 0.000999997574
-        sigma_x: 0.001923934845
-        sigma_y: 0.001923938641
-      physics: correct
-      push_per_sec: 1153265.8748143269
-      reason: ''
+        emit_x: 7.569735835e-11
+        emit_y: 7.590848026e-11
+        sigma_pe: 1.037782755e-06
+        sigma_px: 1.537565887e-07
+        sigma_py: 1.537637427e-07
+        sigma_t: 0.001000000023
+        sigma_x: 0.001000856642
+        sigma_y: 0.00100085593
+        xpx: 1.339832816e-10
+        ypy: 1.338718883e-10
+      physics: incorrect
+      push_per_sec: 1121844.1933871817
+      reason: sigma_pe off by 46.07%
       scenario: spacecharge
       status: supported
-      track_ns: 86710274
+      track_ns: 89138938
     spacecharge_1000000:
       cores: 1r x 32t
       model: null
       npart: 1000000
       observables:
-        emit_x: 1.0000017e-07
-        emit_y: 9.999997356e-08
-        sigma_t: 0.001000000375
-        sigma_x: 0.001923932101
-        sigma_y: 0.00192392981
-      physics: correct
-      push_per_sec: 3940558.54997943
-      reason: ''
+        emit_x: 7.600646573e-11
+        emit_y: 7.595260153e-11
+        sigma_pe: 9.931206714e-07
+        sigma_px: 1.537165869e-07
+        sigma_py: 1.53781421e-07
+        sigma_t: 0.001000000022
+        sigma_x: 0.001000855226
+        sigma_y: 0.001000855899
+        xpx: 1.33761876e-10
+        ypy: 1.338671989e-10
+      physics: incorrect
+      push_per_sec: 3869995.189673379
+      reason: sigma_pe off by 48.39%
       scenario: spacecharge
       status: supported
-      track_ns: 253771131
+      track_ns: 258398254
     spacecharge_2p5d_1000:
       model: null
       npart: 1000
@@ -2554,78 +2554,75 @@ results:
       scenario: htu_spin
       status: unsupported_physics
       track_ns: null
-    spacecharge_1000:
-      cores: 1r x 4t
-      model: null
-      npart: 1000
-      observables:
-        emit_x: 9.990483211605396e-08
-        emit_y: 9.989646080337132e-08
-        mean_x: 4.4745251809308324e-12
-        mean_y: 1.9026656083998005e-12
-        sigma_t: 0.000999522412499843
-        sigma_x: 0.0019225773503176442
-        sigma_y: 0.001922585935121519
-      physics: correct
-      push_per_sec: 5994.5196782307285
-      reason: ''
-      scenario: spacecharge
-      status: supported
-      track_ns: 166819037
     spacecharge_10000:
       cores: 1r x 4t
       model: null
       npart: 10000
       observables:
-        emit_x: 9.99900809233213e-08
-        emit_y: 9.99892993383448e-08
-        mean_x: -2.021059528067859e-12
-        mean_y: -2.098748324436128e-12
-        sigma_t: 0.0009999489336673946
-        sigma_x: 0.0019234452311668803
-        sigma_y: 0.0019234413244079325
+        emit_x: 7.837754180628214e-11
+        emit_y: 8.063520573644545e-11
+        mean_x: 1.5959455978986625e-20
+        mean_y: -6.591949208711867e-21
+        sigma_pe: 1.9472540911866306e-06
+        sigma_px: 1.559634524428543e-07
+        sigma_py: 1.5585046470519138e-07
+        sigma_t: 0.000999949998749938
+        sigma_x: 0.0009999499987993442
+        sigma_y: 0.000999949998799349
+        xpx: 1.3482999288308467e-10
+        ypy: 1.333600465294256e-10
       physics: correct
-      push_per_sec: 56870.001699105036
+      push_per_sec: 57910.25941282912
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 175839629
+      track_ns: 172680974
     spacecharge_100000:
       cores: 1r x 4t
       model: null
       npart: 100000
       observables:
-        emit_x: 9.999909197350113e-08
-        emit_y: 9.999916351117584e-08
-        mean_x: 5.613659637138113e-13
-        mean_y: -4.525867461357969e-13
-        sigma_t: 0.0009999962379848646
-        sigma_x: 0.0019235282137526945
-        sigma_y: 0.0019235296815678109
+        emit_x: 7.573106258444587e-11
+        emit_y: 7.59239981843448e-11
+        mean_x: 1.4988010832439613e-20
+        mean_y: -2.2204460492503133e-21
+        sigma_pe: 1.9113563822348657e-06
+        sigma_px: 1.537256639714903e-07
+        sigma_py: 1.537095645242932e-07
+        sigma_t: 0.0009999949999874985
+        sigma_x: 0.0009999950000369113
+        sigma_y: 0.0009999950000369128
+        xpx: 1.3377649124507632e-10
+        ypy: 1.3364857074426239e-10
       physics: correct
-      push_per_sec: 403144.01698358665
+      push_per_sec: 412452.8847336277
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 248050314
+      track_ns: 242451935
     spacecharge_1000000:
       cores: 1r x 8t
       model: null
       npart: 1000000
       observables:
-        emit_x: 9.999969271810895e-08
-        emit_y: 1.0000002821040773e-07
-        mean_x: -5.1868870754034904e-14
-        mean_y: 2.4451399460723168e-14
-        sigma_t: 0.000999999728209462
-        sigma_x: 0.0019235382263964617
-        sigma_y: 0.0019235380098453442
+        emit_x: 7.607672354072568e-11
+        emit_y: 7.584579153532811e-11
+        mean_x: -1.7708057242771247e-20
+        mean_y: -8.326672684688674e-22
+        sigma_pe: 1.8931740550850577e-06
+        sigma_px: 1.5352756840225554e-07
+        sigma_py: 1.5353210722571924e-07
+        sigma_t: 0.0009999994999998776
+        sigma_x: 0.0009999995000492864
+        sigma_y: 0.0009999995000492927
+        xpx: 1.3335300081525092e-10
+        ypy: 1.334897010475756e-10
       physics: correct
-      push_per_sec: 1035902.1259947785
+      push_per_sec: 1057478.139288453
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 965342164
+      track_ns: 945646026
     spacecharge_2p5d_1000:
       model: null
       npart: 1000
@@ -2911,78 +2908,75 @@ results:
       scenario: htu_spin
       status: unsupported_physics
       track_ns: null
-    spacecharge_1000:
-      cores: 1r x 4t
-      model: null
-      npart: 1000
-      observables:
-        emit_x: 9.989502721585324e-08
-        emit_y: 9.989811252179905e-08
-        mean_x: -1.3844565473208891e-11
-        mean_y: -7.411983522602472e-12
-        sigma_t: 0.0009995456085506518
-        sigma_x: 0.0019225656982966531
-        sigma_y: 0.0019225805516730708
-      physics: correct
-      push_per_sec: 6022.898699481507
-      reason: ''
-      scenario: spacecharge
-      status: supported
-      track_ns: 166033010
     spacecharge_10000:
-      cores: 1r x 4t
+      cores: 1r x 8t
       model: null
       npart: 10000
       observables:
-        emit_x: 9.998949240148531e-08
-        emit_y: 9.9992236508548e-08
-        mean_x: 1.1314845144161367e-12
-        mean_y: 7.733916188024104e-13
-        sigma_t: 0.0009999614783340743
-        sigma_x: 0.0019234382189960901
-        sigma_y: 0.0019234434425558793
+        emit_x: 7.77673138281098e-11
+        emit_y: 7.59670223513012e-11
+        mean_x: 6.938893903907229e-21
+        mean_y: -3.469446951953614e-21
+        sigma_pe: 1.9061521421696335e-06
+        sigma_px: 1.5375453319686548e-07
+        sigma_py: 1.5375947735386305e-07
+        sigma_t: 0.0009999499987499358
+        sigma_x: 0.0009999499987993488
+        sigma_y: 0.0009999499987993453
+        xpx: 1.3262856907632885e-10
+        ypy: 1.3367357328903304e-10
       physics: correct
-      push_per_sec: 56829.06878245533
+      push_per_sec: 57394.567743057974
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 175966283
+      track_ns: 174232517
     spacecharge_100000:
-      cores: 1r x 4t
+      cores: 1r x 8t
       model: null
       npart: 100000
       observables:
-        emit_x: 9.999930559304305e-08
-        emit_y: 9.999897039359448e-08
-        mean_x: 1.3549920185873532e-13
-        mean_y: -4.570930500769066e-13
-        sigma_t: 0.0009999968407642845
-        sigma_x: 0.001923529608145186
-        sigma_y: 0.0019235286266179057
+        emit_x: 7.642033120098572e-11
+        emit_y: 7.688018037257768e-11
+        mean_x: -1.554312234475219e-20
+        mean_y: 6.6613381477509394e-21
+        sigma_pe: 1.8959640057742395e-06
+        sigma_px: 1.5388172258133695e-07
+        sigma_py: 1.5386905421398344e-07
+        sigma_t: 0.0009999949999875
+        sigma_x: 0.0009999950000369152
+        sigma_y: 0.0009999950000369126
+        xpx: 1.3356377027557286e-10
+        ypy: 1.3328498398569509e-10
       physics: correct
-      push_per_sec: 414721.9404474638
+      push_per_sec: 393568.3655918889
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 241125415
+      track_ns: 254085462
     spacecharge_1000000:
       cores: 1r x 8t
       model: null
       npart: 1000000
       observables:
-        emit_x: 9.99998522379801e-08
-        emit_y: 9.999980580280107e-08
-        mean_x: 2.8832556431268584e-13
-        mean_y: 1.7375404687269835e-13
-        sigma_t: 0.0009999992877109236
-        sigma_x: 0.0019235379635776715
-        sigma_y: 0.0019235378164744552
+        emit_x: 7.589113304836989e-11
+        emit_y: 7.582313035402374e-11
+        mean_x: -1.3988810110276972e-20
+        mean_y: -1.4876988529977098e-20
+        sigma_pe: 1.893100379342248e-06
+        sigma_px: 1.534194093944794e-07
+        sigma_py: 1.5342532097014353e-07
+        sigma_t: 0.0009999994999998817
+        sigma_x: 0.0009999995000492885
+        sigma_y: 0.0009999995000492784
+        xpx: 1.3333427004486304e-10
+        ypy: 1.3337975289040318e-10
       physics: correct
-      push_per_sec: 1080288.8661315716
+      push_per_sec: 1052644.5807700113
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 925678336
+      track_ns: 949988266
     spacecharge_2p5d_1000:
       model: null
       npart: 1000
@@ -3268,78 +3262,75 @@ results:
       scenario: htu_spin
       status: unsupported_physics
       track_ns: null
-    spacecharge_1000:
-      cores: 1r x 8t
-      model: null
-      npart: 1000
-      observables:
-        emit_x: 9.98978083321376e-08
-        emit_y: 9.990598021227601e-08
-        mean_x: 2.7743226382881404e-11
-        mean_y: 1.200169208459556e-11
-        sigma_t: 0.000999460659108802
-        sigma_x: 0.0019225817191785882
-        sigma_y: 0.0019225893298919063
-      physics: correct
-      push_per_sec: 13682.190890917229
-      reason: ''
-      scenario: spacecharge
-      status: supported
-      track_ns: 73087710
     spacecharge_10000:
-      cores: 1r x 32t
+      cores: 1r x 8t
       model: null
       npart: 10000
       observables:
-        emit_x: 9.998930795531765e-08
-        emit_y: 9.9988788101945e-08
-        mean_x: -1.9153958419337868e-11
-        mean_y: -1.8490027287043632e-13
-        sigma_t: 0.0009999468709652058
-        sigma_x: 0.0019234465250392986
-        sigma_y: 0.0019234447524764614
+        emit_x: 7.60104099063611e-11
+        emit_y: 7.745762312696444e-11
+        mean_x: -7.461541073894295e-12
+        mean_y: 7.679697944240616e-12
+        sigma_pe: 1.9018218355345382e-06
+        sigma_px: 1.5353312908299676e-07
+        sigma_py: 1.5356269637219953e-07
+        sigma_t: 0.0009999503574293557
+        sigma_x: 0.0009999502287222149
+        sigma_y: 0.0009999504608095401
+        xpx: 1.3338850366945667e-10
+        ypy: 1.3258763885628175e-10
       physics: correct
-      push_per_sec: 123429.70111362103
+      push_per_sec: 123952.9708050221
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 81017777
+      track_ns: 80675759
     spacecharge_100000:
       cores: 1r x 16t
       model: null
       npart: 100000
       observables:
-        emit_x: 9.99991548068397e-08
-        emit_y: 9.999863229171384e-08
-        mean_x: -9.647376373322913e-12
-        mean_y: -9.305010735261021e-12
-        sigma_t: 0.0009999950405111793
-        sigma_x: 0.0019235309936659125
-        sigma_y: 0.0019235287989772096
+        emit_x: 7.547347056315668e-11
+        emit_y: 7.516927596437238e-11
+        mean_x: -1.0742712452938008e-11
+        mean_y: 9.631520629937995e-12
+        sigma_pe: 1.8924119629946097e-06
+        sigma_px: 1.5316515399865397e-07
+        sigma_py: 1.5318416809230743e-07
+        sigma_t: 0.0009999940432046867
+        sigma_x: 0.0009999944922661557
+        sigma_y: 0.0009999951434754625
+        xpx: 1.3327813482796692e-10
+        ypy: 1.3347187488455915e-10
       physics: correct
-      push_per_sec: 714864.8722743427
+      push_per_sec: 709661.9977128587
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 139886577
+      track_ns: 140912153
     spacecharge_1000000:
-      cores: 1r x 32t
+      cores: 1r x 64t
       model: null
       npart: 1000000
       observables:
-        emit_x: 9.999959479871829e-08
-        emit_y: 1.000003229444288e-07
-        mean_x: 1.4511414661910749e-11
-        mean_y: 1.8315906004318096e-11
-        sigma_t: 0.0009999977746055326
-        sigma_x: 0.0019235305580797004
-        sigma_y: 0.0019235386463157182
+        emit_x: 7.606950210149418e-11
+        emit_y: 7.610355989895884e-11
+        mean_x: -5.116578956965157e-12
+        mean_y: 1.0608166143732944e-11
+        sigma_pe: 1.893573242592699e-06
+        sigma_px: 1.535592909701644e-07
+        sigma_py: 1.5355968044133896e-07
+        sigma_t: 0.0010000001937010706
+        sigma_x: 0.0010000012758359885
+        sigma_y: 0.0009999990430587422
+        xpx: 1.3339395362203322e-10
+        ypy: 1.3337457965265438e-10
       physics: correct
-      push_per_sec: 1409172.4883281237
+      push_per_sec: 1388045.6318891046
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 709636335
+      track_ns: 720437410
     spacecharge_2p5d_1000:
       model: null
       npart: 1000
@@ -3625,78 +3616,75 @@ results:
       scenario: htu_spin
       status: unsupported_physics
       track_ns: null
-    spacecharge_1000:
-      cores: 1r x 32t
-      model: null
-      npart: 1000
-      observables:
-        emit_x: 8.576496983752735
-        emit_y: 8.426998034482803
-        mean_x: 1.0248186299577356e-11
-        mean_y: 1.3784301700070501e-11
-        sigma_t: 0.0009995193034654337
-        sigma_x: 0.0019225732785985732
-        sigma_y: 0.001922569210201229
-      physics: unconverged
-      push_per_sec: 13531.658736438065
-      reason: emit_y off by 8703981330.25%
-      scenario: spacecharge
-      status: supported
-      track_ns: 73900770
     spacecharge_10000:
       cores: 1r x 8t
       model: null
       npart: 10000
       observables:
-        emit_x: 7.8886867524570565
-        emit_y: 7.8925253822210255
-        mean_x: -4.726098268292844e-12
-        mean_y: 1.5765692751301686e-11
-        sigma_t: 0.0009999422317732052
-        sigma_x: 0.00192344536626259
-        sigma_y: 0.0019234438767120785
+        emit_x: 5.90932532807504
+        emit_y: 5.848535286857341
+        mean_x: -1.3101205453835974e-11
+        mean_y: 7.577312999274e-12
+        sigma_pe: 63454.30510371511
+        sigma_px: 9704.896202548418
+        sigma_py: 9706.265124662006
+        sigma_t: 0.0009999505823308284
+        sigma_x: 0.0009999503605469732
+        sigma_y: 0.0009999503459091898
+        xpx: 7.697761630272727
+        ypy: 7.745764127568906
       physics: unconverged
-      push_per_sec: 125042.63797651701
-      reason: emit_x off by 7980622495.99%
+      push_per_sec: 126773.7871361624
+      reason: emit_x off by 7646953969420.74%
       scenario: spacecharge
       status: supported
-      track_ns: 79972721
+      track_ns: 78880660
     spacecharge_100000:
-      cores: 1r x 32t
+      cores: 1r x 4t
       model: null
       npart: 100000
       observables:
-        emit_x: 7.782854021412312
-        emit_y: 7.782392513766777
-        mean_x: -1.2239879652042874e-11
-        mean_y: -3.175994606863242e-11
-        sigma_t: 0.0009999922279395174
-        sigma_x: 0.00192353073752995
-        sigma_y: 0.0019235277399616104
+        emit_x: 5.759265278540204
+        emit_y: 5.77085186097801
+        mean_x: -9.573193793244173e-13
+        mean_y: -1.1607205081531902e-11
+        sigma_pe: 58911.63139861437
+        sigma_px: 9610.967848548149
+        sigma_py: 9606.404008957483
+        sigma_t: 0.0009999951112836304
+        sigma_x: 0.0009999956844935992
+        sigma_y: 0.0009999955525731273
+        xpx: 7.694203609615991
+        ypy: 7.679807675978357
       physics: unconverged
-      push_per_sec: 703418.5755893425
-      reason: emit_y off by 7783812037.52%
+      push_per_sec: 677841.3375289995
+      reason: emit_y off by 7467762577831.56%
       scenario: spacecharge
       status: supported
-      track_ns: 142162865
+      track_ns: 147527149
     spacecharge_1000000:
       cores: 1r x 32t
       model: null
       npart: 1000000
       observables:
-        emit_x: 7.777104643859335
-        emit_y: 7.7753209814467406
-        mean_x: 1.5008141559746947e-11
-        mean_y: -3.7698880248626665e-12
-        sigma_t: 0.0010000007449156962
-        sigma_x: 0.001923535912590172
-        sigma_y: 0.0019235405035755687
+        emit_x: 5.7662255156852025
+        emit_y: 5.776006423074648
+        mean_x: 3.845496425292083e-12
+        mean_y: 1.4701452048182517e-11
+        sigma_pe: 60077.47215633487
+        sigma_px: 9613.672790180333
+        sigma_py: 9611.073009529724
+        sigma_t: 0.0009999993563561457
+        sigma_x: 0.000999998361797612
+        sigma_y: 0.0010000017315241476
+        xpx: 7.692401770901736
+        ypy: 7.681848350924004
       physics: unconverged
-      push_per_sec: 1400992.3792220966
-      reason: emit_y off by 7768693091.58%
+      push_per_sec: 1395741.1229109438
+      reason: emit_y off by 7474432831523.43%
       scenario: spacecharge
       status: supported
-      track_ns: 713779757
+      track_ns: 716465241
     spacecharge_2p5d_1000:
       model: null
       npart: 1000
@@ -3982,78 +3970,75 @@ results:
       scenario: htu_spin
       status: unsupported_physics
       track_ns: null
-    spacecharge_1000:
-      cores: 1r x 32t
-      model: null
-      npart: 1000
-      observables:
-        emit_x: 9.990073846614075e-08
-        emit_y: 9.98965186103534e-08
-        mean_x: -3.2583540900132937e-13
-        mean_y: 1.0674682436595529e-11
-        sigma_t: 0.0009994850838487184
-        sigma_x: 0.0019225679034797522
-        sigma_y: 0.0019225866349840378
-      physics: correct
-      push_per_sec: 18192.94002222486
-      reason: ''
-      scenario: spacecharge
-      status: supported
-      track_ns: 54966377
     spacecharge_10000:
       cores: 1r x 8t
       model: null
       npart: 10000
       observables:
-        emit_x: 9.999029196800545e-08
-        emit_y: 9.999043178472142e-08
-        mean_x: 1.93152079781822e-12
-        mean_y: -1.2312693808969045e-12
-        sigma_t: 0.0009999458212637544
-        sigma_x: 0.0019234430280250109
-        sigma_y: 0.001923441765852768
+        emit_x: 7.602218462823475e-11
+        emit_y: 7.524652572195162e-11
+        mean_x: 1.942890293094024e-20
+        mean_y: -1.5265566588595903e-20
+        sigma_pe: 1.9300141735811343e-06
+        sigma_px: 1.53406489226453e-07
+        sigma_py: 1.5339741569008177e-07
+        sigma_t: 0.0009999499987499373
+        sigma_x: 0.000999949998799347
+        sigma_y: 0.000999949998799348
+        xpx: 1.3323597497811242e-10
+        ypy: 1.3366515788634895e-10
       physics: correct
-      push_per_sec: 151768.49913065488
+      push_per_sec: 152338.36727851088
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 65889826
+      track_ns: 65643345
     spacecharge_100000:
-      cores: 1r x 32t
+      cores: 1r x 16t
       model: null
       npart: 100000
       observables:
-        emit_x: 9.999870265740667e-08
-        emit_y: 9.999909761214161e-08
-        mean_x: 2.71251188732613e-13
-        mean_y: -9.141239898369236e-13
-        sigma_t: 0.0009999933122103093
-        sigma_x: 0.0019235286893458565
-        sigma_y: 0.0019235304858970723
+        emit_x: 7.627587720743125e-11
+        emit_y: 7.617020088284165e-11
+        mean_x: -3.191891195797325e-21
+        mean_y: -1.3183898417423734e-20
+        sigma_pe: 1.8898093212698619e-06
+        sigma_px: 1.5354629038297018e-07
+        sigma_py: 1.5354550760219958e-07
+        sigma_t: 0.0009999949999875
+        sigma_x: 0.0009999950000369115
+        sigma_y: 0.0009999950000369134
+        xpx: 1.3325996429650299e-10
+        ypy: 1.3331949460744886e-10
       physics: correct
-      push_per_sec: 912465.4302206525
+      push_per_sec: 890346.9764969678
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 109593193
+      track_ns: 112315763
     spacecharge_1000000:
-      cores: 1r x 32t
+      cores: 1r x 16t
       model: null
       npart: 1000000
       observables:
-        emit_x: 1.0000001038412901e-07
-        emit_y: 9.999995236631198e-08
-        mean_x: -1.0486325063840951e-13
-        mean_y: 7.742496925811083e-13
-        sigma_t: 0.0010000000391105846
-        sigma_x: 0.001923537530189474
-        sigma_y: 0.001923537463279469
+        emit_x: 7.610119619832143e-11
+        emit_y: 7.602102726052108e-11
+        mean_x: 3.8857805861880476e-21
+        mean_y: -2.1260770921571747e-20
+        sigma_pe: 1.8933184502225587e-06
+        sigma_px: 1.5352508916527428e-07
+        sigma_py: 1.535289688380351e-07
+        sigma_t: 0.0009999994999998778
+        sigma_x: 0.000999999500049285
+        sigma_y: 0.0009999995000492914
+        xpx: 1.333361817841136e-10
+        ypy: 1.333863715598816e-10
       physics: correct
-      push_per_sec: 2435848.2698615496
+      push_per_sec: 2198812.7383088362
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 410534602
+      track_ns: 454790889
     spacecharge_2p5d_1000:
       model: null
       npart: 1000
@@ -4339,78 +4324,75 @@ results:
       scenario: htu_spin
       status: unsupported_physics
       track_ns: null
-    spacecharge_1000:
-      cores: 1r x 8t
-      model: null
-      npart: 1000
-      observables:
-        emit_x: 9.989811123612257e-08
-        emit_y: 9.989838563627656e-08
-        mean_x: 5.443325790110976e-12
-        mean_y: -3.941386239603162e-11
-        sigma_t: 0.0009995092972870407
-        sigma_x: 0.001922582452522759
-        sigma_y: 0.0019225923588019535
-      physics: correct
-      push_per_sec: 24163.966625309233
-      reason: ''
-      scenario: spacecharge
-      status: supported
-      track_ns: 41383934
     spacecharge_10000:
       cores: 1r x 8t
       model: null
       npart: 10000
       observables:
-        emit_x: 9.999174968125411e-08
-        emit_y: 9.999181704335654e-08
-        mean_x: 2.9811417334713042e-12
-        mean_y: 1.813668859540485e-11
-        sigma_t: 0.0009999578797835365
-        sigma_x: 0.0019234419222012359
-        sigma_y: 0.0019234401128940298
+        emit_x: 7.987384663735365e-11
+        emit_y: 7.737728568319841e-11
+        mean_x: -1.0956122764582688e-11
+        mean_y: 7.458976369889569e-12
+        sigma_pe: 1.9407277234036385e-06
+        sigma_px: 1.5492153969920236e-07
+        sigma_py: 1.54982776951273e-07
+        sigma_t: 0.000999949956562782
+        sigma_x: 0.000999950082726926
+        sigma_y: 0.0009999502603901137
+        xpx: 1.3273453223854984e-10
+        ypy: 1.342759375841536e-10
       physics: correct
-      push_per_sec: 211804.90844743422
+      push_per_sec: 210307.16244364978
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 47213259
+      track_ns: 47549498
     spacecharge_100000:
       cores: 1r x 16t
       model: null
       npart: 100000
       observables:
-        emit_x: 9.999962121934826e-08
-        emit_y: 9.99988609991077e-08
-        mean_x: -1.6177104953385424e-11
-        mean_y: -5.834923513248214e-12
-        sigma_t: 0.0009999951801045518
-        sigma_x: 0.0019235302273976598
-        sigma_y: 0.0019235310530386276
+        emit_x: 7.535756895809574e-11
+        emit_y: 7.566382672815651e-11
+        mean_x: -3.9227266057650925e-12
+        mean_y: 1.0995612722553005e-11
+        sigma_pe: 1.8905754767288292e-06
+        sigma_px: 1.5325787024393603e-07
+        sigma_py: 1.5325296042470792e-07
+        sigma_t: 0.0009999967277695735
+        sigma_x: 0.000999994842325607
+        sigma_y: 0.000999995826791629
+        xpx: 1.3345025030476916e-10
+        ypy: 1.3327137418190084e-10
       physics: correct
-      push_per_sec: 1229893.8642181677
+      push_per_sec: 1223587.682177064
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 81307829
+      track_ns: 81726877
     spacecharge_1000000:
       cores: 1r x 32t
       model: null
       npart: 1000000
       observables:
-        emit_x: 9.99995038459865e-08
-        emit_y: 9.999974591364166e-08
-        mean_x: -3.679468818518217e-13
-        mean_y: -3.54381821239258e-11
-        sigma_t: 0.0009999997108899059
-        sigma_x: 0.0019235314703023114
-        sigma_y: 0.0019235324106576782
+        emit_x: 7.598224064043508e-11
+        emit_y: 7.611732587756265e-11
+        mean_x: 6.029223153181107e-12
+        mean_y: -1.854749562824054e-13
+        sigma_pe: 1.8956246200558352e-06
+        sigma_px: 1.5362485913690728e-07
+        sigma_py: 1.5361717311492716e-07
+        sigma_t: 0.001000003228915876
+        sigma_x: 0.0009999989105664946
+        sigma_y: 0.0010000054725572975
+        xpx: 1.3351870666524086e-10
+        ypy: 1.334340543608455e-10
       physics: correct
-      push_per_sec: 4228037.047210634
+      push_per_sec: 3981702.0563464435
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 236516376
+      track_ns: 251148877
     spacecharge_2p5d_1000:
       model: null
       npart: 1000
@@ -4860,37 +4842,47 @@ results:
       model: null
       npart: 100000
       observables:
-        emit_x: 9.999930003785137e-08
-        emit_y: 9.999967803425005e-08
-        mean_x: -7.721484951428437e-14
-        mean_y: -6.002325053655611e-13
-        sigma_t: 0.0009999935016619555
-        sigma_x: 0.0019235278444339784
-        sigma_y: 0.0019235294399562893
+        emit_x: 7.575441852008702e-11
+        emit_y: 7.601240910408163e-11
+        mean_x: 1.998401444325282e-20
+        mean_y: -7.216449660063517e-21
+        sigma_pe: 1.9035038071199829e-06
+        sigma_px: 1.5359346053534903e-07
+        sigma_py: 1.535822173107134e-07
+        sigma_t: 0.0009999949999875
+        sigma_x: 0.0009999950000369132
+        sigma_y: 0.0009999950000369115
+        xpx: 1.3361131421675158e-10
+        ypy: 1.3345177130193947e-10
       physics: correct
-      push_per_sec: 14641361.31863614
+      push_per_sec: 14870777.405578742
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 6829966
+      track_ns: 6724598
     spacecharge_1000000:
       cores: 1r x 1t
       model: null
       npart: 1000000
       observables:
-        emit_x: 1.0000008002637578e-07
-        emit_y: 9.999991994793979e-08
-        mean_x: 2.0073093187633617e-13
-        mean_y: 1.027910480067007e-13
-        sigma_t: 0.0010000001645241994
-        sigma_x: 0.0019235381986533822
-        sigma_y: 0.0019235377532209723
+        emit_x: 7.582799374294253e-11
+        emit_y: 7.598643420945315e-11
+        mean_x: 1.7513768213461846e-20
+        mean_y: -1.3433698597964394e-20
+        sigma_pe: 1.896090229815744e-06
+        sigma_px: 1.5350973542173037e-07
+        sigma_py: 1.5350876063357723e-07
+        sigma_t: 0.000999999499999875
+        sigma_x: 0.0009999995000492885
+        sigma_y: 0.0009999995000492885
+        xpx: 1.334740823952723e-10
+        ypy: 1.333828243994654e-10
       physics: correct
-      push_per_sec: 62056740.33939452
+      push_per_sec: 62774221.339142375
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 16114285
+      track_ns: 15930106
     spacecharge_1000000000:
       cores: null
       model: null
@@ -4909,19 +4901,24 @@ results:
       model: null
       npart: 16000000
       observables:
-        emit_x: 1.000000492932472e-07
-        emit_y: 1.000000356313663e-07
-        mean_x: 1.0350145382420628e-13
-        mean_y: -5.983176731838569e-15
-        sigma_t: 0.0010000002633319847
-        sigma_x: 0.0019235387491038233
-        sigma_y: 0.0019235386760439268
+        emit_x: 7.592216730085635e-11
+        emit_y: 7.594380758924211e-11
+        mean_x: 1.0151601781416276e-20
+        mean_y: 9.020562075079396e-21
+        sigma_pe: 1.8940181763027606e-06
+        sigma_px: 1.5350024947319095e-07
+        sigma_py: 1.5349953544864445e-07
+        sigma_t: 0.0009999999687499992
+        sigma_x: 0.0009999999687994126
+        sigma_y: 0.0009999999687994126
+        xpx: 1.3340970590761303e-10
+        ypy: 1.3339656667806207e-10
       physics: correct
-      push_per_sec: 95898219.76702534
-      reason: no reference
+      push_per_sec: 95692376.56873597
+      reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 166843556
+      track_ns: 167202452
     spacecharge_256000000:
       cores: null
       model: null
@@ -5010,19 +5007,24 @@ results:
       model: null
       npart: 4000000
       observables:
-        emit_x: 1.000000137260857e-07
-        emit_y: 9.999995016059952e-08
-        mean_x: -5.932363753013981e-14
-        mean_y: -1.04748810625388e-13
-        sigma_t: 0.0010000001474908095
-        sigma_x: 0.0019235385860171138
-        sigma_y: 0.0019235383459645728
+        emit_x: 7.589437878591383e-11
+        emit_y: 7.585371071720865e-11
+        mean_x: -1.0269562977782697e-21
+        mean_y: 3.372302437298913e-21
+        sigma_pe: 1.893035882745471e-06
+        sigma_px: 1.5344509013307355e-07
+        sigma_py: 1.5344458833493586e-07
+        sigma_t: 0.000999999874999992
+        sigma_x: 0.0009999998750494057
+        sigma_y: 0.0009999998750494054
+        xpx: 1.3336203759175733e-10
+        ypy: 1.3338459572126174e-10
       physics: correct
-      push_per_sec: 88380520.20862576
-      reason: no reference
+      push_per_sec: 81888501.14911063
+      reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 45258842
+      track_ns: 48846907
     spacecharge_64000000:
       cores: null
       model: null
@@ -5445,37 +5447,47 @@ results:
       model: null
       npart: 100000
       observables:
-        emit_x: 9.999856952457122e-08
-        emit_y: 9.999921925531394e-08
-        mean_x: 2.5881446430453537e-14
-        mean_y: -1.9687397317946774e-12
-        sigma_t: 0.0009999939078733679
-        sigma_x: 0.0019235292990467103
-        sigma_y: 0.001923529913488517
+        emit_x: 7.607226061736663e-11
+        emit_y: 7.594937854393007e-11
+        mean_x: -1.998401444325282e-20
+        mean_y: 1.3600232051658167e-20
+        sigma_pe: 1.8950683012506203e-06
+        sigma_px: 1.535596280175213e-07
+        sigma_py: 1.5355471867942607e-07
+        sigma_t: 0.0009999949999875
+        sigma_x: 0.0009999950000369124
+        sigma_y: 0.0009999950000369137
+        xpx: 1.33391659102733e-10
+        ypy: 1.3345601424934903e-10
       physics: correct
-      push_per_sec: 14672424.908730181
+      push_per_sec: 14774970.549789952
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 6815506
+      track_ns: 6768203
     spacecharge_1000000:
       cores: 1r x 1t
       model: null
       npart: 1000000
       observables:
-        emit_x: 9.999997058588682e-08
-        emit_y: 9.999996385663275e-08
-        mean_x: 1.36379783410856e-13
-        mean_y: 4.655168277523103e-13
-        sigma_t: 0.0009999990427611088
-        sigma_x: 0.0019235375634390288
-        sigma_y: 0.0019235376953963324
+        emit_x: 7.625116258134566e-11
+        emit_y: 7.596305989831073e-11
+        mean_x: -1.4488410471358293e-20
+        mean_y: 1.2378986724570495e-20
+        sigma_pe: 1.8989649935781026e-06
+        sigma_px: 1.5363863349753057e-07
+        sigma_py: 1.5364727783480465e-07
+        sigma_t: 0.000999999499999875
+        sigma_x: 0.0009999995000492885
+        sigma_y: 0.0009999995000492883
+        xpx: 1.3338128169081598e-10
+        ypy: 1.3355551621621012e-10
       physics: correct
-      push_per_sec: 62002003.78075819
+      push_per_sec: 62595896.91407236
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 16128511
+      track_ns: 15975488
     spacecharge_1000000000:
       cores: null
       model: null
@@ -5494,19 +5506,24 @@ results:
       model: null
       npart: 16000000
       observables:
-        emit_x: 1.0000005311223146e-07
-        emit_y: 9.99999859287213e-08
-        mean_x: 1.2487114355030914e-13
-        mean_y: 1.8151918079745143e-14
-        sigma_t: 0.001000000112418667
-        sigma_x: 0.0019235386732908328
-        sigma_y: 0.0019235387677512708
+        emit_x: 7.600891441998373e-11
+        emit_y: 7.598566405693717e-11
+        mean_x: 2.3425705819590804e-20
+        mean_y: -1.2927159342979167e-20
+        sigma_pe: 1.895028008346968e-06
+        sigma_px: 1.5354261877519588e-07
+        sigma_py: 1.5354336278017982e-07
+        sigma_t: 0.0009999999687499996
+        sigma_x: 0.0009999999687994128
+        sigma_y: 0.0009999999687994126
+        xpx: 1.3340906730021054e-10
+        ypy: 1.3342316755544862e-10
       physics: correct
-      push_per_sec: 95955042.18408549
-      reason: no reference
+      push_per_sec: 95679789.59631549
+      reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 166744755
+      track_ns: 167224448
     spacecharge_256000000:
       cores: null
       model: null
@@ -5595,19 +5612,24 @@ results:
       model: null
       npart: 4000000
       observables:
-        emit_x: 1.0000006222649514e-07
-        emit_y: 1.0000008716198223e-07
-        mean_x: 6.597550486486803e-14
-        mean_y: -5.600266089755834e-14
-        sigma_t: 0.0010000001746098832
-        sigma_x: 0.0019235387567120687
-        sigma_y: 0.0019235386119907751
+        emit_x: 7.600270871882438e-11
+        emit_y: 7.598464239615292e-11
+        mean_x: -2.7644553313166396e-20
+        mean_y: 4.7462034302725445e-21
+        sigma_pe: 1.892382209688771e-06
+        sigma_px: 1.5350326090336878e-07
+        sigma_py: 1.5350290661351906e-07
+        sigma_t: 0.0009999998749999923
+        sigma_x: 0.0009999998750494054
+        sigma_y: 0.0009999998750494052
+        xpx: 1.3336728791905884e-10
+        ypy: 1.3337717409763406e-10
       physics: correct
-      push_per_sec: 81467350.81861652
-      reason: no reference
+      push_per_sec: 84681109.04392762
+      reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 49099424
+      track_ns: 47236037
     spacecharge_64000000:
       cores: null
       model: null
@@ -6030,37 +6052,47 @@ results:
       model: null
       npart: 100000
       observables:
-        emit_x: 9.999900034685584e-08
-        emit_y: 9.99991698016657e-08
-        mean_x: -9.76478006009529e-12
-        mean_y: -1.5821013867878264e-11
-        sigma_t: 0.0009999945961258231
-        sigma_x: 0.0019235294369515461
-        sigma_y: 0.0019235275456380427
+        emit_x: 7.647234425210847e-11
+        emit_y: 7.659560724716767e-11
+        mean_x: 5.378711041004181e-12
+        mean_y: -8.959427351129534e-12
+        sigma_pe: 1.900476106340365e-06
+        sigma_px: 1.5392498538221445e-07
+        sigma_py: 1.539258679995691e-07
+        sigma_t: 0.0009999952198544203
+        sigma_x: 0.000999995131317619
+        sigma_y: 0.0009999948775675585
+        xpx: 1.335838724683599e-10
+        ypy: 1.3351420545067744e-10
       physics: correct
-      push_per_sec: 18287817.698255032
+      push_per_sec: 18186252.320793126
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 5468121
+      track_ns: 5498659
     spacecharge_1000000:
       cores: 1r x 1t
       model: null
       npart: 1000000
       observables:
-        emit_x: 1.000000509622529e-07
-        emit_y: 1.0000007398102252e-07
-        mean_x: -2.2872582909228e-11
-        mean_y: 3.720646108984482e-13
-        sigma_t: 0.0009999994136223485
-        sigma_x: 0.0019235372974382395
-        sigma_y: 0.001923537906216909
+        emit_x: 7.590393406195605e-11
+        emit_y: 7.592165074786677e-11
+        mean_x: -1.0356643967535106e-11
+        mean_y: -6.647728087449956e-12
+        sigma_pe: 1.8975700975643436e-06
+        sigma_px: 1.5356907839312285e-07
+        sigma_py: 1.535748986415454e-07
+        sigma_t: 0.000999999781471244
+        sigma_x: 0.0009999996372908727
+        sigma_y: 0.0009999995369605183
+        xpx: 1.3349920420946605e-10
+        ypy: 1.3349580741986447e-10
       physics: correct
-      push_per_sec: 76741712.64326622
+      push_per_sec: 74071347.15114562
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 13030723
+      track_ns: 13500497
     spacecharge_1000000000:
       cores: null
       model: null
@@ -6079,19 +6111,24 @@ results:
       model: null
       npart: 16000000
       observables:
-        emit_x: 1.0000010061161158e-07
-        emit_y: 1.0000013391101123e-07
-        mean_x: 1.1034679750498988e-13
-        mean_y: -6.352947508392326e-12
-        sigma_t: 0.001000000499834619
-        sigma_x: 0.0019235395327863512
-        sigma_y: 0.001923539414199347
+        emit_x: 7.59282484688197e-11
+        emit_y: 7.586590332226217e-11
+        mean_x: -1.2735922163949198e-11
+        mean_y: 2.1301898462666723e-12
+        sigma_pe: 1.8924309847651035e-06
+        sigma_px: 1.5346504582426013e-07
+        sigma_py: 1.5346676029620272e-07
+        sigma_t: 0.0010000005049049365
+        sigma_x: 0.0010000005156773494
+        sigma_y: 0.0010000004056720886
+        xpx: 1.3336583394661773e-10
+        ypy: 1.334032620955312e-10
       physics: correct
-      push_per_sec: 109343983.2550624
-      reason: no reference
+      push_per_sec: 109052302.09750517
+      reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 146327210
+      track_ns: 146718590
     spacecharge_256000000:
       cores: null
       model: null
@@ -6180,19 +6217,24 @@ results:
       model: null
       npart: 4000000
       observables:
-        emit_x: 1.000000496529108e-07
-        emit_y: 1.0000004086131041e-07
-        mean_x: -5.142399690738486e-12
-        mean_y: -1.7358783089671536e-11
-        sigma_t: 0.0010000007501916658
-        sigma_x: 0.00192353887034546
-        sigma_y: 0.0019235390323128101
+        emit_x: 7.608723477227112e-11
+        emit_y: 7.612904335699773e-11
+        mean_x: 5.465251554925832e-12
+        mean_y: 1.7187453420414166e-11
+        sigma_pe: 1.8981542912462598e-06
+        sigma_px: 1.5364271114822879e-07
+        sigma_py: 1.5364126532071404e-07
+        sigma_t: 0.001000000173251361
+        sigma_x: 0.0009999999829037106
+        sigma_y: 0.0010000002507844256
+        xpx: 1.334796410938182e-10
+        ypy: 1.3345418317442443e-10
       physics: correct
-      push_per_sec: 98688087.4423825
-      reason: no reference
+      push_per_sec: 98660459.80559301
+      reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 40531741
+      track_ns: 40543091
     spacecharge_64000000:
       cores: null
       model: null
@@ -6615,37 +6657,47 @@ results:
       model: null
       npart: 100000
       observables:
-        emit_x: 9.999894023412863e-08
-        emit_y: 9.999905127135665e-08
-        mean_x: -2.0505037667817303e-12
-        mean_y: 1.7925306248223193e-11
-        sigma_t: 0.0009999940046169795
-        sigma_x: 0.0019235292171536481
-        sigma_y: 0.0019235288259751167
+        emit_x: 7.685516761634533e-11
+        emit_y: 7.627156767798863e-11
+        mean_x: 7.010137168528274e-12
+        mean_y: -7.191818642837688e-12
+        sigma_pe: 1.8934134641960838e-06
+        sigma_px: 1.5378954995913237e-07
+        sigma_py: 1.5380181265490636e-07
+        sigma_t: 0.000999995076046109
+        sigma_x: 0.0009999951914657496
+        sigma_y: 0.0009999950922133622
+        xpx: 1.3320766281406386e-10
+        ypy: 1.3355677951000703e-10
       physics: correct
-      push_per_sec: 18268066.706941664
+      push_per_sec: 18070494.08164213
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 5474033
+      track_ns: 5533883
     spacecharge_1000000:
       cores: 1r x 1t
       model: null
       npart: 1000000
       observables:
-        emit_x: 9.999988535433317e-08
-        emit_y: 9.999988768286992e-08
-        mean_x: 1.6346573781689246e-11
-        mean_y: 6.203198683607525e-13
-        sigma_t: 0.0009999994017408328
-        sigma_x: 0.0019235376021931481
-        sigma_y: 0.0019235378056323487
+        emit_x: 7.578910130992913e-11
+        emit_y: 7.578451090283657e-11
+        mean_x: -9.972514695366641e-12
+        mean_y: 1.6000125862003502e-11
+        sigma_pe: 1.8923785176089913e-06
+        sigma_px: 1.5341724057119008e-07
+        sigma_py: 1.5341778095379475e-07
+        sigma_t: 0.0009999996778962998
+        sigma_x: 0.0009999993146873778
+        sigma_y: 0.0009999995165270398
+        xpx: 1.3338976560037273e-10
+        ypy: 1.3339303078117975e-10
       physics: correct
-      push_per_sec: 73094499.49272418
+      push_per_sec: 74013580.3077692
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 13680920
+      track_ns: 13511034
     spacecharge_1000000000:
       cores: null
       model: null
@@ -6664,19 +6716,24 @@ results:
       model: null
       npart: 16000000
       observables:
-        emit_x: 1.000000630927502e-07
-        emit_y: 1.0000012000146585e-07
-        mean_x: -2.1411486232830736e-11
-        mean_y: -2.4539169645620974e-11
-        sigma_t: 0.0010000005564795083
-        sigma_x: 0.0019235392790510747
-        sigma_y: 0.001923539795971739
+        emit_x: 7.584245565587064e-11
+        emit_y: 7.583273462410507e-11
+        mean_x: -7.36363641871962e-12
+        mean_y: -1.2047600683962045e-11
+        sigma_pe: 1.8920561018777446e-06
+        sigma_px: 1.5343214337631687e-07
+        sigma_py: 1.5343079509276452e-07
+        sigma_t: 0.001000000344621777
+        sigma_x: 0.0010000003802469696
+        sigma_y: 0.0010000002679509269
+        xpx: 1.33376768757721e-10
+        ypy: 1.3338072521132858e-10
       physics: correct
-      push_per_sec: 109368993.67702304
-      reason: no reference
+      push_per_sec: 109109572.53126687
+      reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 146293748
+      track_ns: 146641579
     spacecharge_256000000:
       cores: null
       model: null
@@ -6765,19 +6822,24 @@ results:
       model: null
       npart: 4000000
       observables:
-        emit_x: 9.999997326313885e-08
-        emit_y: 1.0000000712338877e-07
-        mean_x: -2.5943134796979627e-11
-        mean_y: -3.2964057465889596e-12
-        sigma_t: 0.0010000003919862926
-        sigma_x: 0.0019235389350310877
-        sigma_y: 0.001923538552565699
+        emit_x: 7.588175599259783e-11
+        emit_y: 7.591168531687181e-11
+        mean_x: -3.183272993700914e-12
+        mean_y: -5.256497235650581e-12
+        sigma_pe: 1.8932733783078733e-06
+        sigma_px: 1.534691575442779e-07
+        sigma_py: 1.5346659047127423e-07
+        sigma_t: 0.001000000134830538
+        sigma_x: 0.0009999997964704928
+        sigma_y: 0.0009999997941437526
+        xpx: 1.3339689590638478e-10
+        ypy: 1.3337691226963028e-10
       physics: correct
-      push_per_sec: 94376952.73288403
-      reason: no reference
+      push_per_sec: 99998942.51118295
+      reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 42383229
+      track_ns: 40000423
     spacecharge_64000000:
       cores: null
       model: null
@@ -7200,37 +7262,47 @@ results:
       model: null
       npart: 100000
       observables:
-        emit_x: 9.99993510373877e-08
-        emit_y: 9.999906117738351e-08
-        mean_x: 5.405066100250267e-13
-        mean_y: 1.7804963226009107e-13
-        sigma_t: 0.000999996367463157
-        sigma_x: 0.0019235284512340322
-        sigma_y: 0.0019235292474956759
+        emit_x: 7.585261641634969e-11
+        emit_y: 7.595975132129079e-11
+        mean_x: 2.4702462297909732e-20
+        mean_y: 1.706967900361178e-20
+        sigma_pe: 1.9015973583054027e-06
+        sigma_px: 1.5363241877776894e-07
+        sigma_py: 1.536305405360199e-07
+        sigma_t: 0.0009999949999875
+        sigma_x: 0.0009999950000369128
+        sigma_y: 0.0009999950000369126
+        xpx: 1.3360039167395226e-10
+        ypy: 1.335373473733096e-10
       physics: correct
-      push_per_sec: 7684471.30491621
+      push_per_sec: 7415285.736542164
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 13013257
+      track_ns: 13485657
     spacecharge_1000000:
       cores: 1r x 1t
       model: null
       npart: 1000000
       observables:
-        emit_x: 9.99999357858533e-08
-        emit_y: 1.0000000929489446e-07
-        mean_x: 2.926704576466932e-13
-        mean_y: -4.709325340801484e-13
-        sigma_t: 0.0009999998241643038
-        sigma_x: 0.0019235381238769567
-        sigma_y: 0.0019235379736304424
+        emit_x: 7.601785668133783e-11
+        emit_y: 7.58837435114413e-11
+        mean_x: -2.5146551507759796e-20
+        mean_y: 2.6284530108000582e-20
+        sigma_pe: 1.8976414233366258e-06
+        sigma_px: 1.5355329563238078e-07
+        sigma_py: 1.535542858329738e-07
+        sigma_t: 0.0009999994999998754
+        sigma_x: 0.0009999995000492885
+        sigma_y: 0.000999999500049288
+        xpx: 1.3341617776288048e-10
+        ypy: 1.3349364251445055e-10
       physics: correct
-      push_per_sec: 37550388.396809824
+      push_per_sec: 38374094.232270025
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 26630883
+      track_ns: 26059247
     spacecharge_1000000000:
       cores: null
       model: null
@@ -7249,19 +7321,24 @@ results:
       model: null
       npart: 16000000
       observables:
-        emit_x: 1.0000003997467982e-07
-        emit_y: 1.0000003168310265e-07
-        mean_x: -4.705433390150837e-14
-        mean_y: 9.471033729502309e-14
-        sigma_t: 0.0010000000964421856
-        sigma_x: 0.0019235388111491522
-        sigma_y: 0.0019235387067143062
+        emit_x: 7.592293022512982e-11
+        emit_y: 7.590877131841783e-11
+        mean_x: -3.622102617839573e-21
+        mean_y: 1.1012024625500772e-20
+        sigma_pe: 1.893654557870453e-06
+        sigma_px: 1.534835132125984e-07
+        sigma_py: 1.5348360551895178e-07
+        sigma_t: 0.0009999999687499994
+        sigma_x: 0.0009999999687994128
+        sigma_y: 0.0009999999687994123
+        xpx: 1.3339001470918168e-10
+        ypy: 1.333981788857229e-10
       physics: correct
-      push_per_sec: 52431001.563829996
-      reason: no reference
+      push_per_sec: 52366694.25485946
+      reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 305162967
+      track_ns: 305537713
     spacecharge_256000000:
       cores: null
       model: null
@@ -7350,19 +7427,24 @@ results:
       model: null
       npart: 4000000
       observables:
-        emit_x: 1.0000010817439879e-07
-        emit_y: 9.999996283134493e-08
-        mean_x: -7.228347528864809e-14
-        mean_y: -9.889193475220992e-14
-        sigma_t: 0.0009999996252509004
-        sigma_x: 0.0019235385776853306
-        sigma_y: 0.0019235386854869465
+        emit_x: 7.602633848707936e-11
+        emit_y: 7.596482471700283e-11
+        mean_x: 1.63202784619898e-20
+        mean_y: 1.565414464721471e-20
+        sigma_pe: 1.8947794971522155e-06
+        sigma_px: 1.5353137085993518e-07
+        sigma_py: 1.5353212279127364e-07
+        sigma_t: 0.0009999998749999923
+        sigma_x: 0.0009999998750494059
+        sigma_y: 0.0009999998750494052
+        xpx: 1.333861754595958e-10
+        ypy: 1.3342208304404154e-10
       physics: correct
-      push_per_sec: 47617265.37282938
-      reason: no reference
+      push_per_sec: 48007590.76822191
+      reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 84003144
+      track_ns: 83320157
     spacecharge_64000000:
       cores: null
       model: null
@@ -7785,37 +7867,47 @@ results:
       model: null
       npart: 100000
       observables:
-        emit_x: 9.999949968709462e-08
-        emit_y: 9.999874529748768e-08
-        mean_x: 3.195361159669119e-11
-        mean_y: 1.9911306026187957e-11
-        sigma_t: 0.0009999980728253213
-        sigma_x: 0.0019235285865848125
-        sigma_y: 0.001923529088595337
+        emit_x: 7.522163404462993e-11
+        emit_y: 7.537458980762686e-11
+        mean_x: 9.519012711400875e-12
+        mean_y: 1.143938490599794e-11
+        sigma_pe: 1.8899359990585788e-06
+        sigma_px: 1.5318710190260908e-07
+        sigma_py: 1.5318182737860965e-07
+        sigma_t: 0.000999994784135596
+        sigma_x: 0.0009999951414658421
+        sigma_y: 0.0009999951957247249
+        xpx: 1.3344574155065641e-10
+        ypy: 1.3335335762339994e-10
       physics: correct
-      push_per_sec: 7059362.034157993
+      push_per_sec: 7551886.177971525
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 14165586
+      track_ns: 13241725
     spacecharge_1000000:
       cores: 1r x 1t
       model: null
       npart: 1000000
       observables:
-        emit_x: 1.0000007664592139e-07
-        emit_y: 9.999980901476941e-08
-        mean_x: 9.195901327530009e-12
-        mean_y: 1.2009485885755567e-11
-        sigma_t: 0.0010000003589776822
-        sigma_x: 0.0019235370061477396
-        sigma_y: 0.001923537831755927
+        emit_x: 7.570209345569794e-11
+        emit_y: 7.579361767827315e-11
+        mean_x: 1.4452933440378679e-11
+        mean_y: -1.0165220174940259e-11
+        sigma_pe: 1.8946463977623005e-06
+        sigma_px: 1.5341742741853753e-07
+        sigma_py: 1.5341374613722172e-07
+        sigma_t: 0.0009999992843910815
+        sigma_x: 0.0009999995986730268
+        sigma_y: 0.000999999262028521
+        xpx: 1.3343942891874006e-10
+        ypy: 1.3338317092363423e-10
       physics: correct
-      push_per_sec: 42998561.44012846
+      push_per_sec: 44849024.504565164
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 23256592
+      track_ns: 22297029
     spacecharge_1000000000:
       cores: null
       model: null
@@ -7834,19 +7926,24 @@ results:
       model: null
       npart: 16000000
       observables:
-        emit_x: 1.0000007915920983e-07
-        emit_y: 1.0000008758255682e-07
-        mean_x: 1.1136812011258711e-11
-        mean_y: -9.963347634922571e-12
-        sigma_t: 0.001000000102999222
-        sigma_x: 0.0019235396054649047
-        sigma_y: 0.0019235397540764796
+        emit_x: 7.59062851265976e-11
+        emit_y: 7.585837805487842e-11
+        mean_x: -3.515064656914313e-13
+        mean_y: -1.0534702247877448e-11
+        sigma_pe: 1.8936665628961594e-06
+        sigma_px: 1.5345941957066837e-07
+        sigma_py: 1.5345955961380755e-07
+        sigma_t: 0.0010000002653712558
+        sigma_x: 0.0010000002253064079
+        sigma_y: 0.001000000287403551
+        xpx: 1.3337181090877503e-10
+        ypy: 1.3339923707563726e-10
       physics: correct
-      push_per_sec: 63617905.009664685
-      reason: no reference
+      push_per_sec: 63427041.21042771
+      reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 251501523
+      track_ns: 252258338
     spacecharge_256000000:
       cores: null
       model: null
@@ -7935,19 +8032,24 @@ results:
       model: null
       npart: 4000000
       observables:
-        emit_x: 1.0000004076295124e-07
-        emit_y: 1.000000231966315e-07
-        mean_x: 2.275271400975498e-11
-        mean_y: -3.046443882226413e-11
-        sigma_t: 0.0009999994531052106
-        sigma_x: 0.0019235382515643928
-        sigma_y: 0.0019235389515082912
+        emit_x: 7.583388807931068e-11
+        emit_y: 7.591702401383491e-11
+        mean_x: -1.547719827177385e-11
+        mean_y: 4.418217133705937e-12
+        sigma_pe: 1.8930487588167407e-06
+        sigma_px: 1.534575354982137e-07
+        sigma_py: 1.534557220860435e-07
+        sigma_t: 0.0010000001448767985
+        sigma_x: 0.0010000000267394657
+        sigma_y: 0.0010000000160563433
+        xpx: 1.334107862181577e-10
+        ypy: 1.3336140694384763e-10
       physics: correct
-      push_per_sec: 57381492.8360569
-      reason: no reference
+      push_per_sec: 57103769.61255735
+      reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 69708887
+      track_ns: 70047915
     spacecharge_64000000:
       cores: null
       model: null
@@ -8966,78 +9068,75 @@ results:
       scenario: htu_spin
       status: unsupported_physics
       track_ns: null
-    spacecharge_1000:
-      cores: 1r x 16t
-      model: null
-      npart: 1000
-      observables:
-        emit_x: 9.994925857104869e-08
-        emit_y: 9.907311685605305e-08
-        mean_x: -5.9003209385550006e-05
-        mean_y: 2.083141801744006e-05
-        sigma_t: 0.0009825251006606243
-        sigma_x: 0.0018825963135867608
-        sigma_y: 0.001921486564227953
-      physics: correct
-      push_per_sec: 2453.8636518759586
-      reason: ''
-      scenario: spacecharge
-      status: supported
-      track_ns: 407520605
     spacecharge_10000:
-      cores: 1r x 32t
+      cores: 1r x 16t
       model: null
       npart: 10000
       observables:
-        emit_x: 9.920013414337921e-08
-        emit_y: 1.0152679268393345e-07
-        mean_x: 9.065186591495026e-06
-        mean_y: -9.547073241836927e-06
+        emit_x: 7.539522586952008e-11
+        emit_y: 7.565014444897633e-11
+        mean_x: 5.502312703025473e-06
+        mean_y: 5.666510206223737e-06
+        sigma_pe: 1.8894221386750246e-06
+        sigma_px: 1.5246228346679287e-07
+        sigma_py: 1.525089691929841e-07
         sigma_t: 0.0009995988131657355
-        sigma_x: 0.001914212329088024
-        sigma_y: 0.0019309060579929531
+        sigma_x: 0.0009957943870281792
+        sigma_y: 0.0010119163621727287
+        xpx: 1.3177709248432581e-10
+        ypy: 1.3451270977949168e-10
       physics: correct
-      push_per_sec: 27247.423036819902
+      push_per_sec: 29511.23797533253
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 367007184
+      track_ns: 338853965
     spacecharge_100000:
-      cores: 1r x 32t
+      cores: 1r x 16t
       model: null
       npart: 100000
       observables:
-        emit_x: 1.0023780453759951e-07
-        emit_y: 1.0031563658342822e-07
-        mean_x: -2.345054774040391e-06
-        mean_y: -5.110671463898775e-07
+        emit_x: 7.638451506339953e-11
+        emit_y: 7.56877843134e-11
+        mean_x: 1.7967491289154935e-06
+        mean_y: 7.592466841285017e-07
+        sigma_pe: 1.8964489964367321e-06
+        sigma_px: 1.5328131588847693e-07
+        sigma_py: 1.5330508822750578e-07
         sigma_t: 0.001000265268167698
-        sigma_x: 0.001922642497305706
-        sigma_y: 0.0019272326554895787
+        sigma_x: 0.001003013431423626
+        sigma_y: 0.0010020344007043444
+        xpx: 1.3342557150304287e-10
+        ypy: 1.3367697429163666e-10
       physics: correct
-      push_per_sec: 254895.83918584802
+      push_per_sec: 255755.93174604618
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 392317114
+      track_ns: 390997774
     spacecharge_1000000:
       cores: 1r x 16t
       model: null
       npart: 1000000
       observables:
-        emit_x: 9.996526360939958e-08
-        emit_y: 9.997786575214691e-08
-        mean_x: 6.061291068969249e-07
-        mean_y: -2.9592931224337927e-06
+        emit_x: 7.61262935186375e-11
+        emit_y: 7.585146971755159e-11
+        mean_x: 1.7678467342067992e-06
+        mean_y: -1.016834533839265e-06
+        sigma_pe: 1.8922054457715206e-06
+        sigma_px: 1.5357164620200852e-07
+        sigma_py: 1.5358062615137093e-07
         sigma_t: 0.001000013011198395
-        sigma_x: 0.0019234007457266523
-        sigma_y: 0.001925288716889102
+        sigma_x: 0.001000544555282986
+        sigma_y: 0.0009997324937955862
+        xpx: 1.3347183524033204e-10
+        ypy: 1.3349511457822545e-10
       physics: correct
-      push_per_sec: 1896411.1359871367
+      push_per_sec: 1867718.6788858525
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 527311816
+      track_ns: 535412539
     spacecharge_2p5d_1000:
       model: null
       npart: 1000
@@ -9239,78 +9338,75 @@ results:
       scenario: htu_spin
       status: unsupported_physics
       track_ns: null
-    spacecharge_1000:
-      cores: 1r x 32t
-      model: null
-      npart: 1000
-      observables:
-        emit_x: 9.994926712174405e-08
-        emit_y: 9.907312733333752e-08
-        mean_x: -5.900316054419363e-05
-        mean_y: 2.0831481222217007e-05
-        sigma_t: 0.0009825251259220809
-        sigma_x: 0.001882596534290259
-        sigma_y: 0.001921486758027694
-      physics: correct
-      push_per_sec: 3801.2520822593688
-      reason: ''
-      scenario: spacecharge
-      status: supported
-      track_ns: 263071214
     spacecharge_10000:
-      cores: 1r x 16t
+      cores: 1r x 32t
       model: null
       npart: 10000
       observables:
-        emit_x: 9.920014381686336e-08
-        emit_y: 1.0152680223007378e-07
-        mean_x: 9.065179720433036e-06
-        mean_y: -9.547085851892234e-06
+        emit_x: 7.539522300185817e-11
+        emit_y: 7.56503158861696e-11
+        mean_x: 5.502314151284793e-06
+        mean_y: 5.666510192302354e-06
+        sigma_pe: 1.889421911693087e-06
+        sigma_px: 1.5246221548856314e-07
+        sigma_py: 1.5250880055814116e-07
         sigma_t: 0.000999598839891889
-        sigma_x: 0.0019142125086045176
-        sigma_y: 0.0019309062373540674
+        sigma_x: 0.0009957944341484075
+        sigma_y: 0.0010119164091395667
+        xpx: 1.3177702441311648e-10
+        ypy: 1.3451242580046284e-10
       physics: correct
-      push_per_sec: 36748.86590519268
+      push_per_sec: 34965.690877383066
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 272117241
+      track_ns: 285994635
     spacecharge_100000:
-      cores: 1r x 16t
+      cores: 1r x 32t
       model: null
       npart: 100000
       observables:
-        emit_x: 1.0023781406326169e-07
-        emit_y: 1.0031564615161173e-07
-        mean_x: -2.3450625370319147e-06
-        mean_y: -5.110459687055879e-07
+        emit_x: 7.638457464748285e-11
+        emit_y: 7.568773144378028e-11
+        mean_x: 1.796752575989462e-06
+        mean_y: 7.592482996737848e-07
+        sigma_pe: 1.8964488625447461e-06
+        sigma_px: 1.532814213778631e-07
+        sigma_py: 1.5330535059353773e-07
         sigma_t: 0.001000265296110264
-        sigma_x: 0.0019226426817542516
-        sigma_y: 0.0019272328339602098
+        sigma_x: 0.0010030134793140816
+        sigma_y: 0.0010020344507617155
+        xpx: 1.3342566776970628e-10
+        ypy: 1.3367731516034418e-10
       physics: correct
-      push_per_sec: 807551.5241291388
+      push_per_sec: 889827.3443088671
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 123831108
+      track_ns: 112381352
     spacecharge_1000000:
       cores: 1r x 32t
       model: null
       npart: 1000000
       observables:
-        emit_x: 9.996527307584745e-08
-        emit_y: 9.997787520603893e-08
-        mean_x: 6.061402926884627e-07
-        mean_y: -2.9592906286433644e-06
+        emit_x: 7.612607868162934e-11
+        emit_y: 7.585120860799604e-11
+        mean_x: 1.7678410808732278e-06
+        mean_y: -1.0168348507982218e-06
+        sigma_pe: 1.8922057689101882e-06
+        sigma_px: 1.5357160153421452e-07
+        sigma_py: 1.5358020903340231e-07
         sigma_t: 0.001000013039252152
-        sigma_x: 0.0019234009316718766
-        sigma_y: 0.0019252889006241224
+        sigma_x: 0.0010005446033150625
+        sigma_y: 0.0009997325391390749
+        xpx: 1.3347191481485036e-10
+        ypy: 1.334947913289408e-10
       physics: correct
-      push_per_sec: 5202644.647867504
+      push_per_sec: 5192847.936234486
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 192209937
+      track_ns: 192572556
     spacecharge_2p5d_1000:
       model: null
       npart: 1000
@@ -9637,37 +9733,47 @@ results:
       model: null
       npart: 100000
       observables:
-        emit_x: 1.0023780453759926e-07
-        emit_y: 1.0031563658342822e-07
-        mean_x: -2.3450547740403415e-06
-        mean_y: -5.110671463898714e-07
+        emit_x: 7.638451506339944e-11
+        emit_y: 7.568778431340019e-11
+        mean_x: 1.7967491289154808e-06
+        mean_y: 7.592466841285012e-07
+        sigma_pe: 1.896448996436732e-06
+        sigma_px: 1.532813158884767e-07
+        sigma_py: 1.5330508822750636e-07
         sigma_t: 0.001000265268167698
-        sigma_x: 0.001922642497305706
-        sigma_y: 0.0019272326554895787
+        sigma_x: 0.001003013431423626
+        sigma_y: 0.0010020344007043444
+        xpx: 1.3342557150304263e-10
+        ypy: 1.3367697429163725e-10
       physics: correct
-      push_per_sec: 6694928.190200232
+      push_per_sec: 7014819.156208448
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 14936680
+      track_ns: 14255535
     spacecharge_1000000:
       cores: 1r x 1t
       model: null
       npart: 1000000
       observables:
-        emit_x: 9.996526360939958e-08
-        emit_y: 9.997786575214691e-08
-        mean_x: 6.061291068969108e-07
-        mean_y: -2.9592931224339083e-06
+        emit_x: 7.612629351863753e-11
+        emit_y: 7.585146971755109e-11
+        mean_x: 1.7678467342067927e-06
+        mean_y: -1.0168345338392637e-06
+        sigma_pe: 1.8922054457715215e-06
+        sigma_px: 1.535716462020082e-07
+        sigma_py: 1.5358062615136966e-07
         sigma_t: 0.001000013011198395
-        sigma_x: 0.0019234007457266523
-        sigma_y: 0.001925288716889102
+        sigma_x: 0.001000544555282986
+        sigma_y: 0.0009997324937955862
+        xpx: 1.3347183524033165e-10
+        ypy: 1.3349511457822426e-10
       physics: correct
-      push_per_sec: 43574397.35736967
+      push_per_sec: 43842412.13235287
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 22949256
+      track_ns: 22808964
     spacecharge_1000000000:
       cores: null
       model: null
@@ -9686,19 +9792,24 @@ results:
       model: null
       npart: 16000000
       observables:
-        emit_x: 9.99828381782836e-08
-        emit_y: 9.999951974769733e-08
-        mean_x: 4.400542346354399e-07
-        mean_y: 3.510433255167045e-07
+        emit_x: 7.588837668701856e-11
+        emit_y: 7.586314892373336e-11
+        mean_x: -8.368575356497224e-08
+        mean_y: 2.2145129462443075e-07
+        sigma_pe: 1.8921601124752143e-06
+        sigma_px: 1.534075225898446e-07
+        sigma_py: 1.534078530923053e-07
         sigma_t: 0.0010001486135422703
-        sigma_x: 0.0019237632895679451
-        sigma_y: 0.0019237658275289011
+        sigma_x: 0.001000818515398915
+        sigma_y: 0.0010009310962630707
+        xpx: 1.3346671384497194e-10
+        ypy: 1.3350130040647671e-10
       physics: correct
-      push_per_sec: 95455353.89630975
+      push_per_sec: 95466308.58527201
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 167617628
+      track_ns: 167598394
     spacecharge_256000000:
       cores: null
       model: null
@@ -9787,19 +9898,24 @@ results:
       model: null
       npart: 4000000
       observables:
-        emit_x: 9.991625158662814e-08
-        emit_y: 9.997001039857582e-08
-        mean_x: -5.233601823050315e-07
-        mean_y: 7.750122572914768e-07
+        emit_x: 7.58335389857248e-11
+        emit_y: 7.585376174186373e-11
+        mean_x: -4.760632736604838e-07
+        mean_y: 7.4563434541871e-08
+        sigma_pe: 1.8921976119803568e-06
+        sigma_px: 1.5347983578972763e-07
+        sigma_py: 1.5348158088263897e-07
         sigma_t: 0.0009998742828708745
-        sigma_x: 0.0019232962094012322
-        sigma_y: 0.0019243881514770184
+        sigma_x: 0.001000357041145685
+        sigma_y: 0.0010004615263106943
+        xpx: 1.3349965665546437e-10
+        ypy: 1.3350861955295566e-10
       physics: correct
-      push_per_sec: 74854077.12286678
+      push_per_sec: 75870342.36473024
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 53437303
+      track_ns: 52721523
     spacecharge_64000000:
       cores: null
       model: null
@@ -10099,37 +10215,47 @@ results:
       model: null
       npart: 100000
       observables:
-        emit_x: 1.0023781397876749e-07
-        emit_y: 1.0031564599652803e-07
-        mean_x: -2.345047750912812e-06
-        mean_y: -5.110678933860413e-07
+        emit_x: 7.638446115550077e-11
+        emit_y: 7.568788676795733e-11
+        mean_x: 1.7967519071706484e-06
+        mean_y: 7.592485570342201e-07
+        sigma_pe: 1.8964487560371924e-06
+        sigma_px: 1.5328134381230736e-07
+        sigma_py: 1.5330552353680782e-07
         sigma_t: 0.001000265296110264
-        sigma_x: 0.0019226426783849843
-        sigma_y: 0.00192723284192025
+        sigma_x: 0.0010030134793884387
+        sigma_y: 0.0010020344512658773
+        xpx: 1.3342564310924946e-10
+        ypy: 1.3367742644963105e-10
       physics: correct
-      push_per_sec: 11022838.991705645
+      push_per_sec: 10347113.584715078
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 9072073
+      track_ns: 9664531
     spacecharge_1000000:
       cores: 1r x 1t
       model: null
       npart: 1000000
       observables:
-        emit_x: 9.996527313049852e-08
-        emit_y: 9.997787518542654e-08
-        mean_x: 6.06116369795064e-07
-        mean_y: -2.9593017333076064e-06
+        emit_x: 7.612613164003697e-11
+        emit_y: 7.585163491658516e-11
+        mean_x: 1.7678378220958094e-06
+        mean_y: -1.0168302765148299e-06
+        sigma_pe: 1.8922054510768486e-06
+        sigma_px: 1.5357100327938082e-07
+        sigma_py: 1.535804911035201e-07
         sigma_t: 0.001000013039252152
-        sigma_x: 0.0019234009248328746
-        sigma_y: 0.0019252888970294779
+        sigma_x: 0.0010005445987865294
+        sigma_y: 0.0009997325395965165
+        xpx: 1.3347119471198905e-10
+        ypy: 1.3349487351887632e-10
       physics: correct
-      push_per_sec: 59592120.539127536
+      push_per_sec: 62873413.05933602
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 16780742
+      track_ns: 15904974
     spacecharge_1000000000:
       cores: null
       model: null
@@ -10148,19 +10274,24 @@ results:
       model: null
       npart: 16000000
       observables:
-        emit_x: 9.99828476819356e-08
-        emit_y: 9.999952925566921e-08
-        mean_x: 4.401038082292927e-07
-        mean_y: 3.5104027711638095e-07
+        emit_x: 7.588835510620955e-11
+        emit_y: 7.586324551511166e-11
+        mean_x: -8.368701216038952e-08
+        mean_y: 2.2145005222286603e-07
+        sigma_pe: 1.8921599727740754e-06
+        sigma_px: 1.5340760656593682e-07
+        sigma_py: 1.5340741730683922e-07
         sigma_t: 0.0010001486415764347
-        sigma_x: 0.001923763465148527
-        sigma_y: 0.0019237660049486397
+        sigma_x: 0.0010008185636503665
+        sigma_y: 0.0010009311402506495
+        xpx: 1.3346683131145161e-10
+        ypy: 1.335007515796907e-10
       physics: correct
-      push_per_sec: 114237913.87860708
+      push_per_sec: 114103672.47162682
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 140058580
+      track_ns: 140223357
     spacecharge_256000000:
       cores: null
       model: null
@@ -10249,19 +10380,24 @@ results:
       model: null
       npart: 4000000
       observables:
-        emit_x: 9.991626106803721e-08
-        emit_y: 9.997001990131232e-08
-        mean_x: -5.233429059156689e-07
-        mean_y: 7.749910404369162e-07
+        emit_x: 7.583372370850546e-11
+        emit_y: 7.58538540266114e-11
+        mean_x: -4.76065729692765e-07
+        mean_y: 7.456057490845299e-08
+        sigma_pe: 1.8921971500441057e-06
+        sigma_px: 1.5347987937159646e-07
+        sigma_py: 1.5348148431337295e-07
         sigma_t: 0.0009998743109074896
-        sigma_x: 0.001923296383224015
-        sigma_y: 0.0019243883303960666
+        sigma_x: 0.0010003570882975408
+        sigma_y: 0.001000461572773959
+        xpx: 1.3349961018811767e-10
+        ypy: 1.3350846420399957e-10
       physics: correct
-      push_per_sec: 92642958.6232923
+      push_per_sec: 92118504.28382134
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 43176514
+      track_ns: 43422329
     spacecharge_64000000:
       cores: null
       model: null
@@ -10512,70 +10648,69 @@ results:
       scenario: htu_spin
       status: supported
       track_ns: 120344620
-    spacecharge_1000:
-      cores: 8r x 8t
-      model: null
-      npart: 1000
-      observables:
-        emit_x: 1.0094403989225011e-07
-        emit_y: 9.681773912329768e-08
-        sigma_t: 0.0009795279614560144
-        sigma_x: 0.0018881303312781837
-        sigma_y: 0.0018466831042944633
-      physics: correct
-      push_per_sec: 99567.11206686689
-      reason: ''
-      scenario: spacecharge
-      status: supported
-      track_ns: 10043477
     spacecharge_10000:
-      cores: 8r x 8t
+      cores: 16r x 4t
       model: null
       npart: 10000
       observables:
-        emit_x: 9.884801163783769e-08
-        emit_y: 1.0038831611101924e-07
-        sigma_t: 0.0010096228245529062
-        sigma_x: 0.00190733426152323
-        sigma_y: 0.0019174996184306433
+        emit_x: 7.644260749474109e-11
+        emit_y: 7.863512681952726e-11
+        sigma_pe: 1.9102504864682067e-06
+        sigma_px: 1.5335028138052287e-07
+        sigma_py: 1.5316698786609385e-07
+        sigma_t: 0.0010096149760711152
+        sigma_x: 0.0009975106641511421
+        sigma_y: 0.0010065167937432168
+        xpx: 1.324995259319495e-10
+        ypy: 1.327199528145731e-10
       physics: correct
-      push_per_sec: 964624.2388270709
+      push_per_sec: 1012442.4110101087
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 10366731
+      track_ns: 9877105
     spacecharge_100000:
       cores: 8r x 8t
       model: null
       npart: 100000
       observables:
-        emit_x: 1.0043743762676764e-07
-        emit_y: 9.998176184459345e-08
-        sigma_t: 0.0010005882176192628
-        sigma_x: 0.0019287304408783163
-        sigma_y: 0.001923036447537536
+        emit_x: 7.52268875303555e-11
+        emit_y: 7.55265420037841e-11
+        sigma_pe: 1.8833061744499604e-06
+        sigma_px: 1.5297658860054133e-07
+        sigma_py: 1.528319331732309e-07
+        sigma_t: 0.0010005854147670475
+        sigma_x: 0.001002641118911912
+        sigma_y: 0.0010007092256684646
+        xpx: 1.3366683010892028e-10
+        ypy: 1.3299100447703843e-10
       physics: correct
-      push_per_sec: 7300378.451618932
+      push_per_sec: 7327051.363729117
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 13697920
+      track_ns: 13648055
     spacecharge_1000000:
       cores: 8r x 8t
       model: null
       npart: 1000000
       observables:
-        emit_x: 1.0013179547180094e-07
-        emit_y: 1.0008531408953411e-07
-        sigma_t: 0.0009988424829246306
-        sigma_x: 0.0019241192483682515
-        sigma_y: 0.0019255738092698275
+        emit_x: 7.538716732180005e-11
+        emit_y: 7.538434959530486e-11
+        sigma_pe: 1.8809320616500804e-06
+        sigma_px: 1.5275059792548885e-07
+        sigma_py: 1.528169069959562e-07
+        sigma_t: 0.0009988422036624374
+        sigma_x: 0.0010019769076392725
+        sigma_y: 0.0010007568675312536
+        xpx: 1.3319947434093548e-10
+        ypy: 1.3306343025636344e-10
       physics: correct
-      push_per_sec: 24055063.001412753
+      push_per_sec: 23595398.37821748
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 41571290
+      track_ns: 42381145
     spacecharge_2p5d_1000:
       cores: 8r x 8t
       model: null
@@ -10587,43 +10722,43 @@ results:
         sigma_x: 0.0018881719976467557
         sigma_y: 0.001846727374747624
       physics: correct
-      push_per_sec: 984406.0241711056
+      push_per_sec: 986508.509622404
       reason: ''
       scenario: spacecharge_2p5d
       status: supported
-      track_ns: 1015841
+      track_ns: 1013676
     spacecharge_2p5d_10000:
-      cores: 8r x 8t
+      cores: 4r x 16t
       model: null
       npart: 10000
       observables:
-        emit_x: 9.884804374792607e-08
-        emit_y: 1.0038806939547783e-07
-        sigma_t: 0.001009622831535107
-        sigma_x: 0.0019073408752732217
-        sigma_y: 0.001917497748484252
+        emit_x: 9.884804374792583e-08
+        emit_y: 1.0038806939547501e-07
+        sigma_t: 0.0010096228315351037
+        sigma_x: 0.00190734087527322
+        sigma_y: 0.0019174977484842537
       physics: correct
-      push_per_sec: 9051149.85807797
+      push_per_sec: 7952634.111233493
       reason: ''
       scenario: spacecharge_2p5d
       status: supported
-      track_ns: 1104832
+      track_ns: 1257445
     spacecharge_2p5d_100000:
-      cores: 8r x 8t
+      cores: 16r x 4t
       model: null
       npart: 100000
       observables:
-        emit_x: 1.0043747043737874e-07
-        emit_y: 9.99817620366661e-08
-        sigma_t: 0.0010005882230725892
+        emit_x: 1.0043747043737899e-07
+        emit_y: 9.998176203666476e-08
+        sigma_t: 0.00100058822307259
         sigma_x: 0.0019287325615178486
-        sigma_y: 0.0019230375334345112
+        sigma_y: 0.0019230375334345115
       physics: correct
-      push_per_sec: 40222041.759328194
+      push_per_sec: 43452963.687661834
       reason: ''
       scenario: spacecharge_2p5d
       status: supported
-      track_ns: 2486199
+      track_ns: 2301339
     spacecharge_2p5d_1000000:
       cores: 8r x 8t
       model: null
@@ -10635,11 +10770,11 @@ results:
         sigma_x: 0.0019241205547268696
         sigma_y: 0.001925575088228686
       physics: correct
-      push_per_sec: 71446162.49443702
+      push_per_sec: 79485904.24794133
       reason: ''
       scenario: spacecharge_2p5d
       status: supported
-      track_ns: 13996553
+      track_ns: 12580847
   impactx-cpu-simd-dp-fm:
     fodo_chromatic_1000:
       cores: 8r x 8t
@@ -10877,70 +11012,69 @@ results:
       scenario: htu_spin
       status: supported
       track_ns: 118887356
-    spacecharge_1000:
-      cores: 8r x 8t
-      model: null
-      npart: 1000
-      observables:
-        emit_x: 1.0094403989225004e-07
-        emit_y: 9.68177391232984e-08
-        sigma_t: 0.0009795279614560164
-        sigma_x: 0.0018881303312781835
-        sigma_y: 0.001846683104294463
-      physics: correct
-      push_per_sec: 100114.25038253654
-      reason: ''
-      scenario: spacecharge
-      status: supported
-      track_ns: 9988588
     spacecharge_10000:
-      cores: 8r x 8t
+      cores: 16r x 4t
       model: null
       npart: 10000
       observables:
-        emit_x: 9.884801163783717e-08
-        emit_y: 1.0038831611101838e-07
-        sigma_t: 0.001009622824552913
-        sigma_x: 0.0019073342615232294
-        sigma_y: 0.0019174996184306429
+        emit_x: 7.644260749474181e-11
+        emit_y: 7.863512681952686e-11
+        sigma_pe: 1.910250486467658e-06
+        sigma_px: 1.5335028138052396e-07
+        sigma_py: 1.5316698786608782e-07
+        sigma_t: 0.0010096149760711092
+        sigma_x: 0.000997510664151142
+        sigma_y: 0.0010065167937432168
+        xpx: 1.3249952593195029e-10
+        ypy: 1.3271995281456518e-10
       physics: correct
-      push_per_sec: 972804.283451821
+      push_per_sec: 1014089.968845128
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 10279560
+      track_ns: 9861058
     spacecharge_100000:
       cores: 8r x 8t
       model: null
       npart: 100000
       observables:
-        emit_x: 1.0043743762676576e-07
-        emit_y: 9.998176184459104e-08
-        sigma_t: 0.001000588217619262
-        sigma_x: 0.0019287304408783146
-        sigma_y: 0.0019230364475375376
+        emit_x: 7.522688753035131e-11
+        emit_y: 7.552654200378417e-11
+        sigma_pe: 1.8833061744501952e-06
+        sigma_px: 1.5297658860053638e-07
+        sigma_py: 1.5283193317324185e-07
+        sigma_t: 0.0010005854147670462
+        sigma_x: 0.0010026411189119106
+        sigma_y: 0.0010007092256684642
+        xpx: 1.3366683010891656e-10
+        ypy: 1.3299100447705076e-10
       physics: correct
-      push_per_sec: 7502993.882133818
+      push_per_sec: 7342822.658863988
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 13328013
+      track_ns: 13618741
     spacecharge_1000000:
       cores: 8r x 8t
       model: null
       npart: 1000000
       observables:
-        emit_x: 1.001317954718017e-07
-        emit_y: 1.0008531408953343e-07
-        sigma_t: 0.0009988424829246393
-        sigma_x: 0.0019241192483682515
-        sigma_y: 0.0019255738092698275
+        emit_x: 7.538716732180018e-11
+        emit_y: 7.538434959530498e-11
+        sigma_pe: 1.880932061650117e-06
+        sigma_px: 1.527505979254918e-07
+        sigma_py: 1.5281690699595792e-07
+        sigma_t: 0.0009988422036624422
+        sigma_x: 0.0010019769076392725
+        sigma_y: 0.0010007568675312536
+        xpx: 1.331994743409387e-10
+        ypy: 1.3306343025636535e-10
       physics: correct
-      push_per_sec: 23646386.823817085
+      push_per_sec: 23389257.82844307
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 42289759
+      track_ns: 42754670
     spacecharge_2p5d_1000:
       cores: 8r x 8t
       model: null
@@ -10952,11 +11086,11 @@ results:
         sigma_x: 0.001888171997646756
         sigma_y: 0.0018467273747476243
       physics: correct
-      push_per_sec: 977475.0646111019
+      push_per_sec: 990818.0887713558
       reason: ''
       scenario: spacecharge_2p5d
       status: supported
-      track_ns: 1023044
+      track_ns: 1009267
     spacecharge_2p5d_10000:
       cores: 8r x 8t
       model: null
@@ -10968,27 +11102,27 @@ results:
         sigma_x: 0.0019073408752732222
         sigma_y: 0.001917497748484252
       physics: correct
-      push_per_sec: 9069735.381400513
+      push_per_sec: 8919078.980228186
       reason: ''
       scenario: spacecharge_2p5d
       status: supported
-      track_ns: 1102568
+      track_ns: 1121192
     spacecharge_2p5d_100000:
-      cores: 8r x 8t
+      cores: 16r x 4t
       model: null
       npart: 100000
       observables:
-        emit_x: 1.0043747043237906e-07
-        emit_y: 9.998176203661358e-08
-        sigma_t: 0.0010005882230726495
+        emit_x: 1.0043747043238013e-07
+        emit_y: 9.998176203661099e-08
+        sigma_t: 0.0010005882230726508
         sigma_x: 0.0019287325614498125
-        sigma_y: 0.0019230375334497183
+        sigma_y: 0.0019230375334497185
       physics: correct
-      push_per_sec: 39321654.277724124
+      push_per_sec: 43469113.45612489
       reason: ''
       scenario: spacecharge_2p5d
       status: supported
-      track_ns: 2543128
+      track_ns: 2300484
     spacecharge_2p5d_1000000:
       cores: 8r x 8t
       model: null
@@ -11000,11 +11134,11 @@ results:
         sigma_x: 0.001924120554726869
         sigma_y: 0.0019255750882286864
       physics: correct
-      push_per_sec: 73662763.0313111
+      push_per_sec: 90569209.3670299
       reason: ''
       scenario: spacecharge_2p5d
       status: supported
-      track_ns: 13575380
+      track_ns: 11041280
   impactx-cpu-simd-sp:
     fodo_chromatic_1000:
       cores: 8r x 8t
@@ -11242,70 +11376,69 @@ results:
       scenario: htu_spin
       status: supported
       track_ns: 95249430
-    spacecharge_1000:
-      cores: 8r x 8t
-      model: null
-      npart: 1000
-      observables:
-        emit_x: 9.533274436535066e-08
-        emit_y: 1.0193707566941157e-07
-        sigma_t: 0.0009998256573453546
-        sigma_x: 0.0018696782644838095
-        sigma_y: 0.001967828953638673
-      physics: correct
-      push_per_sec: 130177.36535852736
-      reason: ''
-      scenario: spacecharge
-      status: supported
-      track_ns: 7681827
     spacecharge_10000:
       cores: 8r x 8t
       model: null
       npart: 10000
       observables:
-        emit_x: 1.005071368354038e-07
-        emit_y: 9.954432300673943e-08
-        sigma_t: 0.001011206186376512
-        sigma_x: 0.0019252640195190907
-        sigma_y: 0.0019302763976156712
+        emit_x: 7.545044450329996e-11
+        emit_y: 7.464998064143913e-11
+        sigma_pe: 1.8859595911635552e-06
+        sigma_px: 1.517081642532503e-07
+        sigma_py: 1.5164270905643207e-07
+        sigma_t: 0.001011170563288033
+        sigma_x: 0.001006865524686873
+        sigma_y: 0.0009919890435412526
+        xpx: 1.328287142098291e-10
+        ypy: 1.306406430552216e-10
       physics: correct
-      push_per_sec: 1259449.809350785
+      push_per_sec: 1249742.3968484495
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 7939975
+      track_ns: 8001649
     spacecharge_100000:
       cores: 8r x 8t
       model: null
       npart: 100000
       observables:
-        emit_x: 1.0018628415764397e-07
-        emit_y: 1.0009512152464595e-07
-        sigma_t: 0.001002402394078672
-        sigma_x: 0.0019282212015241385
-        sigma_y: 0.0019264672882854939
+        emit_x: 7.483058617197003e-11
+        emit_y: 7.502426457861588e-11
+        sigma_pe: 1.8867016251533641e-06
+        sigma_px: 1.527320705463353e-07
+        sigma_py: 1.5288010501990357e-07
+        sigma_t: 0.0010023624636232853
+        sigma_x: 0.0010002434719353914
+        sigma_y: 0.001000918447971344
+        xpx: 1.3319696936251906e-10
+        ypy: 1.333673310074723e-10
       physics: correct
-      push_per_sec: 9872935.322400702
+      push_per_sec: 9983928.869698446
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 10128700
+      track_ns: 10016097
     spacecharge_1000000:
       cores: 8r x 8t
       model: null
       npart: 1000000
       observables:
-        emit_x: 9.977095061231012e-08
-        emit_y: 1.0008336204236912e-07
-        sigma_t: 0.000999536830931902
-        sigma_x: 0.0019212994957342744
-        sigma_y: 0.001925108372233808
+        emit_x: 7.552334452265441e-11
+        emit_y: 7.528014323021637e-11
+        sigma_pe: 1.8908692709374009e-06
+        sigma_px: 1.5304945577554463e-07
+        sigma_py: 1.52590075686021e-07
+        sigma_t: 0.0009994952706620097
+        sigma_x: 0.001000101095996797
+        sigma_y: 0.0010010222904384136
+        xpx: 1.3313563814026868e-10
+        ypy: 1.3290822877766558e-10
       physics: correct
-      push_per_sec: 34167965.61882628
+      push_per_sec: 33413696.615062214
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 29267180
+      track_ns: 29927847
     spacecharge_2p5d_1000:
       cores: 8r x 8t
       model: null
@@ -11317,11 +11450,11 @@ results:
         sigma_x: 0.0018697374034672976
         sigma_y: 0.0019678431563079357
       physics: correct
-      push_per_sec: 1118448.130849484
+      push_per_sec: 1109397.7079843353
       reason: ''
       scenario: spacecharge_2p5d
       status: supported
-      track_ns: 894096
+      track_ns: 901390
     spacecharge_2p5d_10000:
       cores: 8r x 8t
       model: null
@@ -11333,11 +11466,11 @@ results:
         sigma_x: 0.0019252680940553546
         sigma_y: 0.0019302726723253727
       physics: correct
-      push_per_sec: 9812223.479277074
+      push_per_sec: 9693867.659318713
       reason: ''
       scenario: spacecharge_2p5d
       status: supported
-      track_ns: 1019137
+      track_ns: 1031580
     spacecharge_2p5d_100000:
       cores: 8r x 8t
       model: null
@@ -11349,11 +11482,11 @@ results:
         sigma_x: 0.0019282145658507943
         sigma_y: 0.0019264738075435162
       physics: correct
-      push_per_sec: 56572861.31955067
+      push_per_sec: 56119210.67207806
       reason: ''
       scenario: spacecharge_2p5d
       status: supported
-      track_ns: 1767632
+      track_ns: 1781921
     spacecharge_2p5d_1000000:
       cores: 8r x 8t
       model: null
@@ -11365,11 +11498,11 @@ results:
         sigma_x: 0.0019209661986678839
         sigma_y: 0.0019250937039032578
       physics: correct
-      push_per_sec: 107276339.55965209
+      push_per_sec: 105544339.12409386
       reason: ''
       scenario: spacecharge_2p5d
       status: supported
-      track_ns: 9321720
+      track_ns: 9474691
   impactx-cpu-simd-sp-fm:
     fodo_chromatic_1000:
       cores: 16r x 4t
@@ -11607,70 +11740,69 @@ results:
       scenario: htu_spin
       status: supported
       track_ns: 96230675
-    spacecharge_1000:
-      cores: 8r x 8t
-      model: null
-      npart: 1000
-      observables:
-        emit_x: 9.533212619317055e-08
-        emit_y: 1.0193723198881344e-07
-        sigma_t: 0.0009998346213251352
-        sigma_x: 0.0018696780316531658
-        sigma_y: 0.0019678284879773855
-      physics: correct
-      push_per_sec: 130235.21130337445
-      reason: ''
-      scenario: spacecharge
-      status: supported
-      track_ns: 7678415
     spacecharge_10000:
       cores: 8r x 8t
       model: null
       npart: 10000
       observables:
-        emit_x: 1.0050792553784049e-07
-        emit_y: 9.954264612588304e-08
-        sigma_t: 0.0010112080490216613
-        sigma_x: 0.0019252640195190907
-        sigma_y: 0.0019302759319543839
+        emit_x: 7.545002816966573e-11
+        emit_y: 7.464612955532246e-11
+        sigma_pe: 1.8864287767428323e-06
+        sigma_px: 1.517095711278671e-07
+        sigma_py: 1.516449827931865e-07
+        sigma_t: 0.0010111744049936533
+        sigma_x: 0.001006865524686873
+        sigma_y: 0.0009919892763718963
+        xpx: 1.3283142609821118e-10
+        ypy: 1.3064510671732267e-10
       physics: correct
-      push_per_sec: 1271769.1911878602
+      push_per_sec: 1270272.1138814192
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 7863062
+      track_ns: 7872329
     spacecharge_100000:
       cores: 8r x 8t
       model: null
       npart: 100000
       observables:
-        emit_x: 1.0018605678396852e-07
-        emit_y: 1.0009458861759413e-07
-        sigma_t: 0.0010024005314335227
-        sigma_x: 0.0019282207358628511
-        sigma_y: 0.0019264669390395284
+        emit_x: 7.483129393914822e-11
+        emit_y: 7.502542337389784e-11
+        sigma_pe: 1.8867719973059138e-06
+        sigma_px: 1.5273302267360123e-07
+        sigma_py: 1.5287548649212113e-07
+        sigma_t: 0.0010023678187280893
+        sigma_x: 0.0010002434719353914
+        sigma_y: 0.001000918447971344
+        xpx: 1.331976582566898e-10
+        ypy: 1.3336140419822582e-10
       physics: correct
-      push_per_sec: 10112839.058211524
+      push_per_sec: 10007618.800192587
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 9888420
+      track_ns: 9992387
     spacecharge_1000000:
       cores: 8r x 8t
       model: null
       npart: 1000000
       observables:
-        emit_x: 9.977079429290825e-08
-        emit_y: 1.0008319151211253e-07
-        sigma_t: 0.0009995376458391547
-        sigma_x: 0.001921299146488309
-        sigma_y: 0.0019251081394031644
+        emit_x: 7.552286573897504e-11
+        emit_y: 7.52810799808934e-11
+        sigma_pe: 1.8908289121100097e-06
+        sigma_px: 1.5304701150853361e-07
+        sigma_py: 1.5259200836226228e-07
+        sigma_t: 0.0009995009750127792
+        sigma_x: 0.0010001013288274407
+        sigma_y: 0.0010010222904384136
+        xpx: 1.3313312856080584e-10
+        ypy: 1.3290988262512053e-10
       physics: correct
-      push_per_sec: 36236463.50669244
+      push_per_sec: 35293516.41162631
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 27596512
+      track_ns: 28333816
     spacecharge_2p5d_1000:
       cores: 8r x 8t
       model: null
@@ -11682,11 +11814,11 @@ results:
         sigma_x: 0.0018697375198826194
         sigma_y: 0.0019678447861224413
       physics: correct
-      push_per_sec: 1107958.3540613875
+      push_per_sec: 1072179.096796329
       reason: ''
       scenario: spacecharge_2p5d
       status: supported
-      track_ns: 902561
+      track_ns: 932680
     spacecharge_2p5d_10000:
       cores: 8r x 8t
       model: null
@@ -11698,11 +11830,11 @@ results:
         sigma_x: 0.0019252679776400328
         sigma_y: 0.0019302726723253727
       physics: correct
-      push_per_sec: 9783472.193415333
+      push_per_sec: 9853304.0099006
       reason: ''
       scenario: spacecharge_2p5d
       status: supported
-      track_ns: 1022132
+      track_ns: 1014888
     spacecharge_2p5d_100000:
       cores: 8r x 8t
       model: null
@@ -11714,11 +11846,11 @@ results:
         sigma_x: 0.001928214798681438
         sigma_y: 0.0019264736911281943
       physics: correct
-      push_per_sec: 58797589.29883875
+      push_per_sec: 58788809.4325469
       reason: ''
       scenario: spacecharge_2p5d
       status: supported
-      track_ns: 1700750
+      track_ns: 1701004
     spacecharge_2p5d_1000000:
       cores: 8r x 8t
       model: null
@@ -11730,11 +11862,11 @@ results:
         sigma_x: 0.001920966082252562
         sigma_y: 0.001925093587487936
       physics: correct
-      push_per_sec: 123215288.1586658
+      push_per_sec: 120919978.543959
       reason: ''
       scenario: spacecharge_2p5d
       status: supported
-      track_ns: 8115876
+      track_ns: 8269932
   impactx-cuda-dp:
     fodo_chromatic_100000:
       cores: 1r x 1t
@@ -12136,33 +12268,43 @@ results:
       model: null
       npart: 100000
       observables:
-        emit_x: 9.989386870981346e-08
-        emit_y: 9.988302695967763e-08
-        sigma_t: 0.001001754650459084
-        sigma_x: 0.001924036403051623
-        sigma_y: 0.001923033288906169
+        emit_x: 7.59181506310403e-11
+        emit_y: 7.588896062063066e-11
+        sigma_pe: 1.8887263269638648e-06
+        sigma_px: 1.5341593583155218e-07
+        sigma_py: 1.534406026184441e-07
+        sigma_t: 0.0010017528886347108
+        sigma_x: 0.00100055286166763
+        sigma_y: 0.0009994566131622383
+        xpx: 1.3341256870305078e-10
+        ypy: 1.3326820608229657e-10
       physics: correct
-      push_per_sec: 80971791.0474349
+      push_per_sec: 78448662.01884495
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 1234998
+      track_ns: 1274719
     spacecharge_1000000:
       cores: 1r x 1t
       model: null
       npart: 1000000
       observables:
-        emit_x: 1.0000313476687986e-07
-        emit_y: 1.0003381466859178e-07
-        sigma_t: 0.0010009444363118924
-        sigma_x: 0.001924844383720829
-        sigma_y: 0.0019245183757615008
+        emit_x: 7.537034813182646e-11
+        emit_y: 7.524491989015534e-11
+        sigma_pe: 1.8764652841276896e-06
+        sigma_px: 1.5269327465885861e-07
+        sigma_py: 1.5256409681440653e-07
+        sigma_t: 0.0010009437799470698
+        sigma_x: 0.0010004788793391292
+        sigma_y: 0.0010010104962460032
+        xpx: 1.3287922265089324e-10
+        ypy: 1.3289652814549723e-10
       physics: correct
-      push_per_sec: 508717122.2482855
+      push_per_sec: 517965638.15956455
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 1965729
+      track_ns: 1930630
     spacecharge_1000000000:
       cores: null
       model: null
@@ -12179,33 +12321,43 @@ results:
       model: null
       npart: 16000000
       observables:
-        emit_x: 9.997702470467947e-08
-        emit_y: 1.0001144876594258e-07
-        sigma_t: 0.0010001531691754314
-        sigma_x: 0.0019234902685718318
-        sigma_y: 0.0019235978967271294
+        emit_x: 7.49069452266009e-11
+        emit_y: 7.49943276535825e-11
+        sigma_pe: 1.8728558458997022e-06
+        sigma_px: 1.521699993229133e-07
+        sigma_py: 1.521331225940644e-07
+        sigma_t: 0.001000152914321775
+        sigma_x: 0.0010008325908590528
+        sigma_y: 0.001001082890926237
+        xpx: 1.3260180296745473e-10
+        ypy: 1.3255372865141862e-10
       physics: correct
-      push_per_sec: 1251652670.4518206
+      push_per_sec: 1250874830.5846403
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 12783099
+      track_ns: 12791048
     spacecharge_256000000:
       cores: 1r x 1t
       model: null
       npart: 256000000
       observables:
-        emit_x: 9.999310135428372e-08
-        emit_y: 9.998974022744381e-08
-        sigma_t: 0.0010000012013062043
-        sigma_x: 0.001923928079254383
-        sigma_y: 0.001923811588895537
+        emit_x: 7.460508083349864e-11
+        emit_y: 7.462600884923365e-11
+        sigma_pe: 1.867098280523075e-06
+        sigma_px: 1.5171785124076318e-07
+        sigma_py: 1.517556086513263e-07
+        sigma_t: 0.00100000103857529
+        sigma_x: 0.001000791117551091
+        sigma_y: 0.0010007981869919295
+        xpx: 1.3224531666879167e-10
+        ypy: 1.3227812511546664e-10
       physics: correct
-      push_per_sec: 1408187056.5276537
+      push_per_sec: 1408437019.697531
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 181794030
+      track_ns: 181761766
     spacecharge_2p5d_100000:
       cores: 1r x 1t
       model: null
@@ -12318,33 +12470,43 @@ results:
       model: null
       npart: 4000000
       observables:
-        emit_x: 1.0000904583851132e-07
-        emit_y: 1.0008608751817453e-07
-        sigma_t: 0.0010003349126286932
-        sigma_x: 0.0019237263729864047
-        sigma_y: 0.001925701756058105
+        emit_x: 7.515360525431899e-11
+        emit_y: 7.495939567013891e-11
+        sigma_pe: 1.880235990755757e-06
+        sigma_px: 1.5233384821024768e-07
+        sigma_py: 1.5223752854204926e-07
+        sigma_t: 0.0010003348359727251
+        sigma_x: 0.0010012406408698403
+        sigma_y: 0.0010007790599292563
+        xpx: 1.327221262646085e-10
+        ypy: 1.326404144404503e-10
       physics: correct
-      push_per_sec: 946298282.2083857
+      push_per_sec: 944238915.107256
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 4226997
+      track_ns: 4236216
     spacecharge_64000000:
       cores: 1r x 1t
       model: null
       npart: 64000000
       observables:
-        emit_x: 9.999071578948052e-08
-        emit_y: 9.9994406882171e-08
-        sigma_t: 0.0010000741166454117
-        sigma_x: 0.0019238966684887566
-        sigma_y: 0.0019239143242034344
+        emit_x: 7.497838916378291e-11
+        emit_y: 7.497130655528565e-11
+        sigma_pe: 1.8727484039872669e-06
+        sigma_px: 1.5221679637668285e-07
+        sigma_py: 1.521958644774988e-07
+        sigma_t: 0.0010000739088523597
+        sigma_x: 0.0010007489883818118
+        sigma_y: 0.0010007875095274135
+        xpx: 1.326005962803211e-10
+        ypy: 1.3258726911344834e-10
       physics: correct
-      push_per_sec: 1334655058.9213715
+      push_per_sec: 1334690852.961092
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 47952465
+      track_ns: 47951179
   impactx-cuda-dp-fm:
     fodo_chromatic_100000:
       cores: 1r x 1t
@@ -12746,33 +12908,43 @@ results:
       model: null
       npart: 100000
       observables:
-        emit_x: 9.989386870981346e-08
-        emit_y: 9.988302695967763e-08
-        sigma_t: 0.001001754650459084
-        sigma_x: 0.001924036403051623
-        sigma_y: 0.001923033288906169
+        emit_x: 7.591815063104026e-11
+        emit_y: 7.58889606206306e-11
+        sigma_pe: 1.8887263269638655e-06
+        sigma_px: 1.5341593583155215e-07
+        sigma_py: 1.5344060261844408e-07
+        sigma_t: 0.0010017528886347108
+        sigma_x: 0.00100055286166763
+        sigma_y: 0.0009994566131622383
+        xpx: 1.3341256870305078e-10
+        ypy: 1.3326820608229657e-10
       physics: correct
-      push_per_sec: 78129761.03231291
+      push_per_sec: 77925619.9957141
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 1279922
+      track_ns: 1283275
     spacecharge_1000000:
       cores: 1r x 1t
       model: null
       npart: 1000000
       observables:
-        emit_x: 1.0000313476687986e-07
-        emit_y: 1.0003381466859178e-07
-        sigma_t: 0.0010009444363118924
-        sigma_x: 0.001924844383720829
-        sigma_y: 0.0019245183757615008
+        emit_x: 7.537034813182664e-11
+        emit_y: 7.524491989015531e-11
+        sigma_pe: 1.8764652841276896e-06
+        sigma_px: 1.5269327465885867e-07
+        sigma_py: 1.525640968144065e-07
+        sigma_t: 0.0010009437799470698
+        sigma_x: 0.0010004788793391292
+        sigma_y: 0.0010010104962460032
+        xpx: 1.3287922265089316e-10
+        ypy: 1.3289652814549723e-10
       physics: correct
-      push_per_sec: 508163649.02153087
+      push_per_sec: 512316340.99570733
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 1967870
+      track_ns: 1951919
     spacecharge_1000000000:
       cores: null
       model: null
@@ -12789,33 +12961,43 @@ results:
       model: null
       npart: 16000000
       observables:
-        emit_x: 9.997702470467947e-08
-        emit_y: 1.0001144876594258e-07
-        sigma_t: 0.0010001531691754314
-        sigma_x: 0.0019234902685718318
-        sigma_y: 0.0019235978967271294
+        emit_x: 7.49069452266009e-11
+        emit_y: 7.499432765358276e-11
+        sigma_pe: 1.8728558458997022e-06
+        sigma_px: 1.521699993229133e-07
+        sigma_py: 1.5213312259406446e-07
+        sigma_t: 0.001000152914321775
+        sigma_x: 0.0010008325908590528
+        sigma_y: 0.001001082890926237
+        xpx: 1.3260180296745473e-10
+        ypy: 1.3255372865141851e-10
       physics: correct
-      push_per_sec: 1251376122.6799097
+      push_per_sec: 1251998796.5161567
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 12785924
+      track_ns: 12779565
     spacecharge_256000000:
       cores: 1r x 1t
       model: null
       npart: 256000000
       observables:
-        emit_x: 9.999310135428372e-08
-        emit_y: 9.998974022744381e-08
-        sigma_t: 0.0010000012013062043
-        sigma_x: 0.001923928079254383
-        sigma_y: 0.001923811588895537
+        emit_x: 7.460508083349864e-11
+        emit_y: 7.462600884923373e-11
+        sigma_pe: 1.8670982805230752e-06
+        sigma_px: 1.5171785124076318e-07
+        sigma_py: 1.5175560865132636e-07
+        sigma_t: 0.00100000103857529
+        sigma_x: 0.001000791117551091
+        sigma_y: 0.0010007981869919295
+        xpx: 1.3224531666879167e-10
+        ypy: 1.3227812511546664e-10
       physics: correct
-      push_per_sec: 1408064935.026576
+      push_per_sec: 1408467132.2090685
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 181809797
+      track_ns: 181757880
     spacecharge_2p5d_100000:
       cores: 1r x 1t
       model: null
@@ -12928,33 +13110,43 @@ results:
       model: null
       npart: 4000000
       observables:
-        emit_x: 1.0000904583851132e-07
-        emit_y: 1.0008608751817453e-07
-        sigma_t: 0.0010003349126286932
-        sigma_x: 0.0019237263729864047
-        sigma_y: 0.001925701756058105
+        emit_x: 7.515360525431899e-11
+        emit_y: 7.495939567013891e-11
+        sigma_pe: 1.8802359907557572e-06
+        sigma_px: 1.5233384821024768e-07
+        sigma_py: 1.5223752854204926e-07
+        sigma_t: 0.0010003348359727251
+        sigma_x: 0.0010012406408698403
+        sigma_y: 0.0010007790599292563
+        xpx: 1.327221262646085e-10
+        ypy: 1.326404144404503e-10
       physics: correct
-      push_per_sec: 945832861.4021451
+      push_per_sec: 945993916.7861181
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 4229077
+      track_ns: 4228357
     spacecharge_64000000:
       cores: 1r x 1t
       model: null
       npart: 64000000
       observables:
-        emit_x: 9.999071578948052e-08
-        emit_y: 9.9994406882171e-08
-        sigma_t: 0.0010000741166454117
-        sigma_x: 0.0019238966684887566
-        sigma_y: 0.0019239143242034344
+        emit_x: 7.497838916378286e-11
+        emit_y: 7.497130655528556e-11
+        sigma_pe: 1.8727484039872669e-06
+        sigma_px: 1.5221679637668285e-07
+        sigma_py: 1.5219586447749874e-07
+        sigma_t: 0.0010000739088523597
+        sigma_x: 0.0010007489883818118
+        sigma_y: 0.0010007875095274135
+        xpx: 1.3260059628032114e-10
+        ypy: 1.325872691134483e-10
       physics: correct
-      push_per_sec: 1334576908.779145
+      push_per_sec: 1335093431.5072036
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 47955273
+      track_ns: 47936720
   impactx-cuda-sp:
     fodo_chromatic_100000:
       cores: 1r x 1t
@@ -13359,33 +13551,43 @@ results:
       model: null
       npart: 100000
       observables:
-        emit_x: 9.985720339500403e-08
-        emit_y: 9.956293922641635e-08
-        sigma_t: 0.000994569156318903
-        sigma_x: 0.0019250083714723587
-        sigma_y: 0.0019213930936530232
+        emit_x: 7.668891216505713e-11
+        emit_y: 7.644631455638873e-11
+        sigma_pe: 1.9277438241260825e-06
+        sigma_px: 1.5500303618409816e-07
+        sigma_py: 1.5493972682634194e-07
+        sigma_t: 0.0009945279452949762
+        sigma_x: 0.0009984117932617664
+        sigma_y: 0.0009976228466257453
+        xpx: 1.3441916326886477e-10
+        ypy: 1.343450517908929e-10
       physics: correct
-      push_per_sec: 97883465.8186043
+      push_per_sec: 102079460.69379325
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 1021623
+      track_ns: 979629
     spacecharge_1000000:
       cores: 1r x 1t
       model: null
       npart: 1000000
       observables:
-        emit_x: 1.0017049589805538e-07
-        emit_y: 9.993372174221804e-08
-        sigma_t: 0.000999591313302517
-        sigma_x: 0.0019261460984125733
-        sigma_y: 0.0019226196454837918
+        emit_x: 7.562177967157524e-11
+        emit_y: 7.550760711128035e-11
+        sigma_pe: 1.8867243625209085e-06
+        sigma_px: 1.5295970001716341e-07
+        sigma_py: 1.5301010591883824e-07
+        sigma_t: 0.0009995501022785902
+        sigma_x: 0.0010014016879722476
+        sigma_y: 0.0010007384698837996
+        xpx: 1.3320575465904402e-10
+        ypy: 1.332114274850667e-10
       physics: correct
-      push_per_sec: 684851763.8357178
+      push_per_sec: 708518876.714173
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 1460170
+      track_ns: 1411395
     spacecharge_1000000000:
       cores: null
       model: null
@@ -13402,33 +13604,43 @@ results:
       model: null
       npart: 16000000
       observables:
-        emit_x: 9.999568106877632e-08
-        emit_y: 1.0002359118743698e-07
-        sigma_t: 0.0010000361362472177
-        sigma_x: 0.001924221171066165
-        sigma_y: 0.0019243545830249786
+        emit_x: 7.388027689625432e-11
+        emit_y: 7.48676606820986e-11
+        sigma_pe: 1.872868551799911e-06
+        sigma_px: 1.507477662698875e-07
+        sigma_py: 1.5211905690648564e-07
+        sigma_t: 0.0009999960893765092
+        sigma_x: 0.0010006750235334039
+        sigma_y: 0.0010008503450080752
+        xpx: 1.3151916801975795e-10
+        ypy: 1.325685131852317e-10
       physics: correct
-      push_per_sec: 1727622030.8520901
+      push_per_sec: 1728533211.0108
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 9261285
+      track_ns: 9256403
     spacecharge_256000000:
       cores: 1r x 1t
       model: null
       npart: 256000000
       observables:
-        emit_x: 9.998700534197269e-08
-        emit_y: 1.0000394468079321e-07
-        sigma_t: 0.0010000054026022553
-        sigma_x: 0.001923689036630094
-        sigma_y: 0.0019238441018387675
-      physics: correct
-      push_per_sec: 1291009490.0947726
-      reason: ''
+        emit_x: 6.606864361158316e-11
+        emit_y: 6.49948359021657e-11
+        sigma_pe: 1.6434278222732246e-06
+        sigma_px: 1.398817204290026e-07
+        sigma_py: 1.383916554686948e-07
+        sigma_t: 0.0009999749017879367
+        sigma_x: 0.0010007621021941304
+        sigma_y: 0.0010008381213992834
+        xpx: 1.2341662208249565e-10
+        ypy: 1.2231124503013525e-10
+      physics: unconverged
+      push_per_sec: 1293079068.0573072
+      reason: emit_y off by 15.89%
       scenario: spacecharge
       status: supported
-      track_ns: 198294437
+      track_ns: 197977066
     spacecharge_2p5d_100000:
       cores: 1r x 1t
       model: null
@@ -13541,33 +13753,43 @@ results:
       model: null
       npart: 4000000
       observables:
-        emit_x: 9.997155103746991e-08
-        emit_y: 9.99474210061635e-08
-        sigma_t: 0.001000068848952651
-        sigma_x: 0.001923282048664987
-        sigma_y: 0.0019239423563703895
-      physics: correct
-      push_per_sec: 1292512764.3713686
-      reason: ''
+        emit_x: 7.268887575184735e-11
+        emit_y: 7.476655405902477e-11
+        sigma_pe: 1.881845605566923e-06
+        sigma_px: 1.4891128330418724e-07
+        sigma_py: 1.5193239732980146e-07
+        sigma_t: 0.0010000276379287243
+        sigma_x: 0.0010008553508669138
+        sigma_y: 0.00100036954972893
+        xpx: 1.3011093585601552e-10
+        ypy: 1.3232717336120014e-10
+      physics: unconverged
+      push_per_sec: 1292379548.6105952
+      reason: emit_x off by 5.94%
       scenario: spacecharge
       status: supported
-      track_ns: 3094747
+      track_ns: 3095066
     spacecharge_64000000:
       cores: 1r x 1t
       model: null
       npart: 64000000
       observables:
-        emit_x: 9.999825323347977e-08
-        emit_y: 1.0000069039506343e-07
-        sigma_t: 0.0010000650072470307
-        sigma_x: 0.0019240257097408175
-        sigma_y: 0.00192399718798697
-      physics: correct
-      push_per_sec: 1125403026.1665347
-      reason: ''
+        emit_x: 6.727193802014142e-11
+        emit_y: 6.924492923499059e-11
+        sigma_pe: 1.7832957155405893e-06
+        sigma_px: 1.4120756475222151e-07
+        sigma_py: 1.441650709921305e-07
+        sigma_t: 0.001000025076791644
+        sigma_x: 0.001000741496682167
+        sigma_y: 0.0010007880628108978
+        xpx: 1.2427245707598418e-10
+        ypy: 1.2657597128093326e-10
+      physics: unconverged
+      push_per_sec: 1125702145.720208
+      reason: emit_x off by 12.95%
       scenario: spacecharge
       status: supported
-      track_ns: 56868516
+      track_ns: 56853405
   impactx-cuda-sp-fm:
     fodo_chromatic_100000:
       cores: 1r x 1t
@@ -13972,33 +14194,43 @@ results:
       model: null
       npart: 100000
       observables:
-        emit_x: 9.985706839188424e-08
-        emit_y: 9.956253421705696e-08
-        sigma_t: 0.0009945690399035811
-        sigma_x: 0.0019250080222263932
-        sigma_y: 0.0019213929772377014
+        emit_x: 7.668870399824002e-11
+        emit_y: 7.64459051616484e-11
+        sigma_pe: 1.9264989532530308e-06
+        sigma_px: 1.5500314987093589e-07
+        sigma_py: 1.5493948524181178e-07
+        sigma_t: 0.0009946178179234266
+        sigma_x: 0.0009984115604311228
+        sigma_y: 0.0009976227302104235
+        xpx: 1.3441938348560072e-10
+        ypy: 1.3434503403546518e-10
       physics: correct
-      push_per_sec: 99310290.03570205
+      push_per_sec: 100106613.54342374
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 1006945
+      track_ns: 998935
     spacecharge_1000000:
       cores: 1r x 1t
       model: null
       npart: 1000000
       observables:
-        emit_x: 1.0016968587933661e-07
-        emit_y: 9.993426175469722e-08
-        sigma_t: 0.0009995911968871951
-        sigma_x: 0.0019261457491666079
-        sigma_y: 0.0019226194126531482
+        emit_x: 7.562186293830209e-11
+        emit_y: 7.550721159432783e-11
+        sigma_pe: 1.8855596408684505e-06
+        sigma_px: 1.5295971422801813e-07
+        sigma_py: 1.530098785451628e-07
+        sigma_t: 0.0009996335720643401
+        sigma_x: 0.0010014015715569258
+        sigma_y: 0.0010007384698837996
+        xpx: 1.3320569399011313e-10
+        ypy: 1.332113957952257e-10
       physics: correct
-      push_per_sec: 694830461.3674263
+      push_per_sec: 692320846.403774
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 1439200
+      track_ns: 1444417
     spacecharge_1000000000:
       cores: null
       model: null
@@ -14015,33 +14247,43 @@ results:
       model: null
       npart: 16000000
       observables:
-        emit_x: 9.999554606565653e-08
-        emit_y: 1.0002251116247862e-07
-        sigma_t: 0.0010000362526625395
-        sigma_x: 0.0019242207054048777
-        sigma_y: 0.001924354350194335
+        emit_x: 7.388018669063356e-11
+        emit_y: 7.48676606820986e-11
+        sigma_pe: 1.8716582417255268e-06
+        sigma_px: 1.5074806469783653e-07
+        sigma_py: 1.5211945481041766e-07
+        sigma_t: 0.001000078278593719
+        sigma_x: 0.0010006747907027602
+        sigma_y: 0.0010008502285927534
+        xpx: 1.315195006422212e-10
+        ypy: 1.325689594312637e-10
       physics: correct
-      push_per_sec: 1734351730.2163854
+      push_per_sec: 1734737212.791215
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 9225349
+      track_ns: 9223299
     spacecharge_256000000:
       cores: 1r x 1t
       model: null
       npart: 256000000
       observables:
-        emit_x: 9.998795036381125e-08
-        emit_y: 1.0000326966519424e-07
-        sigma_t: 0.001000005635432899
-        sigma_x: 0.0019236885709688067
-        sigma_y: 0.001923843752592802
-      physics: correct
-      push_per_sec: 1292121058.1556888
-      reason: ''
+        emit_x: 6.606859503932583e-11
+        emit_y: 6.499477345212057e-11
+        sigma_pe: 1.6418250652350252e-06
+        sigma_px: 1.3988164937472902e-07
+        sigma_py: 1.3839151336014766e-07
+        sigma_t: 0.0010000320617109537
+        sigma_x: 0.0010007618693634868
+        sigma_y: 0.0010008378885686398
+        xpx: 1.2341653922521825e-10
+        ypy: 1.2231108101994804e-10
+      physics: unconverged
+      push_per_sec: 1292851793.6467738
+      reason: emit_y off by 15.89%
       scenario: spacecharge
       status: supported
-      track_ns: 198123851
+      track_ns: 198011869
     spacecharge_2p5d_100000:
       cores: 1r x 1t
       model: null
@@ -14154,98 +14396,128 @@ results:
       model: null
       npart: 4000000
       observables:
-        emit_x: 9.997250316473583e-08
-        emit_y: 9.994769101240308e-08
-        sigma_t: 0.0010000690817832947
-        sigma_x: 0.0019232818158343434
-        sigma_y: 0.0019239422399550676
-      physics: correct
-      push_per_sec: 1302455584.6364944
-      reason: ''
+        emit_x: 7.268894514078639e-11
+        emit_y: 7.476669977579675e-11
+        sigma_pe: 1.8805665149557171e-06
+        sigma_px: 1.4891116961734951e-07
+        sigma_py: 1.5193235469723732e-07
+        sigma_t: 0.0010001107584685087
+        sigma_x: 0.001000855234451592
+        sigma_y: 0.0010003696661442518
+        xpx: 1.3011076544344705e-10
+        ypy: 1.3232706583283165e-10
+      physics: unconverged
+      push_per_sec: 1291343992.0866442
+      reason: emit_x off by 5.94%
       scenario: spacecharge
       status: supported
-      track_ns: 3071122
+      track_ns: 3097548
     spacecharge_64000000:
       cores: 1r x 1t
       model: null
       npart: 64000000
       observables:
-        emit_x: 9.999798322724018e-08
-        emit_y: 1.0000015038258425e-07
-        sigma_t: 0.0010000651236623526
-        sigma_x: 0.0019240250112488866
-        sigma_y: 0.0019239967223256826
-      physics: correct
-      push_per_sec: 1126822161.6692252
-      reason: ''
+        emit_x: 6.727188944788409e-11
+        emit_y: 6.924492923499059e-11
+        sigma_pe: 1.7817836805988918e-06
+        sigma_px: 1.4120750790880265e-07
+        sigma_py: 1.4416499993785692e-07
+        sigma_t: 0.0010000995825976133
+        sigma_x: 0.0010007413802668452
+        sigma_y: 0.001000787946395576
+        xpx: 1.2427239942546347e-10
+        ypy: 1.2657587222526743e-10
+      physics: unconverged
+      push_per_sec: 1126725948.2961307
+      reason: emit_x off by 12.95%
       scenario: spacecharge
       status: supported
-      track_ns: 56796895
+      track_ns: 56801745
   impactz-cpu-dp:
     fodo_chromatic_1000:
-      cores: 1r x 1t
+      cores: 2r x 1t
       model: 3d-pic
       npart: 1000
       observables:
-        emit_x: 1.0185814057134852e-09
-        emit_y: 1.0129887228597198e-09
-        sigma_t: 0.0010156573136569315
-        sigma_x: 4.950610552885367e-05
-        sigma_y: 5.1015930725504796e-05
+        emit_x: 9.74696624519777e-10
+        emit_y: 9.816983397564903e-10
+        sigma_pe: 0.010119989266436941
+        sigma_px: 3.6081436058077426e-05
+        sigma_py: 2.75201133720854e-05
+        sigma_t: 0.0010093138101203065
+        sigma_x: 4.843683434502683e-05
+        sigma_y: 5.09173144884213e-05
+        xpx: 1.4506270406251602e-09
+        ypy: 9.998853341226066e-10
       physics: correct
-      push_per_sec: 491701.0693514856
+      push_per_sec: 315571.49682503514
       reason: ''
       scenario: fodo_chromatic
       status: supported
-      track_ns: 2033756
+      track_ns: 3168854
     fodo_chromatic_10000:
-      cores: 1r x 1t
+      cores: 4r x 1t
       model: 3d-pic
       npart: 10000
       observables:
-        emit_x: 9.839023924653967e-10
-        emit_y: 9.750469081310255e-10
-        sigma_t: 0.0009981329159105472
-        sigma_x: 4.8035818992300766e-05
-        sigma_y: 4.954227642196606e-05
+        emit_x: 1.0034816710218054e-09
+        emit_y: 9.972038473168848e-10
+        sigma_pe: 0.00999107892034207
+        sigma_px: 3.5501862442357606e-05
+        sigma_py: 2.7854870394583855e-05
+        sigma_t: 0.0010030905397262493
+        sigma_x: 4.835384372730093e-05
+        sigma_y: 4.9861036783719173e-05
+        xpx: 1.3928090098017188e-09
+        ypy: 9.667222516813125e-10
       physics: correct
-      push_per_sec: 1488622.4585493077
+      push_per_sec: 1935434.298876345
       reason: ''
       scenario: fodo_chromatic
       status: supported
-      track_ns: 6717620
+      track_ns: 5166799
     fodo_chromatic_100000:
-      cores: 1r x 1t
+      cores: 16r x 1t
       model: 3d-pic
       npart: 100000
       observables:
-        emit_x: 9.973534494139253e-10
-        emit_y: 9.95938470483694e-10
-        sigma_t: 0.0009984890450184815
-        sigma_x: 4.816264166896297e-05
-        sigma_y: 5.01830789889283e-05
+        emit_x: 9.965311424825948e-10
+        emit_y: 9.985962568148866e-10
+        sigma_pe: 0.009935575213280673
+        sigma_px: 3.531802043060803e-05
+        sigma_py: 2.779494206722896e-05
+        sigma_t: 0.0010018525976252333
+        sigma_x: 4.8213305941780015e-05
+        sigma_y: 5.0256422532031e-05
+        xpx: 1.3807420093373257e-09
+        ypy: 9.767617280283688e-10
       physics: correct
-      push_per_sec: 2125346.6094951266
+      push_per_sec: 9281440.18251024
       reason: ''
       scenario: fodo_chromatic
       status: supported
-      track_ns: 47051149
+      track_ns: 10774190
     fodo_chromatic_1000000:
-      cores: 1r x 1t
+      cores: 64r x 1t
       model: 3d-pic
       npart: 1000000
       observables:
-        emit_x: 1.0010250562940914e-09
-        emit_y: 9.996455782027004e-10
-        sigma_t: 0.0009995701128656211
-        sigma_x: 4.835533929274235e-05
-        sigma_y: 5.023576181810293e-05
+        emit_x: 9.981976014227335e-10
+        emit_y: 9.99424275749026e-10
+        sigma_pe: 0.010008835074891014
+        sigma_px: 3.5376629531127085e-05
+        sigma_py: 2.779831906984588e-05
+        sigma_t: 0.000999355064012302
+        sigma_x: 4.826937883041476e-05
+        sigma_y: 5.022552324614095e-05
+        xpx: 1.3854697398096364e-09
+        ypy: 9.749276938098249e-10
       physics: correct
-      push_per_sec: 2391605.3713954715
+      push_per_sec: 37264391.22840948
       reason: ''
       scenario: fodo_chromatic
       status: supported
-      track_ns: 418129183
+      track_ns: 26835270
     fodo_exact_1000:
       cores: 1r x 1t
       model: 3d-pic
@@ -14253,131 +14525,171 @@ results:
       observables:
         emit_x: 0.00021153944063767713
         emit_y: 0.0001523665541252178
+        sigma_pe: 0.01004334022310026
+        sigma_px: 0.16204347653067983
+        sigma_py: 0.03368302809996769
         sigma_t: 0.01361977299127654
         sigma_x: 0.13143142904231978
         sigma_y: 0.11121671443047168
+        xpx: 0.021296555098925626
+        ypy: 0.003743015816282798
       physics: model_mismatch
-      push_per_sec: 480640.7517990383
+      push_per_sec: 572008.4245400766
       reason: paraxial chromatic thick quad (transfmapK, K/(1+delta)); no non-paraxial
         quad model
       scenario: fodo_exact
       status: supported
-      track_ns: 2080556
+      track_ns: 1748226
     fodo_exact_10000:
-      cores: 1r x 1t
+      cores: 4r x 1t
       model: 3d-pic
       npart: 10000
       observables:
-        emit_x: 0.00019139226599423675
-        emit_y: 0.00015495125389875712
-        sigma_t: 0.013409587918705697
-        sigma_x: 0.12408606560466127
-        sigma_y: 0.11072064432883327
+        emit_x: 0.0001954598424643832
+        emit_y: 0.00015736380659377985
+        sigma_pe: 0.00999107892034207
+        sigma_px: 0.15451823659432304
+        sigma_py: 0.03409575472034684
+        sigma_t: 0.013577167468972846
+        sigma_x: 0.1253024859194531
+        sigma_y: 0.1126330481348737
+        xpx: 0.019360532529680025
+        ypy: 0.0038370832904927486
       physics: model_mismatch
-      push_per_sec: 1554769.3950485568
+      push_per_sec: 1935979.1069134783
       reason: paraxial chromatic thick quad (transfmapK, K/(1+delta)); no non-paraxial
         quad model
       scenario: fodo_exact
       status: supported
-      track_ns: 6431822
+      track_ns: 5165345
     fodo_exact_100000:
-      cores: 1r x 1t
+      cores: 16r x 1t
       model: 3d-pic
       npart: 100000
       observables:
-        emit_x: 0.0001923286745469605
-        emit_y: 0.00015701262932387965
-        sigma_t: 0.013291321922243509
-        sigma_x: 0.12461060214937979
-        sigma_y: 0.11238644609557613
+        emit_x: 0.00019254695634678872
+        emit_y: 0.00015744802646848254
+        sigma_pe: 0.009935575213280673
+        sigma_px: 0.1537252039674464
+        sigma_py: 0.03404430377977907
+        sigma_t: 0.013341032454863849
+        sigma_x: 0.12466298470001243
+        sigma_y: 0.11243283192753555
+        xpx: 0.019162875426824568
+        ypy: 0.003824457890387154
       physics: model_mismatch
-      push_per_sec: 2088680.3114163862
+      push_per_sec: 9233398.90277674
       reason: paraxial chromatic thick quad (transfmapK, K/(1+delta)); no non-paraxial
         quad model
       scenario: fodo_exact
       status: supported
-      track_ns: 47877121
+      track_ns: 10830248
     fodo_exact_1000000:
-      cores: 1r x 1t
+      cores: 64r x 1t
       model: 3d-pic
       npart: 1000000
       observables:
-        emit_x: 0.00019351079610082468
-        emit_y: 0.0001577239929736396
-        sigma_t: 0.013426327053447052
-        sigma_x: 0.12501093315736725
-        sigma_y: 0.11244862138060598
+        emit_x: 0.0001945273985298928
+        emit_y: 0.00015820730681225916
+        sigma_pe: 0.010008835074891014
+        sigma_px: 0.15398028492035817
+        sigma_py: 0.03404505970452885
+        sigma_t: 0.013464692421961955
+        sigma_x: 0.12487005574563657
+        sigma_y: 0.11243930816021692
+        xpx: 0.019226542707008538
+        ypy: 0.0038247322920216295
       physics: model_mismatch
-      push_per_sec: 2372411.169772984
+      push_per_sec: 38505273.046859495
       reason: paraxial chromatic thick quad (transfmapK, K/(1+delta)); no non-paraxial
         quad model
       scenario: fodo_exact
       status: supported
-      track_ns: 421512094
+      track_ns: 25970469
     htu_1000:
-      cores: 1r x 1t
+      cores: 4r x 1t
       model: 3d-pic
       npart: 1000
       observables:
-        emit_x: 4.488126433388108e-06
-        emit_y: 6.045775796242928e-07
-        sigma_t: 0.00018239004887857718
-        sigma_x: 0.0013423129363619032
-        sigma_y: 0.0005151484047979187
-      physics: incorrect
-      push_per_sec: 56675.263548476796
-      reason: emit_x off by 25.43%
+        emit_x: 4.0233615558963225e-06
+        emit_y: 5.650083768682246e-07
+        sigma_pe: 0.0246169899923997
+        sigma_px: 0.003915653632673431
+        sigma_py: 0.0015965145386042962
+        sigma_t: 0.0001614482648607435
+        sigma_x: 0.0012621054819963473
+        sigma_y: 0.0005144553072471347
+        xpx: 2.8697750203351286e-06
+        ypy: -5.96118558990195e-07
+      physics: correct
+      push_per_sec: 73863.93937366038
+      reason: ''
       scenario: htu
       status: supported
-      track_ns: 17644382
+      track_ns: 13538406
     htu_10000:
-      cores: 1r x 1t
+      cores: 32r x 1t
       model: 3d-pic
       npart: 10000
       observables:
-        emit_x: 3.7552520882599473e-06
-        emit_y: 5.926433622753563e-07
-        sigma_t: 0.0001572439333382209
-        sigma_x: 0.001221767848267021
-        sigma_y: 0.0005142717503091159
+        emit_x: 3.764951884767234e-06
+        emit_y: 5.989439553537197e-07
+        sigma_pe: 0.0251511801831377
+        sigma_px: 0.003651443018308681
+        sigma_py: 0.0016486529849057256
+        sigma_t: 0.00015311762226455169
+        sigma_x: 0.0012140057762944011
+        sigma_y: 0.0005165810609824153
+        xpx: 2.339978545867139e-06
+        ypy: -6.054715909414979e-07
       physics: correct
-      push_per_sec: 98215.24918834181
+      push_per_sec: 457056.042612249
       reason: ''
       scenario: htu
       status: supported
-      track_ns: 101817183
+      track_ns: 21879155
     htu_100000:
-      cores: 1r x 1t
+      cores: 64r x 1t
       model: 3d-pic
       npart: 100000
       observables:
-        emit_x: 3.743188423615825e-06
-        emit_y: 6.093956289640009e-07
-        sigma_t: 0.0001548207295620845
-        sigma_x: 0.0012212217615104645
-        sigma_y: 0.0005240467154013212
+        emit_x: 3.7946530485970216e-06
+        emit_y: 6.056672600095756e-07
+        sigma_pe: 0.02498189578327759
+        sigma_px: 0.0036543265708243043
+        sigma_py: 0.0016499387114481496
+        sigma_t: 0.00015928876447247566
+        sigma_x: 0.0012362336178731582
+        sigma_y: 0.0005197111600538993
+        xpx: 2.4513935356082394e-06
+        ypy: -6.070081948504543e-07
       physics: correct
-      push_per_sec: 106335.80193988807
+      push_per_sec: 2327057.615759132
       reason: ''
       scenario: htu
       status: supported
-      track_ns: 940417039
+      track_ns: 42972722
     htu_1000000:
-      cores: 1r x 1t
+      cores: 64r x 1t
       model: 3d-pic
       npart: 1000000
       observables:
-        emit_x: 3.7957380541110034e-06
-        emit_y: 6.106340645671618e-07
-        sigma_t: 0.00015631083921916034
-        sigma_x: 0.0012301378442411285
-        sigma_y: 0.0005227944496782802
+        emit_x: 3.7756889219192697e-06
+        emit_y: 6.110962975729928e-07
+        sigma_pe: 0.025022084373810986
+        sigma_px: 0.0036502023992225174
+        sigma_py: 0.0016673310485526192
+        sigma_t: 0.00015611270409386204
+        sigma_x: 0.0012273769565266652
+        sigma_y: 0.0005230552165985047
+        xpx: 2.411666441695164e-06
+        ypy: -6.221981548942659e-07
       physics: correct
-      push_per_sec: 107450.7086767883
+      push_per_sec: 5103848.46404427
       reason: ''
       scenario: htu
       status: supported
-      track_ns: 9306592877
+      track_ns: 195930582
     htu_spin_1000:
       model: 3d-pic
       npart: 1000
@@ -14418,70 +14730,69 @@ results:
       scenario: htu_spin
       status: unsupported_physics
       track_ns: null
-    spacecharge_1000:
-      cores: 1r x 1t
-      model: 3d-pic
-      npart: 1000
-      observables:
-        emit_x: 1.01807645224643e-07
-        emit_y: 1.0131162943477913e-07
-        sigma_t: 0.00101570055094415
-        sigma_x: 0.002017679940757624
-        sigma_y: 0.0019091201623521576
-      physics: correct
-      push_per_sec: 10323.131567382743
-      reason: ''
-      scenario: spacecharge
-      status: supported
-      track_ns: 96869830
     spacecharge_10000:
-      cores: 1r x 1t
+      cores: 16r x 1t
       model: 3d-pic
       npart: 10000
       observables:
-        emit_x: 9.840203505578635e-08
-        emit_y: 9.749595554333202e-08
-        sigma_t: 0.000998118513340627
-        sigma_x: 0.0019106487550638067
-        sigma_y: 0.00189270412377992
+        emit_x: 7.760042983148741e-11
+        emit_y: 7.830275358361826e-11
+        sigma_pe: 2.019914611657786e-06
+        sigma_px: 1.5821860159625212e-07
+        sigma_py: 1.5804553031100443e-07
+        sigma_t: 0.0009935214278015802
+        sigma_x: 0.000986259299424936
+        sigma_y: 0.000991645824835475
+        xpx: 1.3538124032557195e-10
+        ypy: 1.3576252813421255e-10
       physics: correct
-      push_per_sec: 100089.36579114028
+      push_per_sec: 244219.29270869138
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 99910714
+      track_ns: 40946806
     spacecharge_100000:
-      cores: 1r x 1t
+      cores: 16r x 1t
       model: 3d-pic
       npart: 100000
       observables:
-        emit_x: 9.973070259280416e-08
-        emit_y: 9.958475661463586e-08
-        sigma_t: 0.000998491793058543
-        sigma_x: 0.0019169209654228113
-        sigma_y: 0.0019219056808869985
+        emit_x: 7.618566736808075e-11
+        emit_y: 7.646577660208161e-11
+        sigma_pe: 1.903164118074939e-06
+        sigma_px: 1.539477580665512e-07
+        sigma_py: 1.5384254163455578e-07
+        sigma_t: 0.0010018543921612377
+        sigma_x: 0.0009993581266284223
+        sigma_y: 0.0009995966253595991
+        xpx: 1.3366091942178805e-10
+        ypy: 1.3342197238576187e-10
       physics: correct
-      push_per_sec: 793568.8797075438
+      push_per_sec: 1519359.127027296
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 126013006
+      track_ns: 65817224
     spacecharge_1000000:
-      cores: 1r x 1t
+      cores: 4r x 1t
       model: 3d-pic
       npart: 1000000
       observables:
-        emit_x: 1.0009452809353998e-07
-        emit_y: 9.995956360737505e-08
-        sigma_t: 0.0009995702422651274
-        sigma_x: 0.0019240866269406992
-        sigma_y: 0.0019227847024840137
+        emit_x: 7.576203446055236e-11
+        emit_y: 7.562314983383842e-11
+        sigma_pe: 1.890710601435222e-06
+        sigma_px: 1.5318618930191606e-07
+        sigma_py: 1.5320771383888867e-07
+        sigma_t: 0.001001100588928796
+        sigma_x: 0.001000587484629858
+        sigma_y: 0.0010008744069577207
+        xpx: 1.332430210742803e-10
+        ypy: 1.3339718869443783e-10
       physics: correct
-      push_per_sec: 2827947.1149682277
+      push_per_sec: 3774744.7778982264
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 353613402
+      track_ns: 264918573
     spacecharge_2p5d_1000:
       model: 3d-pic
       npart: 1000
@@ -15373,70 +15684,69 @@ results:
       scenario: htu_spin
       status: unsupported_physics
       track_ns: null
-    spacecharge_1000:
-      cores: 1r x 1t
-      model: null
-      npart: 1000
-      observables:
-        emit_x: 1.0337651655908197e-07
-        emit_y: 1.0200534156585669e-07
-        sigma_t: 0.0010293795929763214
-        sigma_x: 0.0020409822433128293
-        sigma_y: 0.001999293734651398
-      physics: correct
-      push_per_sec: 42531.43892066436
-      reason: ''
-      scenario: spacecharge
-      status: supported
-      track_ns: 23512019
     spacecharge_10000:
       cores: 1r x 1t
       model: null
       npart: 10000
       observables:
-        emit_x: 1.0047183869218942e-07
-        emit_y: 9.933003795312269e-08
-        sigma_t: 0.0009907544719900243
-        sigma_x: 0.001972677198889817
-        sigma_y: 0.001968168657963167
-      physics: correct
-      push_per_sec: 406069.1913477213
-      reason: ''
+        emit_x: 2.7711122881443365e-09
+        emit_y: 2.7537386213692475e-09
+        sigma_pe: 1.0938852754708282e-05
+        sigma_px: 4.379509334289145e-06
+        sigma_py: 4.395288164877583e-06
+        sigma_t: 0.0009907519140579526
+        sigma_x: 0.0010172754652995914
+        sigma_y: 0.0010096521637649196
+        xpx: 3.4884743386326936e-09
+        ypy: 3.479973164954993e-09
+      physics: incorrect
+      push_per_sec: 402712.70499788213
+      reason: emit_x off by 3485.95%
       scenario: spacecharge
       status: supported
-      track_ns: 24626345
+      track_ns: 24831598
     spacecharge_100000:
       cores: 2r x 1t
       model: null
       npart: 100000
       observables:
-        emit_x: 9.997894966644842e-08
-        emit_y: 1.0042585586193292e-07
-        sigma_t: 0.0009967556459203502
-        sigma_x: 0.001979356767634656
-        sigma_y: 0.0019819735364994843
-      physics: correct
-      push_per_sec: 3023899.2364200847
-      reason: ''
+        emit_x: 2.9502945813846936e-09
+        emit_y: 2.983149921628074e-09
+        sigma_pe: 1.1327945253180027e-05
+        sigma_px: 4.957695407706985e-06
+        sigma_py: 4.959162210332349e-06
+        sigma_t: 0.000996755622686441
+        sigma_x: 0.0010206775826139282
+        sigma_y: 0.001025291580769045
+        xpx: 4.111140060249155e-09
+        ypy: 4.117504604634644e-09
+      physics: incorrect
+      push_per_sec: 3000785.8457972975
+      reason: emit_y off by 3760.34%
       scenario: spacecharge
       status: supported
-      track_ns: 33069885
+      track_ns: 33324604
     spacecharge_1000000:
       cores: 4r x 1t
       model: null
       npart: 1000000
       observables:
-        emit_x: 1.0027936286536521e-07
-        emit_y: 1.0056550265119699e-07
-        sigma_t: 0.000999963576363209
-        sigma_x: 0.001976572080378797
-        sigma_y: 0.0019809698726437467
-      physics: correct
-      push_per_sec: 13689281.482879918
-      reason: ''
+        emit_x: 2.8005174003651706e-09
+        emit_y: 2.7816416453734333e-09
+        sigma_pe: 1.1039592155079444e-05
+        sigma_px: 4.751331687754621e-06
+        sigma_py: 4.739649196738453e-06
+        sigma_t: 0.0009999625372884796
+        sigma_x: 0.0010240227354431702
+        sigma_y: 0.0010246046667478617
+        xpx: 3.97868280719114e-09
+        ypy: 3.980677816605622e-09
+      physics: incorrect
+      push_per_sec: 13970726.29894225
+      reason: emit_x off by 3524.01%
       scenario: spacecharge
       status: supported
-      track_ns: 73049853
+      track_ns: 71578240
     spacecharge_2p5d_1000:
       cores: 1r x 1t
       model: null
@@ -15702,70 +16012,69 @@ results:
       scenario: htu_spin
       status: unsupported_physics
       track_ns: null
-    spacecharge_1000:
-      cores: 1r x 1t
-      model: null
-      npart: 1000
-      observables:
-        emit_x: 1.0332853111852327e-07
-        emit_y: 1.0195052607643837e-07
-        sigma_t: 0.0010293820279858588
-        sigma_x: 0.002040234011129313
-        sigma_y: 0.0019980154286602207
-      physics: correct
-      push_per_sec: 42747.67704848151
-      reason: ''
-      scenario: spacecharge
-      status: supported
-      track_ns: 23393084
     spacecharge_10000:
       cores: 1r x 1t
       model: null
       npart: 10000
       observables:
-        emit_x: 1.004718386921864e-07
-        emit_y: 9.93300379531204e-08
-        sigma_t: 0.0009907544719900243
-        sigma_x: 0.0019726771988898173
-        sigma_y: 0.001968168657963167
-      physics: correct
-      push_per_sec: 406971.2548063305
-      reason: ''
+        emit_x: 2.771112288144341e-09
+        emit_y: 2.753738621369249e-09
+        sigma_pe: 1.093885275470823e-05
+        sigma_px: 4.379509334289144e-06
+        sigma_py: 4.395288164877582e-06
+        sigma_t: 0.0009907519140579526
+        sigma_x: 0.0010172754652995914
+        sigma_y: 0.0010096521637649196
+        xpx: 3.4884743386326894e-09
+        ypy: 3.479973164954991e-09
+      physics: incorrect
+      push_per_sec: 403741.1788103871
+      reason: emit_x off by 3485.95%
       scenario: spacecharge
       status: supported
-      track_ns: 24571760
+      track_ns: 24768343
     spacecharge_100000:
       cores: 2r x 1t
       model: null
       npart: 100000
       observables:
-        emit_x: 9.99789496664464e-08
-        emit_y: 1.0042585586193217e-07
-        sigma_t: 0.0009967556459203504
-        sigma_x: 0.0019793567676346566
-        sigma_y: 0.0019819735364994843
-      physics: correct
-      push_per_sec: 2962967.0013772463
-      reason: ''
+        emit_x: 2.9502945813846944e-09
+        emit_y: 2.98314992162808e-09
+        sigma_pe: 1.1327945253180029e-05
+        sigma_px: 4.957695407706987e-06
+        sigma_py: 4.959162210332353e-06
+        sigma_t: 0.000996755622686441
+        sigma_x: 0.0010206775826139282
+        sigma_y: 0.001025291580769045
+        xpx: 4.111140060249157e-09
+        ypy: 4.117504604634644e-09
+      physics: incorrect
+      push_per_sec: 2984286.1517394315
+      reason: emit_y off by 3760.34%
       scenario: spacecharge
       status: supported
-      track_ns: 33749954
+      track_ns: 33508851
     spacecharge_1000000:
       cores: 4r x 1t
       model: null
       npart: 1000000
       observables:
-        emit_x: 1.0027936286122497e-07
-        emit_y: 1.0056550265576524e-07
-        sigma_t: 0.000999963576363106
-        sigma_x: 0.0019765720801793764
-        sigma_y: 0.0019809698727126152
-      physics: correct
-      push_per_sec: 14364178.405049318
-      reason: ''
+        emit_x: 2.800517411710251e-09
+        emit_y: 2.7816416463575727e-09
+        sigma_pe: 1.1039592137083616e-05
+        sigma_px: 4.7513316877590305e-06
+        sigma_py: 4.739649196739004e-06
+        sigma_t: 0.0009999625372884688
+        sigma_x: 0.0010240227353914145
+        sigma_y: 0.0010246046667434082
+        xpx: 3.9786827989103635e-09
+        ypy: 3.980677815892858e-09
+      physics: incorrect
+      push_per_sec: 13804768.763496922
+      reason: emit_x off by 3524.01%
       scenario: spacecharge
       status: supported
-      track_ns: 69617626
+      track_ns: 72438736
     spacecharge_2p5d_1000:
       cores: 1r x 1t
       model: null
@@ -17763,70 +18072,69 @@ results:
       scenario: htu_spin
       status: unsupported_physics
       track_ns: null
-    spacecharge_1000:
-      cores: 1r x 64t
-      model: null
-      npart: 1000
-      observables:
-        emit_x: 9.999826998002093e-08
-        emit_y: 1.000010902941746e-07
-        sigma_t: 0.0010000115010244761
-        sigma_x: 0.001923797571770282
-        sigma_y: 0.0019238037646278883
-      physics: correct
-      push_per_sec: 48029.387837594964
-      reason: ''
-      scenario: spacecharge
-      status: supported
-      track_ns: 20820586
     spacecharge_10000:
       cores: 1r x 64t
       model: null
       npart: 10000
       observables:
-        emit_x: 1.0000049379943782e-07
-        emit_y: 9.999989194211111e-08
-        sigma_t: 0.001000006216546879
-        sigma_x: 0.0019237814744749299
-        sigma_y: 0.001923786509040198
-      physics: correct
-      push_per_sec: 476399.2978827148
-      reason: ''
+        emit_x: 4.863541364676764e-11
+        emit_y: 4.862671734313884e-11
+        sigma_pe: 1.0267018762758612e-07
+        sigma_px: 1.0127852876879971e-07
+        sigma_py: 1.0128084863925395e-07
+        sigma_t: 0.001000000001186994
+        sigma_x: 0.0010002842891572417
+        sigma_y: 0.0010002843128492616
+        xpx: 8.886939776600136e-11
+        ypy: 8.887680431498126e-11
+      physics: incorrect
+      push_per_sec: 493551.25924668286
+      reason: sigma_pe off by 94.66%
       scenario: spacecharge
       status: supported
-      track_ns: 20990795
+      track_ns: 20261320
     spacecharge_100000:
       cores: 1r x 64t
       model: null
       npart: 100000
       observables:
-        emit_x: 9.999987546279268e-08
-        emit_y: 9.999951677395911e-08
-        sigma_t: 0.0009999993785829338
-        sigma_x: 0.0019237853057535162
-        sigma_y: 0.0019237849246983494
-      physics: correct
-      push_per_sec: 4739282.137143261
-      reason: ''
+        emit_x: 4.780003073269364e-11
+        emit_y: 4.742527585577733e-11
+        sigma_pe: 1.0259325795160478e-07
+        sigma_px: 1.0088822020951782e-07
+        sigma_py: 1.0083426568674882e-07
+        sigma_t: 0.0010000000011819812
+        sigma_x: 0.0010002843185170527
+        sigma_y: 0.0010002847646417294
+        xpx: 8.887844899485921e-11
+        ypy: 8.901788521448534e-11
+      physics: incorrect
+      push_per_sec: 4685870.708111444
+      reason: sigma_pe off by 94.67%
       scenario: spacecharge
       status: supported
-      track_ns: 21100242
+      track_ns: 21340751
     spacecharge_1000000:
       cores: 1r x 64t
       model: null
       npart: 1000000
       observables:
-        emit_x: 1.0000004466495702e-07
-        emit_y: 1.000000357078411e-07
-        sigma_t: 0.0009999999318732475
-        sigma_x: 0.0019237860176837666
-        sigma_y: 0.0019237857087673685
-      physics: correct
-      push_per_sec: 37499925.00015
-      reason: ''
+        emit_x: 4.7597973138428496e-11
+        emit_y: 4.7556010173069486e-11
+        sigma_pe: 1.0252709769710316e-07
+        sigma_px: 1.0082336374422898e-07
+        sigma_py: 1.0081722423841263e-07
+        sigma_t: 0.00100000000118285
+        sigma_x: 0.0010002844299351358
+        sigma_y: 0.0010002844795043524
+        xpx: 8.89132561110129e-11
+        ypy: 8.89287489263878e-11
+      physics: incorrect
+      push_per_sec: 37205967.28650444
+      reason: sigma_pe off by 94.67%
       scenario: spacecharge
       status: supported
-      track_ns: 26666720
+      track_ns: 26877409
     spacecharge_2p5d_1000:
       cores: 8r x 8t
       model: null
@@ -18273,33 +18581,43 @@ results:
       model: null
       npart: 100000
       observables:
-        emit_x: 9.999987546279344e-08
-        emit_y: 9.999951677395936e-08
-        sigma_t: 0.0009999993785829338
-        sigma_x: 0.001923785305753517
-        sigma_y: 0.0019237849246983496
-      physics: correct
-      push_per_sec: 118805623.3077624
-      reason: ''
+        emit_x: 4.780003073269356e-11
+        emit_y: 4.742527585577736e-11
+        sigma_pe: 1.0259325795160479e-07
+        sigma_px: 1.0088822020951778e-07
+        sigma_py: 1.0083426568674877e-07
+        sigma_t: 0.0010000000011819814
+        sigma_x: 0.0010002843185170525
+        sigma_y: 0.0010002847646417299
+        xpx: 8.887844899485919e-11
+        ypy: 8.901788521448532e-11
+      physics: incorrect
+      push_per_sec: 117161459.03508165
+      reason: sigma_pe off by 94.67%
       scenario: spacecharge
       status: supported
-      track_ns: 841711
+      track_ns: 853523
     spacecharge_1000000:
       cores: 1r x 1t
       model: null
       npart: 1000000
       observables:
-        emit_x: 1.0000004466495777e-07
-        emit_y: 1.000000357078411e-07
-        sigma_t: 0.0009999999318732475
-        sigma_x: 0.0019237860176837655
-        sigma_y: 0.0019237857087673687
-      physics: correct
-      push_per_sec: 612831465.2187502
-      reason: ''
+        emit_x: 4.759797313842844e-11
+        emit_y: 4.755601017306963e-11
+        sigma_pe: 1.0252709769710259e-07
+        sigma_px: 1.0082336374422896e-07
+        sigma_py: 1.0081722423841266e-07
+        sigma_t: 0.0010000000011828496
+        sigma_x: 0.001000284429935136
+        sigma_y: 0.0010002844795043526
+        xpx: 8.891325611101294e-11
+        ypy: 8.892874892638779e-11
+      physics: incorrect
+      push_per_sec: 614238163.4770303
+      reason: sigma_pe off by 94.67%
       scenario: spacecharge
       status: supported
-      track_ns: 1631770
+      track_ns: 1628033
     spacecharge_1000000000:
       cores: null
       model: null
@@ -18317,33 +18635,43 @@ results:
       model: null
       npart: 16000000
       observables:
-        emit_x: 1.0000001091823474e-07
-        emit_y: 1.0000000649079986e-07
-        sigma_t: 0.001000000216781569
-        sigma_x: 0.0019237857602153589
-        sigma_y: 0.0019237856930426217
-      physics: correct
-      push_per_sec: 1335499736.4892082
-      reason: ''
+        emit_x: 4.753149804764538e-11
+        emit_y: 4.7539152507148524e-11
+        sigma_pe: 1.0251251962658137e-07
+        sigma_px: 1.0080117442942678e-07
+        sigma_py: 1.0080180939375915e-07
+        sigma_t: 0.0010000000011828165
+        sigma_x: 0.001000284463200797
+        sigma_y: 0.0010002844524099202
+        xpx: 8.892364743399414e-11
+        ypy: 8.892027453122856e-11
+      physics: incorrect
+      push_per_sec: 1310268888.4677832
+      reason: sigma_pe off by 94.67%
       scenario: spacecharge
       status: supported
-      track_ns: 11980534
+      track_ns: 12211234
     spacecharge_256000000:
       cores: 1r x 1t
       model: null
       npart: 256000000
       observables:
-        emit_x: 1.0000002078047073e-07
-        emit_y: 1.00000030493628e-07
-        sigma_t: 0.0010000001625212333
-        sigma_x: 0.0019237857607645032
-        sigma_y: 0.0019237857750346427
-      physics: correct
-      push_per_sec: 1637357686.9140058
-      reason: ''
+        emit_x: 4.7515393526061134e-11
+        emit_y: 4.7520021645479354e-11
+        sigma_pe: 1.0251096745483714e-07
+        sigma_px: 1.0079610433435635e-07
+        sigma_py: 1.0079672748578462e-07
+        sigma_t: 0.001000000001182676
+        sigma_x: 0.0010002844723467957
+        sigma_y: 0.0010002844666934915
+        xpx: 8.892650473631312e-11
+        ypy: 8.892473777753437e-11
+      physics: incorrect
+      push_per_sec: 1638256399.6182454
+      reason: sigma_pe off by 94.67%
       scenario: spacecharge
       status: supported
-      track_ns: 156349466
+      track_ns: 156263696
     spacecharge_2p5d_100000:
       cores: 1r x 1t
       model: null
@@ -18457,33 +18785,43 @@ results:
       model: null
       npart: 4000000
       observables:
-        emit_x: 9.999999853366007e-08
-        emit_y: 1.0000006514973083e-07
-        sigma_t: 0.0010000006201030527
-        sigma_x: 0.0019237855437898496
-        sigma_y: 0.0019237855232697618
-      physics: correct
-      push_per_sec: 1042001789.6380738
-      reason: ''
+        emit_x: 4.741799905003722e-11
+        emit_y: 4.745866349809608e-11
+        sigma_pe: 1.0245376907411064e-07
+        sigma_px: 1.0074029313862824e-07
+        sigma_py: 1.0074543553722142e-07
+        sigma_t: 0.001000000001182684
+        sigma_x: 0.0010002844362632679
+        sigma_y: 0.001000284385479191
+        xpx: 8.891520743001502e-11
+        ypy: 8.889933455017772e-11
+      physics: incorrect
+      push_per_sec: 1023237467.0677415
+      reason: sigma_pe off by 94.68%
       scenario: spacecharge
       status: supported
-      track_ns: 3838765
+      track_ns: 3909161
     spacecharge_64000000:
       cores: 1r x 1t
       model: null
       npart: 64000000
       observables:
-        emit_x: 1.0000002909800499e-07
-        emit_y: 1.0000003360666095e-07
-        sigma_t: 0.001000000186663087
-        sigma_x: 0.0019237857789341857
-        sigma_y: 0.0019237858062803837
-      physics: correct
-      push_per_sec: 1606747455.6024296
-      reason: ''
+        emit_x: 4.753622075336417e-11
+        emit_y: 4.7516038690975336e-11
+        sigma_pe: 1.0251833993908231e-07
+        sigma_px: 1.0080299619844535e-07
+        sigma_py: 1.0079999506387308e-07
+        sigma_t: 0.0010000000011826803
+        sigma_x: 0.0010002844617325172
+        sigma_y: 0.0010002844853608725
+        xpx: 8.892318905366237e-11
+        ypy: 8.893057404752653e-11
+      physics: incorrect
+      push_per_sec: 1607645479.6073687
+      reason: sigma_pe off by 94.67%
       scenario: spacecharge
       status: supported
-      track_ns: 39832022
+      track_ns: 39809772
   xsuite-cpu-dp:
     fodo_chromatic_1000:
       cores: 1r x 32t
@@ -18745,78 +19083,75 @@ results:
       scenario: htu_spin
       status: supported
       track_ns: 581329685
-    spacecharge_1000:
-      cores: 1r x 8t
-      model: null
-      npart: 1000
-      observables:
-        emit_x: 1.0217411396720907e-07
-        emit_y: 1.0086026133878881e-07
-        mean_x: 7.235369701907907e-05
-        mean_y: 2.6604580874156265e-05
-        sigma_t: 0.00102938438686376
-        sigma_x: 0.0019790621914735212
-        sigma_y: 0.001948270811050643
-      physics: correct
-      push_per_sec: 15434.775793906601
-      reason: ''
-      scenario: spacecharge
-      status: supported
-      track_ns: 64788761
     spacecharge_10000:
       cores: 1r x 8t
       model: null
       npart: 10000
       observables:
-        emit_x: 1.0017675482382985e-07
-        emit_y: 9.887865153570822e-08
-        mean_x: 7.435515939848364e-06
-        mean_y: -1.4662666989346775e-06
-        sigma_t: 0.0009907530930664376
-        sigma_x: 0.001930266996692125
-        sigma_y: 0.0019216363371084026
+        emit_x: 8.003332437538393e-11
+        emit_y: 7.968766955511325e-11
+        mean_x: 1.536343063904554e-05
+        mean_y: 4.934064106478672e-06
+        sigma_pe: 1.9901370484761748e-06
+        sigma_px: 1.5814267195110245e-07
+        sigma_py: 1.581631119664073e-07
+        sigma_t: 0.0009907517136367597
+        sigma_x: 0.0009954808834119239
+        sigma_y: 0.0009877473921662448
+        xpx: 1.3556638339881752e-10
+        ypy: 1.3437331903184124e-10
       physics: correct
-      push_per_sec: 152185.97345103518
+      push_per_sec: 148068.17597790182
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 65709078
+      track_ns: 67536457
     spacecharge_100000:
-      cores: 1r x 32t
+      cores: 1r x 8t
       model: null
       npart: 100000
       observables:
-        emit_x: 9.961973721250278e-08
-        emit_y: 1.0008307802503675e-07
-        mean_x: -8.159327499275147e-06
-        mean_y: 9.284076281090051e-06
-        sigma_t: 0.0009967553191830836
-        sigma_x: 0.001924500034706601
-        sigma_y: 0.0019263357611624915
+        emit_x: 7.613473655612404e-11
+        emit_y: 7.7040330070084e-11
+        mean_x: 9.512679137046669e-06
+        mean_y: -3.842201528028251e-06
+        sigma_pe: 1.9063842427474952e-06
+        sigma_px: 1.5453913429638198e-07
+        sigma_py: 1.5454687937694763e-07
+        sigma_t: 0.0009967553862725636
+        sigma_x: 0.0009950712646163613
+        sigma_y: 0.0009997630516610006
+        xpx: 1.3360765910199136e-10
+        ypy: 1.3393359515403425e-10
       physics: correct
-      push_per_sec: 1481955.2680694063
+      push_per_sec: 1408276.23665102
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 67478420
+      track_ns: 71008796
     spacecharge_1000000:
-      cores: 1r x 16t
+      cores: 1r x 64t
       model: null
       npart: 1000000
       observables:
-        emit_x: 9.994228201906033e-08
-        emit_y: 1.002354126815787e-07
-        mean_x: 2.270354562677813e-06
-        mean_y: -3.875453404880658e-06
-        sigma_t: 0.0009999628974824305
-        sigma_x: 0.0019235379393714933
-        sigma_y: 0.0019280750958353392
+        emit_x: 7.589054532337246e-11
+        emit_y: 7.554108108073712e-11
+        mean_x: 1.126376217201293e-06
+        mean_y: -1.0342032599693109e-06
+        sigma_pe: 1.891098807071043e-06
+        sigma_px: 1.5339512371394022e-07
+        sigma_py: 1.5340231332469503e-07
+        sigma_t: 0.0009999623047895617
+        sigma_x: 0.0009993098066645315
+        sigma_y: 0.0009998910837138175
+        xpx: 1.331849080489047e-10
+        ypy: 1.3349415338069833e-10
       physics: correct
-      push_per_sec: 11606026.916929746
+      push_per_sec: 8220000.0822
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 86162130
+      track_ns: 121654500
     spacecharge_2p5d_1000:
       cores: 1r x 32t
       model: null
@@ -19150,78 +19485,75 @@ results:
       scenario: htu_spin
       status: supported
       track_ns: 462218177
-    spacecharge_1000:
-      cores: 1r x 16t
-      model: null
-      npart: 1000
-      observables:
-        emit_x: 1.0217411396720907e-07
-        emit_y: 1.0086026133878881e-07
-        mean_x: 7.235369701907904e-05
-        mean_y: 2.6604580874156272e-05
-        sigma_t: 0.0010293843868637604
-        sigma_x: 0.0019790621914735212
-        sigma_y: 0.001948270811050643
-      physics: correct
-      push_per_sec: 14964.563987300891
-      reason: ''
-      scenario: spacecharge
-      status: supported
-      track_ns: 66824533
     spacecharge_10000:
       cores: 1r x 8t
       model: null
       npart: 10000
       observables:
-        emit_x: 1.0017675482382985e-07
-        emit_y: 9.887865153570822e-08
-        mean_x: 7.435515939848353e-06
-        mean_y: -1.4662666989346817e-06
-        sigma_t: 0.0009907530930664437
-        sigma_x: 0.001930266996692125
-        sigma_y: 0.0019216363371084026
+        emit_x: 8.003332437538516e-11
+        emit_y: 7.968766955511366e-11
+        mean_x: 1.536343063904554e-05
+        mean_y: 4.934064106478672e-06
+        sigma_pe: 1.9901370484762756e-06
+        sigma_px: 1.5814267195110321e-07
+        sigma_py: 1.581631119664078e-07
+        sigma_t: 0.0009907517136367597
+        sigma_x: 0.0009954808834119239
+        sigma_y: 0.0009877473921662448
+        xpx: 1.355663833988177e-10
+        ypy: 1.3437331903184155e-10
       physics: correct
-      push_per_sec: 153111.8388891087
+      push_per_sec: 152794.97379100177
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 65311736
+      track_ns: 65447179
     spacecharge_100000:
-      cores: 1r x 16t
+      cores: 1r x 8t
       model: null
       npart: 100000
       observables:
-        emit_x: 9.961973721250278e-08
-        emit_y: 1.0008307802503675e-07
-        mean_x: -8.159327499275147e-06
-        mean_y: 9.284076281090051e-06
-        sigma_t: 0.0009967553191830808
-        sigma_x: 0.001924500034706601
-        sigma_y: 0.0019263357611624915
+        emit_x: 7.613473655612449e-11
+        emit_y: 7.704033007008441e-11
+        mean_x: 9.512679137046669e-06
+        mean_y: -3.842201528028251e-06
+        sigma_pe: 1.9063842427475056e-06
+        sigma_px: 1.5453913429638227e-07
+        sigma_py: 1.5454687937694792e-07
+        sigma_t: 0.0009967553862725625
+        sigma_x: 0.0009950712646163613
+        sigma_y: 0.0009997630516610006
+        xpx: 1.3360765910199144e-10
+        ypy: 1.3393359515403435e-10
       physics: correct
-      push_per_sec: 1477172.863672721
+      push_per_sec: 1357750.152600934
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 67696884
+      track_ns: 73651253
     spacecharge_1000000:
       cores: 1r x 32t
       model: null
       npart: 1000000
       observables:
-        emit_x: 9.994228201906033e-08
-        emit_y: 1.002354126815787e-07
-        mean_x: 2.270354562677815e-06
-        mean_y: -3.875453404880659e-06
-        sigma_t: 0.000999962897482431
-        sigma_x: 0.0019235379393714933
-        sigma_y: 0.0019280750958353392
+        emit_x: 7.589054532337249e-11
+        emit_y: 7.554108108073726e-11
+        mean_x: 1.126376217201293e-06
+        mean_y: -1.0342032599693109e-06
+        sigma_pe: 1.8910988070710415e-06
+        sigma_px: 1.5339512371394033e-07
+        sigma_py: 1.5340231332469513e-07
+        sigma_t: 0.0009999623047895606
+        sigma_x: 0.0009993098066645315
+        sigma_y: 0.0009998910837138175
+        xpx: 1.331849080489048e-10
+        ypy: 1.3349415338069838e-10
       physics: correct
-      push_per_sec: 11900650.938234823
+      push_per_sec: 9745809.694100378
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 84029017
+      track_ns: 102608201
     spacecharge_2p5d_1000:
       cores: 1r x 16t
       model: null
@@ -19721,37 +20053,47 @@ results:
       model: null
       npart: 100000
       observables:
-        emit_x: 9.961973721250278e-08
-        emit_y: 1.00083078025037e-07
-        mean_x: -8.159327499275147e-06
-        mean_y: 9.284076281090054e-06
-        sigma_t: 0.0009967553191830808
-        sigma_x: 0.001924500034706601
-        sigma_y: 0.0019263357611624915
+        emit_x: 7.613473655706471e-11
+        emit_y: 7.704033007103592e-11
+        mean_x: 9.512679137046669e-06
+        mean_y: -3.842201528028251e-06
+        sigma_pe: 1.9063842427705974e-06
+        sigma_px: 1.545391342982913e-07
+        sigma_py: 1.5454687937885706e-07
+        sigma_t: 0.0009967553862725625
+        sigma_x: 0.0009950712646163613
+        sigma_y: 0.0009997630516610006
+        xpx: 1.3360765910364208e-10
+        ypy: 1.3393359515568897e-10
       physics: correct
-      push_per_sec: 28636056.05908878
+      push_per_sec: 28075534.417797644
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 3492101
+      track_ns: 3561820
     spacecharge_1000000:
       cores: 1r x 1t
       model: null
       npart: 1000000
       observables:
-        emit_x: 9.994228201905983e-08
-        emit_y: 1.002354126815792e-07
-        mean_x: 2.270354562677814e-06
-        mean_y: -3.875453404880659e-06
-        sigma_t: 0.000999962897482431
-        sigma_x: 0.0019235379393714933
-        sigma_y: 0.0019280750958353392
+        emit_x: 7.589054532430963e-11
+        emit_y: 7.554108108167013e-11
+        mean_x: 1.126376217201293e-06
+        mean_y: -1.0342032599693109e-06
+        sigma_pe: 1.8910988070944205e-06
+        sigma_px: 1.5339512371583522e-07
+        sigma_py: 1.5340231332659013e-07
+        sigma_t: 0.0009999623047895606
+        sigma_x: 0.0009993098066645315
+        sigma_y: 0.0009998910837138175
+        xpx: 1.3318490805055024e-10
+        ypy: 1.3349415338234763e-10
       physics: correct
-      push_per_sec: 170278732.66307083
+      push_per_sec: 149287198.41373396
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 5872724
+      track_ns: 6698498
     spacecharge_1000000000:
       cores: null
       model: null
@@ -19769,19 +20111,24 @@ results:
       model: null
       npart: 16000000
       observables:
-        emit_x: 1.0004512074699631e-07
-        emit_y: 9.9979738659516e-08
-        mean_x: -3.4288770679329837e-08
-        mean_y: -6.978975774322787e-07
-        sigma_t: 0.0009999552732653106
-        sigma_x: 0.0019237769235838286
-        sigma_y: 0.0019230858054192757
+        emit_x: 7.58295457807411e-11
+        emit_y: 7.585049409352924e-11
+        mean_x: -2.2502167813217294e-07
+        mean_y: 1.4605198184592728e-07
+        sigma_pe: 1.8924390536456784e-06
+        sigma_px: 1.5338864126166112e-07
+        sigma_py: 1.5338835709784302e-07
+        sigma_t: 0.00099995491724615
+        sigma_x: 0.0010002748558230643
+        sigma_y: 0.001000081351088694
+        xpx: 1.3338249768697686e-10
+        ypy: 1.333361123234941e-10
       physics: correct
-      push_per_sec: 358806590.4428411
-      reason: no reference
+      push_per_sec: 285289092.8880246
+      reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 44592269
+      track_ns: 56083462
     spacecharge_256000000:
       cores: null
       model: null
@@ -19913,37 +20260,47 @@ results:
       model: null
       npart: 4000000
       observables:
-        emit_x: 1.0007055017355829e-07
-        emit_y: 1.0009213246187158e-07
-        mean_x: -9.330603971076565e-07
-        mean_y: -4.570400237288339e-07
-        sigma_t: 0.000999945059509531
-        sigma_x: 0.001924686507729324
-        sigma_y: 0.0019242387408453688
+        emit_x: 7.588732641776378e-11
+        emit_y: 7.592900737961697e-11
+        mean_x: -2.835585949118025e-07
+        mean_y: -1.2655569458760641e-06
+        sigma_pe: 1.8946220079774808e-06
+        sigma_px: 1.534394724776887e-07
+        sigma_py: 1.5343905993336062e-07
+        sigma_t: 0.0009999446306818889
+        sigma_x: 0.0010000699629077968
+        sigma_y: 0.001000486631396093
+        xpx: 1.3337196064429586e-10
+        ypy: 1.3342132731832646e-10
       physics: correct
-      push_per_sec: 298763351.2673504
-      reason: no reference
+      push_per_sec: 240575861.62846282
+      reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 13388523
+      track_ns: 16626772
     spacecharge_64000000:
       cores: 1r x 1t
       model: null
       npart: 64000000
       observables:
-        emit_x: 1.0000620164352553e-07
-        emit_y: 9.998545315217583e-08
-        mean_x: -2.513553252932337e-07
-        mean_y: -3.886250946048743e-07
-        sigma_t: 0.00100004458608484
-        sigma_x: 0.001923473272118977
-        sigma_y: 0.0019233316196245432
+        emit_x: 7.58602868827365e-11
+        emit_y: 7.586161813079376e-11
+        mean_x: -6.051687583474918e-08
+        mean_y: -2.5870404822057746e-08
+        sigma_pe: 1.8926538789780263e-06
+        sigma_px: 1.534176531390545e-07
+        sigma_py: 1.5341734087842454e-07
+        sigma_t: 0.0010000444932718052
+        sigma_x: 0.0010000884804659482
+        sigma_y: 0.000999978054931438
+        xpx: 1.3336550707843988e-10
+        ypy: 1.3334489998199232e-10
       physics: correct
-      push_per_sec: 413592623.337747
-      reason: no reference
+      push_per_sec: 340451741.2662306
+      reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 154741638
+      track_ns: 187985527
   xsuite-cuda-dp-fm:
     fodo_chromatic_100000:
       cores: 1r x 1t
@@ -20371,37 +20728,47 @@ results:
       model: null
       npart: 100000
       observables:
-        emit_x: 9.961973721250278e-08
-        emit_y: 1.00083078025037e-07
-        mean_x: -8.159327499275147e-06
-        mean_y: 9.284076281090054e-06
-        sigma_t: 0.0009967553191830808
-        sigma_x: 0.001924500034706601
-        sigma_y: 0.0019263357611624915
+        emit_x: 7.613473655706469e-11
+        emit_y: 7.704033007103588e-11
+        mean_x: 9.512679137046669e-06
+        mean_y: -3.842201528028251e-06
+        sigma_pe: 1.9063842427705974e-06
+        sigma_px: 1.5453913429829127e-07
+        sigma_py: 1.5454687937885703e-07
+        sigma_t: 0.0009967553862725625
+        sigma_x: 0.0009950712646163613
+        sigma_y: 0.0009997630516610006
+        xpx: 1.3360765910364208e-10
+        ypy: 1.3393359515568897e-10
       physics: correct
-      push_per_sec: 28191901.14340713
+      push_per_sec: 27977271.264824454
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 3547118
+      track_ns: 3574330
     spacecharge_1000000:
       cores: 1r x 1t
       model: null
       npart: 1000000
       observables:
-        emit_x: 9.994228201905983e-08
-        emit_y: 1.002354126815792e-07
-        mean_x: 2.270354562677814e-06
-        mean_y: -3.875453404880659e-06
-        sigma_t: 0.000999962897482431
-        sigma_x: 0.0019235379393714933
-        sigma_y: 0.0019280750958353392
+        emit_x: 7.589054532430966e-11
+        emit_y: 7.554108108167013e-11
+        mean_x: 1.126376217201293e-06
+        mean_y: -1.0342032599693109e-06
+        sigma_pe: 1.8910988070944209e-06
+        sigma_px: 1.5339512371583525e-07
+        sigma_py: 1.5340231332659013e-07
+        sigma_t: 0.0009999623047895606
+        sigma_x: 0.0009993098066645315
+        sigma_y: 0.0009998910837138175
+        xpx: 1.3318490805055024e-10
+        ypy: 1.3349415338234763e-10
       physics: correct
-      push_per_sec: 171748534.0403877
+      push_per_sec: 150780644.1680836
       reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 5822466
+      track_ns: 6632151
     spacecharge_1000000000:
       cores: null
       model: null
@@ -20419,19 +20786,24 @@ results:
       model: null
       npart: 16000000
       observables:
-        emit_x: 1.0004512074699631e-07
-        emit_y: 9.9979738659516e-08
-        mean_x: -3.4288770679329837e-08
-        mean_y: -6.978975774322787e-07
-        sigma_t: 0.0009999552732653106
-        sigma_x: 0.0019237769235838286
-        sigma_y: 0.0019230858054192757
+        emit_x: 7.58295457807411e-11
+        emit_y: 7.585049409352924e-11
+        mean_x: -2.2502167813217294e-07
+        mean_y: 1.4605198184592728e-07
+        sigma_pe: 1.8924390536456782e-06
+        sigma_px: 1.5338864126166112e-07
+        sigma_py: 1.5338835709784302e-07
+        sigma_t: 0.00099995491724615
+        sigma_x: 0.0010002748558230643
+        sigma_y: 0.001000081351088694
+        xpx: 1.3338249768697686e-10
+        ypy: 1.333361123234941e-10
       physics: correct
-      push_per_sec: 338113340.2407071
-      reason: no reference
+      push_per_sec: 296342673.9247655
+      reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 47321410
+      track_ns: 53991549
     spacecharge_256000000:
       cores: null
       model: null
@@ -20563,34 +20935,44 @@ results:
       model: null
       npart: 4000000
       observables:
-        emit_x: 1.0007055017355829e-07
-        emit_y: 1.0009213246187158e-07
-        mean_x: -9.330603971076565e-07
-        mean_y: -4.570400237288339e-07
-        sigma_t: 0.000999945059509531
-        sigma_x: 0.001924686507729324
-        sigma_y: 0.0019242387408453688
+        emit_x: 7.58873264177638e-11
+        emit_y: 7.592900737961693e-11
+        mean_x: -2.835585949118025e-07
+        mean_y: -1.2655569458760641e-06
+        sigma_pe: 1.8946220079774808e-06
+        sigma_px: 1.534394724776887e-07
+        sigma_py: 1.5343905993336062e-07
+        sigma_t: 0.0009999446306818889
+        sigma_x: 0.0010000699629077968
+        sigma_y: 0.001000486631396093
+        xpx: 1.3337196064429586e-10
+        ypy: 1.334213273183265e-10
       physics: correct
-      push_per_sec: 286616883.22482973
-      reason: no reference
+      push_per_sec: 260202457.0267511
+      reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 13955912
+      track_ns: 15372645
     spacecharge_64000000:
       cores: 1r x 1t
       model: null
       npart: 64000000
       observables:
-        emit_x: 1.0000620164352553e-07
-        emit_y: 9.998545315217583e-08
-        mean_x: -2.513553252932337e-07
-        mean_y: -3.886250946048743e-07
-        sigma_t: 0.00100004458608484
-        sigma_x: 0.001923473272118977
-        sigma_y: 0.0019233316196245432
+        emit_x: 7.586028688273653e-11
+        emit_y: 7.586161813079376e-11
+        mean_x: -6.051687583474918e-08
+        mean_y: -2.5870404822057746e-08
+        sigma_pe: 1.8926538789780263e-06
+        sigma_px: 1.5341765313905453e-07
+        sigma_py: 1.5341734087842454e-07
+        sigma_t: 0.0010000444932718052
+        sigma_x: 0.0010000884804659482
+        sigma_y: 0.000999978054931438
+        xpx: 1.3336550707843988e-10
+        ypy: 1.3334489998199232e-10
       physics: correct
-      push_per_sec: 413788193.2806203
-      reason: no reference
+      push_per_sec: 340418156.79174143
+      reason: ''
       scenario: spacecharge
       status: supported
-      track_ns: 154668502
+      track_ns: 188004073

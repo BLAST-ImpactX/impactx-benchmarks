@@ -1,0 +1,30 @@
+! Auto-generated Elegant command file: elegant / fodo_chromatic
+! Beam + reference matched to the ImpactX reference (untruncated Gaussian; same twiss).
+! p_central_mev = pc in MeV = sqrt((T+m)^2 - m^2). The lattice (beamline "BL") is in elegant__fodo_chromatic.lte.
+&run_setup
+    lattice = "elegant__fodo_chromatic.lte",
+    use_beamline = "BL",
+    p_central_mev = 100.5096999803402,
+    default_order = 3,
+    final = "%s.fin",
+&end
+
+&run_control n_passes = 1 &end
+
+! Uncorrelated 6-D Gaussian: transverse from (emit, beta, alpha); longitudinal from sigma_s/sigma_dp
+! directly (alpha_z = 0, matching ImpactX beta_t = sigma_t/sigma_p, emitt_t = sigma_t*sigma_p).
+! distribution_cutoff huge => untruncated Gaussian (ImpactX distribution.Gaussian is not truncated).
+&bunched_beam
+    n_particles_per_bunch = 16000000,
+    emit_x = 1e-09, beta_x = 1.0, alpha_x = 0.0,
+    emit_y = 1e-09, beta_y = 1.0, alpha_y = 0.0,
+    sigma_dp = 0.01,
+    sigma_s = 0.001,
+    ! mean fractional momentum offset (htu: mu_p=1%); coord 5 is delta=(p-p0)/p0, matching
+    ! ImpactX meanPt=-mu_p (both = higher momentum). 0 for scenarios without mu_p (e.g. FODO).
+    centroid[5] = 0.0,
+    distribution_type[0] = 3*"gaussian",
+    distribution_cutoff[0] = 3*100,
+&end
+
+&track &end

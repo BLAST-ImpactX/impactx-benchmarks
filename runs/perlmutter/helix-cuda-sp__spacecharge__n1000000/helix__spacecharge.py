@@ -7,7 +7,6 @@
 # Hockney zero-padding + FFT, CIC deposition, and a longitudinal Lorentz boost to the rest frame.
 # It runs on CPU or CUDA at float32/float64 -- the dtype/device are threaded through the whole solve
 # (Green's function, density, FFT), so an SP run is genuinely single precision end-to-end.
-# Validated vs ImpactX-DP: sigma_x/y/emit agree to ~0.3% (loose SC tolerance).
 #
 # FAIRNESS: exactly ONE space-charge field solve, applied as a single ASYMMETRIC kick->drift over the
 # full drift length -- matching ImpactX's single-kick cadence. We deliberately do NOT use HELIX's
@@ -27,13 +26,13 @@ from linac_gen.core.particle import Particle
 from linac_gen.core.reference import ReferenceParticle
 from linac_gen.pic.torch.sc_kick import torch_pic_sc_kick
 
-from scenarios._obs import Timer, beam_observables, gaussian_twiss_plane
+from scenarios._obs import Timer, beam_observables, gaussian_twiss_plane, momentum_observables
 
 torch.set_num_threads(1)
 dtype = torch.float32
 device = "cuda"
 
-p = {'mass_MeV': 0.51099895069, 'kin_energy_MeV': 250.0, 'bunch_charge_C': 1e-09, 'emit_x': 1e-07, 'emit_y': 1e-07, 'beta_x': 1.0, 'beta_y': 1.0, 'alpha_x': 0.0, 'alpha_y': 0.0, 'sigma_t': 0.001, 'sigma_p': 0.0001, 'drift_length': 6.0, 'n_cell': 64, 'grid_extent_sigma': 3.0}
+p = {'mass_MeV': 0.51099895069, 'kin_energy_MeV': 250.0, 'bunch_charge_C': 1e-09, 'emit_x': 1.5533051715234088e-12, 'emit_y': 1.5533051715234088e-12, 'beta_x': 643788.4958686174, 'beta_y': 643788.4958686174, 'alpha_x': 0.0, 'alpha_y': 0.0, 'sigma_t': 0.001, 'sigma_p': 1.9241656871487193e-08, 'drift_length': 6.4, 'n_cell': 64, 'grid_extent_sigma': 5.0}
 npart = 1000000
 n = int(p["n_cell"])
 ext = float(p["grid_extent_sigma"])           # grid half-width in beam sigmas (matches Cheetah's box)
@@ -92,6 +91,11 @@ obs = beam_observables(
     Xf[:, 0] * 1e-3, Xf[:, 1] * 1e-3, Xf[:, 2] * 1e-3, Xf[:, 3] * 1e-3,     # x,x',y,y' -> m, rad
     tau=-Xf[:, 4] * (beta * wavelength_m / 360.0),                          # dphi[deg] -> z_lab[m]
 )
+# HELIX tracks slopes; on this cold beam x' equals px/p0 up to the relative momentum spread (~1e-6).
+obs.update(momentum_observables(
+    Xf[:, 0] * 1e-3, Xf[:, 1] * 1e-3, Xf[:, 2] * 1e-3, Xf[:, 3] * 1e-3,
+    Xf[:, 5] / (gamma * beta * mass_MeV),                                   # dW[MeV] -> dE/(p0 c)
+))
 
 print(f"Track: {t.ns}ns")
 print("Validate: " + json.dumps(obs))
