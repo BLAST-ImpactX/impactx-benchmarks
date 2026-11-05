@@ -264,14 +264,61 @@ space-charge scenarios). A run that does not report a validated observable fails
 codes (Cheetah `torch.compile`, Xsuite cffi kernels, SciBmad/Julia) are measured at
 steady state, never including compilation.
 
-## Extending
+## Extending and Updating
 
-* **New scenario** — add `scenarios/<name>/params.py` (a `PARAMS` dict; optional
-  `analytic_observables()`), register it in `benchmarks/registry.py:SCENARIOS`, and add
-  `codes/<code>/<name>.<ext>.jinja` for each code that supports it.
-* **New code** — add a `[feature.<code>]` environment in `pixi.toml`, an entry in
-  `benchmarks/registry.py:CODES` (capabilities, parallelism, launcher), configs in `CONFIGS`,
-  a `codes/<code>/build.*` if it builds from source, and the run templates.
+Code authors are welcome to improve how their code runs here. If there's a faster solver, a better
+build option or a more idiomatic input we missed, please open a PR, or an issue if you'd rather we
+make the change.
+
+### Improving your code's benchmark
+
+**Where things live:**
+* **Inputs:** `codes/<code>/<scenario>.<ext>.jinja`, one template per scenario. To see exactly what
+  ran on Perlmutter, open `runs/perlmutter/<config>__<scenario>__n<N>/` on the
+  [`benchmarks`](../../tree/benchmarks/runs/perlmutter) branch: the rendered input and its `run.sh`.
+* **Build and version:** `codes/<code>/build.*` for source builds (compiler and CMake options, the
+  git ref, any patches), or `pixi.toml` for pip and conda packages (version pins, and per-code build
+  flags under `[feature.<code>.activation.env]`). Some source builds follow a branch or a local
+  checkout rather than a release; each published result records the versions that ran.
+* **Parallelism:** `mpi_capable` and `thread_capable` on the code's entry in
+  `benchmarks/registry.py:CODES` decide which MPI × thread layouts the harness tries.
+
+**What a template gets and must do** (so the comparison stays fair):
+* It is rendered with the scenario's physics as `params`, plus `npart`, `ranks`, `threads`,
+  `device`, `precision` (`dtype`) and `fast_math`. Take the problem from `params` and the layout from
+  `ranks`, `threads` and `device`; the harness sweeps the layouts and keeps the fastest.
+* Do one untimed warm-up, then time only the tracking and print `Track: <ns>ns`. On a GPU, stop the
+  timer only after the device has finished; most Python templates use `scenarios/_obs.py:Timer`,
+  which does that.
+* After the timer, print the scenario's observables (`observables` in `SCENARIOS`) as
+  `Validate: {json}`. Print both lines once, from rank 0 under MPI; the harness reads the last of each.
+* Space charge: exactly one field solve per track (see *SC kick splitting* above).
+* FP64 with IEEE math is the baseline; FP32 and fast-math are separate configs next to it.
+
+**Test it locally**, then open a PR with the change and what you measured. We re-run it on Perlmutter
+and publish the result.
+
+```bash
+pixi run build --codes <code>
+# most scenarios validate against ImpactX's result in the same results file, so run it alongside
+pixi run bench --ncores 4 --skip-build --codes impactx,<code> --scenarios <scenario> --nparts 100000,1000000
+pixi run validate
+pixi run plot
+```
+
+### Adding a scenario or a code
+
+* **New scenario** — add `scenarios/<name>/params.py` (a `PARAMS` dict; optionally
+  `analytic_observables()` for an exact reference), register it in `benchmarks/registry.py:SCENARIOS`
+  (required capabilities, particle sweep, observables, tolerances, reference, and the method groups
+  the plots use), and add `codes/<code>/<name>.<ext>.jinja` for each code that supports it.
+* **New code** — add a `[feature.<code>]` environment in `pixi.toml` (with a `build-<code>` task if it
+  builds from source), an entry in `CODES` (repo, capabilities, parallelism, launcher,
+  `mpi_capable`/`thread_capable`), its configs in `_BASE_CONFIGS` (fast-math companions are derived
+  where the code supports fast-math), its build tasks in `benchmarks/build.py` (`BUILD_TASKS`, plus
+  `GPU_ENVS` and `EXTRA_ENVS` for GPU, FP32 and fast-math builds), and the run templates. Then add it
+  to each scenario's `method_groups`, and to `untuned_codes` or `model_mismatch_codes` where it runs a
+  different model, so the plots group and label it.
 
 Missing `(code, scenario)` templates show up honestly as **"not in harness"** placeholders, so
 coverage can grow incrementally.
